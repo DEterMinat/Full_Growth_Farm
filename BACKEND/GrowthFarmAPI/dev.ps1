@@ -41,8 +41,10 @@ if (!(Test-Path "node_modules")) {
 
 Write-Host ""
 Write-Host "🚀 Starting Express.js development server..." -ForegroundColor Cyan
-Write-Host "🌐 Server will be available at: http://localhost:8000" -ForegroundColor Yellow
-Write-Host "📚 API Documentation: http://localhost:8000" -ForegroundColor Yellow
+Write-Host "🌐 Server will be available at: http://119.59.102.61:30007" -ForegroundColor Yellow
+Write-Host "🌐 Local access: http://localhost:30007" -ForegroundColor Yellow
+Write-Host "📚 API Documentation: http://119.59.102.61:30007" -ForegroundColor Yellow
+Write-Host "💊 Health Check: http://119.59.102.61:30007/health" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Gray
 Write-Host ""

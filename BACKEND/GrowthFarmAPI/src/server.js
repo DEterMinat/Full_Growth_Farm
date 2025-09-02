@@ -20,9 +20,34 @@ const PORT = process.env.PORT || 8000;
 // Middleware
 app.use(helmet());
 app.use(morgan('combined'));
+
+// Configure CORS with multiple origins
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
+  'http://localhost:3000',
+  'http://localhost:19006',
+  `http://localhost:${PORT}`,
+  `http://119.59.102.61:${PORT}`
+];
+
 app.use(cors({
-  origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:3000'],
-  credentials: true
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any localhost requests during development
+    if (process.env.NODE_ENV === 'development' && origin.includes('localhost')) {
+      return callback(null, true);
+    }
+    
+    return callback(new Error('Not allowed by CORS'));
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
@@ -37,11 +62,24 @@ app.use('/health', healthRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
+  const host = process.env.API_SERVER_HOST || 'localhost';
+  const port = process.env.PORT || 8000;
+  
   res.json({
     message: '🌱 Growth Farm API Server',
     version: '1.0.0',
     status: 'running',
     timestamp: new Date().toISOString(),
+    server: {
+      host: host,
+      port: port,
+      url: `http://${host}:${port}`,
+      database: {
+        host: process.env.DB_HOST,
+        database: process.env.DB_NAME,
+        connected: true
+      }
+    },
     endpoints: {
       health: '/health',
       auth: '/auth',
@@ -83,18 +121,41 @@ const startServer = async () => {
     // Test database connection
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
+    console.log(`📊 Connected to database: ${process.env.DB_NAME} @ ${process.env.DB_HOST}:${process.env.DB_PORT}`);
     
     // Sync database models
     await sequelize.sync({ alter: true });
     console.log('✅ Database models synchronized.');
 
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Growth Farm API Server running on http://0.0.0.0:${PORT}`);
-      console.log(`📚 API Documentation: http://localhost:${PORT}`);
+    const host = process.env.API_SERVER_HOST || '0.0.0.0';
+    const port = PORT;
+    
+    app.listen(port, host, () => {
+      console.log('🌱 Growth Farm Express.js API Server Started!');
+      console.log('='.repeat(50));
+      console.log(`🚀 Server running on: http://${host}:${port}`);
+      console.log(`📚 API Documentation: http://${host}:${port}`);
+      console.log(`💊 Health Check: http://${host}:${port}/health`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`📊 Database: ${process.env.DB_NAME} @ ${process.env.DB_HOST}`);
+      
+      if (host !== '0.0.0.0' && host !== 'localhost') {
+        console.log(`🌐 Also accessible at: http://localhost:${port}`);
+      }
+      
+      console.log('='.repeat(50));
+      console.log('🔗 Available Endpoints:');
+      console.log(`   POST /auth/register - Register user`);
+      console.log(`   POST /auth/login - User login`);
+      console.log(`   GET  /farms - Get all farms`);
+      console.log(`   GET  /marketplace/products - Get products`);
+      console.log(`   GET  /weather - Get weather data`);
+      console.log(`   POST /ai/chat - Chat with AI`);
+      console.log('='.repeat(50));
     });
   } catch (error) {
     console.error('❌ Failed to start server:', error);
+    console.error('Check your database connection and .env configuration');
     process.exit(1);
   }
 };

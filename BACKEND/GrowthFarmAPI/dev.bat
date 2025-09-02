@@ -40,8 +40,10 @@ if not exist "node_modules\" (
 
 echo.
 echo 🚀 Starting Express.js development server...
-echo 🌐 Server will be available at: http://localhost:8000
-echo 📚 API Documentation: http://localhost:8000
+echo 🌐 Server will be available at: http://119.59.102.61:30007
+echo 🌐 Local access: http://localhost:30007
+echo 📚 API Documentation: http://119.59.102.61:30007
+echo 💊 Health Check: http://119.59.102.61:30007/health
 echo.
 echo Press Ctrl+C to stop the server
 echo.
