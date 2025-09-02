@@ -5,6 +5,7 @@ const morgan = require('morgan');
 require('dotenv').config();
 
 const { sequelize } = require('./config/database');
+const { initializeAssociations } = require('./scripts/sync-database');
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -15,7 +16,8 @@ const geminiRoutes = require('./routes/gemini');
 const healthRoutes = require('./routes/health');
 
 const app = express();
-const PORT = process.env.PORT || 8000;
+const PORT = process.env.API_SERVER_PORT || 3000;
+const HOST = process.env.API_SERVER_HOST || '0.0.0.0';
 
 // Middleware
 app.use(helmet());
@@ -118,6 +120,10 @@ app.use('*', (req, res) => {
 // Start server
 const startServer = async () => {
   try {
+    // Initialize model associations
+    console.log('🔗 Initializing database associations...');
+    initializeAssociations();
+
     // Test database connection
     await sequelize.authenticate();
     console.log('✅ Database connection established successfully.');
@@ -151,6 +157,14 @@ const startServer = async () => {
       console.log(`   GET  /marketplace/products - Get products`);
       console.log(`   GET  /weather - Get weather data`);
       console.log(`   POST /ai/chat - Chat with AI`);
+      console.log('='.repeat(50));
+      console.log('📈 Database Tables Created/Updated:');
+      console.log('   ✅ users_GrowthFarm');
+      console.log('   ✅ farms_GrowthFarm');
+      console.log('   ✅ farm_zones_GrowthFarm');
+      console.log('   ✅ marketplace_products_GrowthFarm');
+      console.log('   ✅ orders_GrowthFarm');
+      console.log('   ✅ order_items_GrowthFarm');
       console.log('='.repeat(50));
     });
   } catch (error) {

@@ -17,8 +17,8 @@ const User = sequelize.define('User', {
     }
   },
   username: {
-    type: DataTypes.STRING,
-    allowNull: false,
+    type: DataTypes.STRING(100),
+    allowNull: true,
     unique: true
   },
   password: {
@@ -26,23 +26,55 @@ const User = sequelize.define('User', {
     allowNull: false
   },
   firstName: {
-    type: DataTypes.STRING,
-    allowNull: true
+    type: DataTypes.STRING(100),
+    allowNull: false
   },
   lastName: {
-    type: DataTypes.STRING,
-    allowNull: true
+    type: DataTypes.STRING(100),
+    allowNull: false
   },
   phoneNumber: {
-    type: DataTypes.STRING,
+    type: DataTypes.STRING(20),
     allowNull: true
+  },
+  profileImage: {
+    type: DataTypes.STRING(500),
+    allowNull: true
+  },
+  role: {
+    type: DataTypes.ENUM('FARMER', 'BUYER', 'ADMIN', 'MANAGER'),
+    defaultValue: 'FARMER'
   },
   isActive: {
     type: DataTypes.BOOLEAN,
     defaultValue: true
+  },
+  dateOfBirth: {
+    type: DataTypes.DATEONLY,
+    allowNull: true
+  },
+  address: {
+    type: DataTypes.TEXT,
+    allowNull: true
+  },
+  nationality: {
+    type: DataTypes.STRING(50),
+    allowNull: true
+  },
+  idCard: {
+    type: DataTypes.STRING(20),
+    allowNull: true
+  },
+  bankAccount: {
+    type: DataTypes.JSON,
+    allowNull: true
+  },
+  preferences: {
+    type: DataTypes.JSON,
+    allowNull: true
   }
 }, {
-  tableName: 'users',
+  tableName: 'users_GrowthFarm',
   hooks: {
     beforeCreate: async (user) => {
       if (user.password) {

@@ -7,7 +7,7 @@
 - **Express.js** - Node.js Web Framework
 - **Sequelize** - ORM สำหรับ MySQL Database
 - **JWT** - Authentication และ Authorization
-- **Google Gemini AI** - AI Assistant
+- **Google Gemini AI** - AI Assistant พร้อม API Key
 - **bcryptjs** - Password Hashing
 - **Helmet** - Security Middleware
 - **CORS** - Cross-Origin Resource Sharing
@@ -34,11 +34,17 @@ npm install
 cp .env.example .env
 
 # 4. แก้ไขการตั้งค่าในไฟล์ .env
-# - ข้อมูล Database
-# - JWT Secret Key  
-# - Google Gemini API Key (optional)
+# - ตั้งค่า Server: API_SERVER_HOST=119.59.102.61, PORT=30007
+# - ข้อมูล Database: it_std6630202261
+# - JWT Secret Key (มีให้แล้ว)
+# - Google Gemini API Key (พร้อมใช้งาน)
 
-# 5. รัน development server
+# 5. ตั้งค่า Database Tables (เพิ่มขั้นตอนใหม่)
+npm run db:sync
+# หรือ
+sync-db.bat
+
+# 6. รัน development server
 npm run dev
 ```
 
@@ -119,54 +125,69 @@ GET    /health               - ตรวจสอบสถานะ API แล�
 
 ```bash
 # Server Configuration
-PORT=8000
+PORT=30007
 NODE_ENV=development
+API_SERVER_HOST=119.59.102.61
 
 # Database Configuration
 DB_HOST=localhost
-DB_USER=root
-DB_PASSWORD=your_password
-DB_NAME=growthfarm_db
+DB_USER=std6630202261
+DB_PASSWORD=M3@zWq7L
+DB_NAME=it_std6630202261
 DB_PORT=3306
 
 # JWT Configuration
-JWT_SECRET=your-super-secret-jwt-key-here
+JWT_SECRET=ZaRmuh+iTmjR0zCamIA0IYXP6F1hWH9UEeOgL8W7JIs=
 JWT_EXPIRES_IN=24h
 
-# Google Gemini AI (Optional)
-GEMINI_API_KEY=your-gemini-api-key-here
+# Google Gemini AI
+GEMINI_API_KEY=AIzaSyDIMKNsHV8ibLwfSNV5Sq4b7iEb3DFmgpk
 
 # Weather API (Optional)
 WEATHER_API_KEY=your-weather-api-key
 
 # CORS Configuration
-ALLOWED_ORIGINS=http://localhost:3000,http://localhost:19006,exp://192.168.1.100:8081
+ALLOWED_ORIGINS=http://localhost:3000,http://localhost:19006,exp://192.168.1.100:8081,http://localhost:30007,http://119.59.102.61:30007
 ```
 
 ## 📊 Database Models
 
+### 🗄️ ตารางฐานข้อมูล (ใช้ naming convention *_GrowthFarm)
+
+- **users_GrowthFarm** - ข้อมูลผู้ใช้และโปรไฟล์
+- **farms_GrowthFarm** - ข้อมูลฟาร์มและรายละเอียด  
+- **farm_zones_GrowthFarm** - โซนในฟาร์มและการจัดการพืช
+- **marketplace_products_GrowthFarm** - สินค้าในตลาดกลาง
+- **orders_GrowthFarm** - คำสั่งซื้อและธุรกรรม
+- **order_items_GrowthFarm** - รายการสินค้าในแต่ละคำสั่งซื้อ
+
 ### User Model
-- id, email, username, password
-- firstName, lastName, phoneNumber
-- isActive, createdAt, updatedAt
+- id, email, password, firstName, lastName
+- phoneNumber, profileImage, role, isActive
+- createdAt, updatedAt
 
 ### Farm Model
-- id, name, description, location
-- size, farmType, isActive
+- id, name, description, location, latitude, longitude
+- size, sizeUnit, farmType, status, establishedDate
+- certifications, images, contactInfo
 - userId (foreign key)
 
 ### FarmZone Model  
-- id, name, description, cropType
-- size, status, farmId (foreign key)
+- id, name, description, zoneType, size, sizeUnit
+- currentCrop, soilType, irrigationSystem, sensors, equipment
+- status, plantingDate, expectedHarvestDate
+- farmId, managerId (foreign keys)
 
 ### MarketplaceProduct Model
-- id, name, description, category
-- price, unit, quantity, imageUrl
-- status, sellerId (foreign key)
+- id, name, description, category, subcategory
+- price, currency, unit, quantity, minOrderQuantity
+- images, specifications, harvestDate, expirationDate
+- organicCertified, location, shippingOptions
+- status, viewCount, favoriteCount, sellerId (foreign key)
 
 ### Order & OrderItem Models
-- Order: id, orderNumber, totalAmount, status, paymentStatus
-- OrderItem: quantity, price, subtotal, productId, orderId
+- Order: id, orderNumber, totalAmount, currency, status, paymentStatus
+- OrderItem: quantity, unitPrice, totalPrice, specifications, productId, orderId
 
 ## 🛠️ Development Commands
 
@@ -174,13 +195,22 @@ ALLOWED_ORIGINS=http://localhost:3000,http://localhost:19006,exp://192.168.1.100
 # Development server with auto-reload
 npm run dev
 
+# Database synchronization (สร้าง/อัปเดตตาราง)
+npm run db:sync
+# หรือ
+sync-db.bat    # Windows
+sync-db.ps1    # PowerShell
+
+# Check database connection
+node -e "const db = require('./src/config/database'); db.authenticate().then(() => console.log('✅ Connected')).catch(err => console.error('❌ Failed:', err));"
+
 # Production server
 npm start
 
-# Run tests
+# Run tests (ถ้าได้ configure ไว้)
 npm test
 
-# Check code style (if configured)
+# Check code style (ถ้าได้ configure ไว้)
 npm run lint
 ```
 
@@ -189,7 +219,7 @@ npm run lint
 API นี้ถูกออกแบบให้ใช้งานกับ React Native Frontend ที่มีอยู่
 
 ### API Base URL
-- Development: `http://localhost:8000`
+- Development: `http://119.59.102.61:30007`
 - Production: Configure ตาม deployment
 
 ### Authentication
@@ -258,9 +288,9 @@ npm run test:coverage
 
 ## 📚 API Documentation
 
-- Server running: http://localhost:8000
-- Health check: http://localhost:8000/health
-- All endpoints: http://localhost:8000 (ดู root endpoint)
+- Server running: http://119.59.102.61:30007
+- Health check: http://119.59.102.61:30007/health
+- All endpoints: http://119.59.102.61:30007 (ดู root endpoint)
 
 ## 🤝 Contributing
 

@@ -42,7 +42,7 @@ const Farm = sequelize.define('Farm', {
     }
   }
 }, {
-  tableName: 'farms'
+  tableName: 'farms_GrowthFarm'
 });
 
 const FarmZone = sequelize.define('FarmZone', {
@@ -80,7 +80,7 @@ const FarmZone = sequelize.define('FarmZone', {
     }
   }
 }, {
-  tableName: 'farm_zones'
+  tableName: 'farm_zones_GrowthFarm'
 });
 
 // Associations

@@ -51,7 +51,7 @@ const MarketplaceProduct = sequelize.define('MarketplaceProduct', {
     }
   }
 }, {
-  tableName: 'marketplace_products'
+  tableName: 'marketplace_products_GrowthFarm'
 });
 
 const Order = sequelize.define('Order', {
@@ -94,7 +94,7 @@ const Order = sequelize.define('Order', {
     }
   }
 }, {
-  tableName: 'orders',
+  tableName: 'orders_GrowthFarm',
   hooks: {
     beforeCreate: async (order) => {
       // Generate order number
@@ -140,7 +140,7 @@ const OrderItem = sequelize.define('OrderItem', {
     }
   }
 }, {
-  tableName: 'order_items'
+  tableName: 'order_items_GrowthFarm'
 });
 
 // Associations
