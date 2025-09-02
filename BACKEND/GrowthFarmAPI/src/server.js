@@ -14,6 +14,7 @@ const marketplaceRoutes = require('./routes/marketplace');
 const weatherRoutes = require('./routes/weather');
 const geminiRoutes = require('./routes/gemini');
 const healthRoutes = require('./routes/health');
+const tablesRoutes = require('./routes/tables');
 
 const app = express();
 const PORT = process.env.API_SERVER_PORT || 3000;
@@ -61,6 +62,7 @@ app.use('/marketplace', marketplaceRoutes);
 app.use('/weather', weatherRoutes);
 app.use('/ai', geminiRoutes);
 app.use('/health', healthRoutes);
+app.use('/api/tables', tablesRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -88,7 +90,8 @@ app.get('/', (req, res) => {
       farms: '/farms',
       marketplace: '/marketplace',
       weather: '/weather',
-      ai: '/ai'
+      ai: '/ai',
+      tables: '/api/tables'
     }
   });
 });
@@ -157,6 +160,10 @@ const startServer = async () => {
       console.log(`   GET  /marketplace/products - Get products`);
       console.log(`   GET  /weather - Get weather data`);
       console.log(`   POST /ai/chat - Chat with AI`);
+      console.log(`   GET  /api/tables/all - Get all table info`);
+      console.log(`   GET  /api/tables/users - Get all users`);
+      console.log(`   GET  /api/tables/farms - Get all farms`);
+      console.log(`   GET  /api/tables/crops - Get all crops`);
       console.log('='.repeat(50));
       console.log('📈 Database Tables Created/Updated:');
       console.log('   ✅ users_GrowthFarm');
@@ -165,6 +172,16 @@ const startServer = async () => {
       console.log('   ✅ marketplace_products_GrowthFarm');
       console.log('   ✅ orders_GrowthFarm');
       console.log('   ✅ order_items_GrowthFarm');
+      console.log('   ✅ iot_devices_GrowthFarm');
+      console.log('   ✅ sensor_data_GrowthFarm');
+      console.log('   ✅ crops_GrowthFarm');
+      console.log('   ✅ activities_GrowthFarm');
+      console.log('   ✅ weather_data_GrowthFarm');
+      console.log('   ✅ ai_conversations_GrowthFarm');
+      console.log('   ✅ notifications_GrowthFarm');
+      console.log('   ✅ reports_GrowthFarm');
+      console.log('   ✅ team_members_GrowthFarm');
+      console.log('   ✅ financial_records_GrowthFarm');
       console.log('='.repeat(50));
     });
   } catch (error) {
