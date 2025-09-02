@@ -17,16 +17,18 @@ Full_Growth_Farm/
 │       ├── assets/             # Images, fonts
 │       └── package.json        # Dependencies
 └── BACKEND/
-    └── GrowthFarmAPI/          # FastAPI Python API
-        ├── app/                # Application modules
-        │   ├── auth/           # Authentication system
-        │   ├── routers/        # API endpoints
-        │   ├── gemini_ai/      # AI integration
-        │   ├── models.py       # Database models
-        │   └── main.py         # Main application
-        ├── dev.bat             # Quick start script
-        ├── pyproject.toml      # Project configuration
-        └── requirements.txt    # Python dependencies
+    └── GrowthFarmAPI/          # Express.js Node.js API
+        ├── src/                # Source code
+        │   ├── routes/         # API endpoints
+        │   ├── models/         # Database models
+        │   ├── middleware/     # Custom middleware
+        │   ├── controllers/    # Route controllers
+        │   ├── services/       # Business logic
+        │   └── config/         # Configuration files
+        ├── dev.bat             # Quick start script (Windows)
+        ├── dev.ps1             # Quick start script (PowerShell)
+        ├── package.json        # Dependencies and scripts
+        └── .env                # Environment variables
 ```
 
 ## 🚀 เทคโนโลยีที่ใช้
@@ -41,22 +43,22 @@ Full_Growth_Farm/
 
 ### Backend
 
-- **FastAPI** - Modern Python web framework
-- **SQLAlchemy** - Database ORM
+- **Express.js** - Fast Node.js web framework
+- **Sequelize** - Modern ORM for MySQL
 - **JWT Authentication** - Secure user authentication
 - **Google Gemini AI** - AI integration
-- **MySQL/SQLite** - Database options
-- **FastAPI CLI** - Modern development tools
+- **MySQL** - Primary database
+- **Modern ES6+** - Latest JavaScript features
 
 ## 🛠️ การติดตั้งและรันระบบ
 
 ### ✅ Prerequisites
 
 - Node.js 18+
-- Python 3.11+
+- MySQL 8.0+
 - Git
 
-### 🖥️ รัน Backend (FastAPI) - วิธีที่ง่ายที่สุด
+### 🖥️ รัน Backend (Express.js) - วิธีที่ง่ายที่สุด
 
 #### ตัวเลือกที่ 1: ใช้ Script ที่เตรียมไว้ (แนะนำ)
 
@@ -71,24 +73,23 @@ dev.bat
 .\dev.ps1
 ```
 
-#### ตัวเลือกที่ 2: ใช้ FastAPI CLI
+#### ตัวเลือกที่ 2: ใช้ npm commands
 
 ```bash
 cd BACKEND/GrowthFarmAPI
 
 # ติดตั้ง dependencies (ครั้งแรกเท่านั้น)
-pip install -r requirements.txt
-pip install fastapi-cli
+npm install
 
 # รัน development server
-fastapi dev app/main.py --port 8000
+npm run dev
 ```
 
-#### ตัวเลือกที่ 3: แบบเดิม
+#### ตัวเลือกที่ 3: Manual start
 
 ```bash
 cd BACKEND/GrowthFarmAPI
-python -m uvicorn app.main:app --reload --port 8000 --host 0.0.0.0
+node src/server.js
 ```
 
 **🌐 เข้าถึง API ได้ที่:**
@@ -253,16 +254,16 @@ npx expo start
 
 ```bash
 # ติดตั้ง development dependencies
-pip install -r requirements.txt
+npm install
 
 # รัน tests
-python -m pytest
+npm test
 
-# ตรวจสอบ code style
-flake8 app/
+# รัน development server
+npm run dev
 
-# ดู database schema
-python complete_er_diagram.py
+# ตรวจสอบ API health
+curl http://localhost:8000/health
 ```
 
 ### Frontend Development

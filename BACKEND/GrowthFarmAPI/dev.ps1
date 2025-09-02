@@ -1,30 +1,50 @@
-# FastAPI Development Server - Quick Start
-# This script works in both PowerShell and Command Prompt
+# Growth Farm Express.js API Server PowerShell Script
 
-Write-Host "🚀 Growth Farm API - Development Server" -ForegroundColor Green
-Write-Host "=====================================" -ForegroundColor Green
+Write-Host "🌱 Growth Farm Express.js API Server" -ForegroundColor Green
 Write-Host ""
 
-# Get the script directory
-$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
-Set-Location $ScriptDir
-
-Write-Host "📍 Current Directory: $pwd" -ForegroundColor Cyan
-Write-Host "🐍 Starting FastAPI Development Server..." -ForegroundColor Yellow
-Write-Host ""
-
-# Start the FastAPI development server
+# Check if Node.js is installed
 try {
-    & "D:\Full_Growth_Farm\.venv\Scripts\fastapi.exe" dev app\main.py --port 8000 --host 0.0.0.0
+    $nodeVersion = node --version 2>$null
+    Write-Host "✅ Node.js is installed: $nodeVersion" -ForegroundColor Green
 } catch {
-    Write-Host "❌ Error starting server: $_" -ForegroundColor Red
+    Write-Host "❌ Node.js is not installed!" -ForegroundColor Red
+    Write-Host "Please install Node.js 18+ from https://nodejs.org/" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "📋 Alternative commands to try:" -ForegroundColor Yellow
-    Write-Host "1. D:\Full_Growth_Farm\.venv\Scripts\fastapi.exe dev app\main.py" -ForegroundColor White
-    Write-Host "2. D:\Full_Growth_Farm\.venv\Scripts\python.exe -m uvicorn app.main:app --reload --port 8000" -ForegroundColor White
-    Write-Host ""
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+
+# Check if npm is installed
+try {
+    $npmVersion = npm --version 2>$null
+    Write-Host "✅ npm is available: $npmVersion" -ForegroundColor Green
+} catch {
+    Write-Host "❌ npm is not available!" -ForegroundColor Red
+    Read-Host "Press Enter to exit"
+    exit 1
+}
+
+# Install dependencies if node_modules doesn't exist
+if (!(Test-Path "node_modules")) {
+    Write-Host "📦 Installing dependencies..." -ForegroundColor Yellow
+    npm install
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "❌ Failed to install dependencies" -ForegroundColor Red
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
+    Write-Host "✅ Dependencies installed" -ForegroundColor Green
+} else {
+    Write-Host "✅ Dependencies already installed" -ForegroundColor Green
 }
 
 Write-Host ""
-Write-Host "Press any key to continue..." -ForegroundColor Gray
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host "🚀 Starting Express.js development server..." -ForegroundColor Cyan
+Write-Host "🌐 Server will be available at: http://localhost:8000" -ForegroundColor Yellow
+Write-Host "📚 API Documentation: http://localhost:8000" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Gray
+Write-Host ""
+
+npm run dev
