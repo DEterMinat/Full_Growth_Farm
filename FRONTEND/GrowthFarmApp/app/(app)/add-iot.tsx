@@ -40,7 +40,7 @@ export default function AddIoTScreen() {
       id: 'sensor-01',
       name: 'Soil Moisture Sensor',
       type: 'sensor',
-      icon: '💧',
+      icon: 'water-drop',
       description: 'Advanced soil moisture sensor with wireless connectivity',
       features: ['Real-time monitoring', 'Battery powered', 'Weatherproof', '2-year warranty'],
       price: '$89.99',
@@ -50,7 +50,7 @@ export default function AddIoTScreen() {
       id: 'sensor-02',
       name: 'Temperature & Humidity Sensor',
       type: 'sensor',
-      icon: '🌡️',
+      icon: 'thermostat',
       description: 'Precision climate monitoring for optimal crop conditions',
       features: ['±0.3°C accuracy', 'Solar powered', 'Long range', 'Data logging'],
       price: '$64.99',
@@ -60,7 +60,7 @@ export default function AddIoTScreen() {
       id: 'pump-01',
       name: 'Smart Water Pump',
       type: 'irrigation',
-      icon: '⚡',
+      icon: 'electric-bolt',
       description: 'Automated irrigation pump with flow control',
       features: ['Variable speed', 'Remote control', 'Energy efficient', 'Pressure sensing'],
       price: '$299.99',
@@ -70,7 +70,7 @@ export default function AddIoTScreen() {
       id: 'valve-01',
       name: 'Smart Irrigation Valve',
       type: 'irrigation',
-      icon: '🚿',
+      icon: 'water',
       description: 'Precision water control valve for zone irrigation',
       features: ['Zone control', 'Schedule programming', 'Manual override', 'Flow detection'],
       price: '$149.99',
@@ -80,7 +80,7 @@ export default function AddIoTScreen() {
       id: 'camera-01',
       name: 'Field Monitoring Camera',
       type: 'monitoring',
-      icon: '📷',
+      icon: 'camera-alt',
       description: 'AI-powered crop monitoring with pest detection',
       features: ['4K recording', 'Night vision', 'Motion detection', 'Cloud storage'],
       price: '$399.99',
@@ -90,7 +90,7 @@ export default function AddIoTScreen() {
       id: 'weather-01',
       name: 'Weather Station Pro',
       type: 'monitoring',
-      icon: '🌤️',
+      icon: 'wb-sunny',
       description: 'Complete weather monitoring station',
       features: ['Wind speed/direction', 'Rainfall measurement', 'UV index', 'Barometric pressure'],
       price: '$799.99',
@@ -100,7 +100,7 @@ export default function AddIoTScreen() {
       id: 'drone-01',
       name: 'Agricultural Drone',
       type: 'monitoring',
-      icon: '🚁',
+      icon: 'flight',
       description: 'Autonomous crop surveying and spraying drone',
       features: ['GPS navigation', 'HD mapping', 'Precision spraying', '45min flight time'],
       price: '$2,499.99',
@@ -110,7 +110,7 @@ export default function AddIoTScreen() {
       id: 'pest-01',
       name: 'Smart Pest Control',
       type: 'protection',
-      icon: '🛡️',
+      icon: 'shield',
       description: 'Automated pest detection and treatment system',
       features: ['AI detection', 'Targeted spraying', 'Safe chemicals', 'Usage tracking'],
       price: '$549.99',
@@ -119,11 +119,11 @@ export default function AddIoTScreen() {
   ];
 
   const categories = [
-    { id: 'all', name: 'All Devices', icon: '📱' },
-    { id: 'sensor', name: 'Sensors', icon: '📊' },
-    { id: 'irrigation', name: 'Irrigation', icon: '💧' },
-    { id: 'monitoring', name: 'Monitoring', icon: '👁️' },
-    { id: 'protection', name: 'Protection', icon: '🛡️' }
+    { id: 'all', name: 'All Devices', icon: 'devices' },
+    { id: 'sensor', name: 'Sensors', icon: 'sensors' },
+    { id: 'irrigation', name: 'Irrigation', icon: 'water-drop' },
+    { id: 'monitoring', name: 'Monitoring', icon: 'visibility' },
+    { id: 'protection', name: 'Protection', icon: 'shield' }
   ];
 
   const filteredDevices = iotDevices.filter(device => {
@@ -215,7 +215,7 @@ export default function AddIoTScreen() {
                   ]}
                   onPress={() => setSelectedCategory(category.id)}
                 >
-                  <Text style={styles.categoryIcon}>{category.icon}</Text>
+                  <MaterialIcons name={category.icon as any} size={20} color={selectedCategory === category.id ? '#2196F3' : '#666'} style={styles.categoryIcon} />
                   <Text style={[
                     styles.categoryText,
                     selectedCategory === category.id && styles.categoryTextSelected
@@ -245,7 +245,7 @@ export default function AddIoTScreen() {
                   activeOpacity={0.8}
                 >
                   <View style={styles.deviceHeader}>
-                    <Text style={styles.deviceIcon}>{device.icon}</Text>
+                    <MaterialIcons name={device.icon as any} size={24} color="#666" style={styles.deviceIcon} />
                     <Text style={styles.devicePrice}>{device.price}</Text>
                   </View>
                   <Text style={styles.deviceName}>{device.name}</Text>
@@ -294,7 +294,7 @@ export default function AddIoTScreen() {
             {selectedDevice && (
               <>
                 <View style={styles.modalHeader}>
-                  <Text style={styles.modalDeviceIcon}>{selectedDevice.icon}</Text>
+                  <MaterialIcons name={selectedDevice.icon as any} size={40} color="#2196F3" style={styles.modalDeviceIcon} />
                   <View style={styles.modalTitleContainer}>
                     <Text style={styles.modalTitle}>{selectedDevice.name}</Text>
                     <Text style={styles.modalPrice}>{selectedDevice.price}</Text>

@@ -91,11 +91,11 @@ export default function NotificationsScreen() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case 'alert': return '🚨';
-      case 'warning': return '⚠️';
-      case 'success': return '✅';
-      case 'info': return 'ℹ️';
-      default: return '📄';
+      case 'alert': return 'warning';
+      case 'warning': return 'error-outline';
+      case 'success': return 'check-circle';
+      case 'info': return 'info';
+      default: return 'description';
     }
   };
 
@@ -181,9 +181,14 @@ export default function NotificationsScreen() {
             ]}>
               <View style={styles.notificationHeader}>
                 <View style={styles.notificationLeft}>
-                  <Text style={styles.notificationIcon}>
-                    {getNotificationIcon(notification.type)}
-                  </Text>
+                  <MaterialIcons 
+                    name={getNotificationIcon(notification.type) as any} 
+                    size={20} 
+                    color={notification.type === 'alert' ? '#F44336' : 
+                           notification.type === 'warning' ? '#FF9800' :
+                           notification.type === 'success' ? '#4CAF50' : '#2196F3'} 
+                    style={styles.notificationIcon}
+                  />
                   <View style={styles.notificationContent}>
                     <Text style={[
                       styles.notificationTitle,

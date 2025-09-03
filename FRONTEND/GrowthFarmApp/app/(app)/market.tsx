@@ -124,39 +124,41 @@ export default function Market() {
           entering={FadeInUp.delay(1200).duration(800)}
         >
           <Text style={styles.sectionTitle}>Market Actions</Text>
-          <View style={styles.actionGrid}>
-            <Animated.View entering={SlideInLeft.delay(1400).duration(500)}>
-              <TouchableOpacity style={styles.actionCard}>
-                <MaterialIcons name="attach-money" size={24} color="#4CAF50" style={styles.actionIcon} />
-                <Text style={styles.actionTitle}>Sell Crops</Text>
-                <Text style={styles.actionSubtitle}>Get best prices</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            
-            <Animated.View entering={SlideInRight.delay(1500).duration(500)}>
-              <TouchableOpacity style={styles.actionCard}>
-                <MaterialIcons name="trending-up" size={24} color="#2196F3" style={styles.actionIcon} />
-                <Text style={styles.actionTitle}>Price Alerts</Text>
-                <Text style={styles.actionSubtitle}>Set notifications</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            
-            <Animated.View entering={SlideInLeft.delay(1600).duration(500)}>
-              <TouchableOpacity style={styles.actionCard}>
-                <MaterialIcons name="analytics" size={24} color="#FF9800" style={styles.actionIcon} />
-                <Text style={styles.actionTitle}>Market Analysis</Text>
-                <Text style={styles.actionSubtitle}>Detailed reports</Text>
-              </TouchableOpacity>
-            </Animated.View>
-            
-            <Animated.View entering={SlideInRight.delay(1700).duration(500)}>
-              <TouchableOpacity style={styles.actionCard}>
-                <MaterialIcons name="handshake" size={24} color="#9C27B0" style={styles.actionIcon} />
-                <Text style={styles.actionTitle}>Find Buyers</Text>
-                <Text style={styles.actionSubtitle}>Connect locally</Text>
-              </TouchableOpacity>
-            </Animated.View>
-          </View>
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionScrollView}>
+            <View style={styles.actionGrid}>
+              <Animated.View entering={SlideInLeft.delay(1400).duration(500)}>
+                <TouchableOpacity style={styles.actionCard}>
+                  <MaterialIcons name="attach-money" size={28} color="#4CAF50" style={styles.actionIcon} />
+                  <Text style={styles.actionTitle}>Sell Crops</Text>
+                  <Text style={styles.actionSubtitle}>Best prices</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              
+              <Animated.View entering={SlideInLeft.delay(1500).duration(500)}>
+                <TouchableOpacity style={styles.actionCard}>
+                  <MaterialIcons name="trending-up" size={28} color="#2196F3" style={styles.actionIcon} />
+                  <Text style={styles.actionTitle}>Price Alerts</Text>
+                  <Text style={styles.actionSubtitle}>Notifications</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              
+              <Animated.View entering={SlideInLeft.delay(1600).duration(500)}>
+                <TouchableOpacity style={styles.actionCard}>
+                  <MaterialIcons name="analytics" size={28} color="#FF9800" style={styles.actionIcon} />
+                  <Text style={styles.actionTitle}>Analysis</Text>
+                  <Text style={styles.actionSubtitle}>Reports</Text>
+                </TouchableOpacity>
+              </Animated.View>
+              
+              <Animated.View entering={SlideInLeft.delay(1700).duration(500)}>
+                <TouchableOpacity style={styles.actionCard}>
+                  <MaterialIcons name="handshake" size={28} color="#9C27B0" style={styles.actionIcon} />
+                  <Text style={styles.actionTitle}>Find Buyers</Text>
+                  <Text style={styles.actionSubtitle}>Connect</Text>
+                </TouchableOpacity>
+              </Animated.View>
+            </View>
+          </ScrollView>
         </Animated.View>
 
         {/* News & Updates */}
@@ -349,34 +351,49 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#4CAF50',
   },
+  actionScrollView: {
+    marginHorizontal: -5,
+  },
   actionGrid: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+    paddingHorizontal: 5,
+    gap: 12,
   },
   actionCard: {
-    width: '48%',
+    width: 110,
     backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: 16,
+    padding: 16,
     alignItems: 'center',
-    marginBottom: 12,
+    marginHorizontal: 3,
+    minHeight: 120,
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#e9ecef',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 3,
   },
   actionIcon: {
-    fontSize: 24,
+    fontSize: 28,
     marginBottom: 8,
+    textAlign: 'center',
   },
   actionTitle: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
     marginBottom: 4,
+    lineHeight: 16,
   },
   actionSubtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: '#666',
     textAlign: 'center',
+    lineHeight: 14,
   },
   newsList: {
     gap: 12,

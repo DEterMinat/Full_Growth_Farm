@@ -19,10 +19,10 @@ export default function DataRecordingScreen() {
   ];
 
   const dataCategories = [
-    { id: 1, title: 'Environmental', icon: '🌡️', count: 1250, color: '#4CAF50' },
-    { id: 2, title: 'Soil Data', icon: '🌱', count: 890, color: '#FF9800' },
-    { id: 3, title: 'Crop Health', icon: '🌾', count: 567, color: '#2196F3' },
-    { id: 4, title: 'Irrigation', icon: '💧', count: 432, color: '#00BCD4' },
+    { id: 1, title: 'Environmental', icon: 'thermostat', count: 1250, color: '#4CAF50' },
+    { id: 2, title: 'Soil Data', icon: 'eco', count: 890, color: '#FF9800' },
+    { id: 3, title: 'Crop Health', icon: 'agriculture', count: 567, color: '#2196F3' },
+    { id: 4, title: 'Irrigation', icon: 'water-drop', count: 432, color: '#00BCD4' },
   ];
 
   return (
@@ -41,7 +41,7 @@ export default function DataRecordingScreen() {
             {dataCategories.map((category) => (
               <TouchableOpacity key={category.id} style={styles.categoryCard}>
                 <View style={[styles.categoryIcon, { backgroundColor: category.color }]}>
-                  <Text style={styles.categoryIconText}>{category.icon}</Text>
+                  <MaterialIcons name={category.icon as any} size={24} color="white" />
                 </View>
                 <Text style={styles.categoryTitle}>{category.title}</Text>
                 <Text style={styles.categoryCount}>{category.count} records</Text>
@@ -169,9 +169,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
-  },
-  categoryIconText: {
-    fontSize: 24,
   },
   categoryTitle: {
     fontSize: 16,

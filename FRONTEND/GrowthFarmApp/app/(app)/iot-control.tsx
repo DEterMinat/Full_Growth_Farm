@@ -160,7 +160,7 @@ export default function IotControlScreen() {
               <View style={styles.scheduleCard}>
                 <Text style={styles.scheduleLabel}>Next watering</Text>
                 <View style={styles.scheduleTime}>
-                  <Text style={styles.timeIcon}>🕕</Text>
+                  <MaterialIcons name="schedule" size={16} color="#666" style={styles.timeIcon} />
                   <View>
                     <Text style={styles.timeText}>Today, 6:00 PM</Text>
                   </View>

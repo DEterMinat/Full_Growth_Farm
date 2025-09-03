@@ -41,7 +41,7 @@ export default function Index() {
         await AsyncStorage.removeItem('growth_farm_token');
         router.replace('/(app)/dashboard');
       } catch (fallbackError) {
-        console.error('❌ All guest login methods failed:', fallbackError);
+        console.error('All guest login methods failed:', fallbackError);
         // Last resort: Navigate to login page
         router.push('/(auth)/login');
       }

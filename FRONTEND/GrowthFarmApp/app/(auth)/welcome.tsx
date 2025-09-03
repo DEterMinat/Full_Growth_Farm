@@ -84,7 +84,7 @@ export default function WelcomeLayout() {
         console.log('🎭 Starting guest login from welcome...');
         
         if (typeof loginAsGuest !== 'function') {
-          console.error('❌ loginAsGuest is not a function:', typeof loginAsGuest);
+          console.error('loginAsGuest is not a function:', typeof loginAsGuest);
           throw new Error('Guest login function is not available');
         }
         
@@ -92,7 +92,7 @@ export default function WelcomeLayout() {
         console.log('✅ Guest login successful, navigating to dashboard...');
         router.replace('/(app)/dashboard');
       } catch (error) {
-        console.error('❌ Guest login error:', error);
+        console.error('Guest login error:', error);
         // Fallback to login page
         router.push('./login');
       }

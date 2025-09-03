@@ -28,7 +28,7 @@ export default function MarketplaceScreen() {
       originalPrice: '$15.99',
       seller: 'Premium Seeds Co.',
       rating: 4.8,
-      image: '🍅',
+      image: 'local-florist',
       category: 'Seeds',
       discount: true,
       discountPercent: '19% OFF'
@@ -53,7 +53,7 @@ export default function MarketplaceScreen() {
       price: '$35.99',
       status: 'Shipping',
       deliveryDate: 'Jun 15',
-      image: '📱'
+      image: 'sensors'
     },
     {
       id: '45689',
@@ -62,7 +62,7 @@ export default function MarketplaceScreen() {
       price: '$89.99',
       status: 'Completed',
       deliveryDate: 'Jun 2',
-      image: '💧'
+      image: 'water-drop'
     }
   ];
 
@@ -72,21 +72,21 @@ export default function MarketplaceScreen() {
       sender: 'Maria Johnson',
       message: 'Is the organic fertilizer still available?',
       time: '10:23 AM',
-      avatar: '👩'
+      avatar: 'person'
     },
     {
       id: 2,
       sender: 'Support Team',
       message: 'Your order #45782 has been shipped!',
       time: 'Yesterday',
-      avatar: '🛠️'
+      avatar: 'support-agent'
     },
     {
       id: 3,
       sender: 'Robert Smith',
       message: 'Thank you for the quick delivery!',
       time: 'Jun 3',
-      avatar: '👨'
+      avatar: 'person'
     }
   ];
 
@@ -247,7 +247,7 @@ export default function MarketplaceScreen() {
               </View>
               
               <View style={styles.orderContent}>
-                <Text style={styles.orderItemIcon}>{order.image}</Text>
+                <MaterialIcons name={order.image as any} size={32} color="#4CAF50" style={styles.orderItemIcon} />
                 <View style={styles.orderDetails}>
                   <Text style={styles.orderItemName}>{order.item}</Text>
                   <Text style={styles.orderQuantity}>Qty: {order.quantity} • {order.price}</Text>
@@ -283,7 +283,7 @@ export default function MarketplaceScreen() {
               entering={FadeInUp.delay(2200 + index * 150).duration(500)}
             >
               <TouchableOpacity style={styles.messageCard}>
-              <Text style={styles.messageAvatar}>{message.avatar}</Text>
+              <MaterialIcons name={message.avatar as any} size={32} color="#4CAF50" style={styles.messageAvatar} />
               <View style={styles.messageContent}>
                 <View style={styles.messageHeader}>
                   <Text style={styles.messageSender}>{message.sender}</Text>
@@ -581,7 +581,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   orderItemIcon: {
-    fontSize: 30,
     marginRight: 15,
   },
   orderDetails: {
@@ -621,7 +620,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#f0f0f0',
   },
   messageAvatar: {
-    fontSize: 24,
     marginRight: 15,
   },
   messageContent: {

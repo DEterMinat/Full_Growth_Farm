@@ -84,7 +84,7 @@ export default function LogoutTestComponent() {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.warningButton} onPress={clearAllStorage}>
-          <Text style={styles.buttonText}>🧹 Clear All Storage</Text>
+          <Text style={styles.buttonText}>Clear All Storage</Text>
         </TouchableOpacity>
       </View>
     </View>
