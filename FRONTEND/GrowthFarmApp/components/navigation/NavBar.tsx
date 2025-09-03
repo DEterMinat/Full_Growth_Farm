@@ -86,7 +86,7 @@ export default function NavBar({ currentRoute }: NavBarProps) {
         activeOpacity={0.8}
       >
         <View style={styles.floatingVoiceIconContainer}>
-          <Text style={styles.floatingVoiceIcon}>🎤</Text>
+          <Text style={styles.floatingVoiceIcon}>🤖</Text>
         </View>
       </TouchableOpacity>
 
