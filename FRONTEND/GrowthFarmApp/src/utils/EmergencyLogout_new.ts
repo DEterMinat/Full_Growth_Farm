@@ -6,7 +6,7 @@ export default class EmergencyLogout {
   // Force logout and clean up all data
   static async forceLogout(shouldNavigate: boolean = true): Promise<void> {
     try {
-      console.log('🚨 Emergency logout initiated');
+      console.log('Emergency logout initiated');
       
       // Clear all auth data
       await AsyncStorage.multiRemove([
@@ -16,7 +16,7 @@ export default class EmergencyLogout {
         'growth_farm_remember_me'
       ]);
       
-      console.log('✅ All auth data cleared');
+      console.log('All auth data cleared');
       
       if (shouldNavigate) {
         // Simple navigation to home
@@ -24,14 +24,14 @@ export default class EmergencyLogout {
       }
       
     } catch (error) {
-      console.error('❌ Emergency logout failed:', error);
+      console.error('Emergency logout failed:', error);
       
       // Try to at least clear critical data
       try {
         await AsyncStorage.removeItem('growth_farm_token');
         await AsyncStorage.removeItem('growth_farm_guest_mode');
       } catch (clearError) {
-        console.error('❌ Failed to clear even basic auth data:', clearError);
+        console.error('Failed to clear even basic auth data:', clearError);
       }
     }
   }
@@ -49,7 +49,7 @@ export default class EmergencyLogout {
       
       // Check for conflicting states
       if (token && guestMode === 'true') {
-        console.log('⚠️ Conflicting auth states detected');
+        console.log('Conflicting auth states detected');
         return true;
       }
       
@@ -84,9 +84,9 @@ User: ${userData ? 'exists' : 'none'}`;
         'growth_farm_user',
         'growth_farm_guest_mode'
       ]);
-      console.log('✅ Quick logout completed');
+      console.log('Quick logout completed');
     } catch (error) {
-      console.error('❌ Quick logout failed:', error);
+      console.error('Quick logout failed:', error);
     }
   }
 

@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import { useAuth } from '@/src/contexts/AuthContext';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function LogoutTestComponent() {
   const { user, isGuest, isAuthenticated } = useAuth();
@@ -75,11 +76,11 @@ export default function LogoutTestComponent() {
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.emergencyButton} onPress={testEmergencyLogout}>
-          <Text style={styles.buttonText}>🚨 Test Emergency Logout</Text>
+          <Text style={styles.buttonText}>Test Emergency Logout</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.button} onPress={testSecurityCheck}>
-          <Text style={styles.buttonText}>🔍 Security Check</Text>
+          <Text style={styles.buttonText}>Security Check</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.warningButton} onPress={clearAllStorage}>

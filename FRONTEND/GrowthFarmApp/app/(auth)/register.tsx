@@ -10,6 +10,7 @@ import {
   Alert 
 } from 'react-native';
 import { router } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import authService from '@/src/services/authService';
 
 export default function Register() {
@@ -109,7 +110,7 @@ export default function Register() {
 
         {/* Brand Section */}
         <View style={styles.brandSection}>
-          <Text style={styles.brandIcon}>🌱</Text>
+          <MaterialIcons name="eco" size={48} color="#4CAF50" style={styles.brandIcon} />
           <Text style={styles.brandText}>GROWTH FARM</Text>
           <Text style={styles.welcomeText}>Join us today!</Text>
           <Text style={styles.subText}>Create your farm management account</Text>
@@ -207,12 +208,12 @@ export default function Register() {
           </View>
 
           <TouchableOpacity style={styles.socialButton}>
-            <Text style={styles.socialIcon}>📧</Text>
+            <MaterialIcons name="email" size={20} color="#DB4437" style={styles.socialIcon} />
             <Text style={styles.socialButtonText}>Sign up with Google</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.socialButton}>
-            <Text style={styles.socialIcon}>📱</Text>
+            <MaterialIcons name="phone" size={20} color="#4285F4" style={styles.socialIcon} />
             <Text style={styles.socialButtonText}>Sign up with Phone</Text>
           </TouchableOpacity>
         </View>
@@ -244,7 +245,7 @@ export default function Register() {
           <Text style={styles.benefitsTitle}>Why choose Growth Farm?</Text>
           <View style={styles.benefitsList}>
             <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>🚀</Text>
+              <MaterialIcons name="rocket-launch" size={18} color="#34D399" />
               <View style={styles.benefitContent}>
                 <Text style={styles.benefitTitle}>Smart Analytics</Text>
                 <Text style={styles.benefitText}>AI-powered insights for better decisions</Text>
@@ -252,7 +253,7 @@ export default function Register() {
             </View>
             
             <View style={styles.benefitItem}>
-              <Text style={styles.benefitIcon}>💰</Text>
+              <MaterialIcons name="attach-money" size={24} color="#4CAF50" style={styles.benefitIcon} />
               <View style={styles.benefitContent}>
                 <Text style={styles.benefitTitle}>Increase Profits</Text>
                 <Text style={styles.benefitText}>Optimize yield and reduce costs</Text>

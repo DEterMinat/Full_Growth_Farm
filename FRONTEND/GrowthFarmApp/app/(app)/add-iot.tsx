@@ -10,6 +10,7 @@ import {
   Modal,
 } from 'react-native';
 import { router } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { 
   FadeIn,
   FadeInUp,
@@ -174,7 +175,7 @@ export default function AddIoTScreen() {
           <Text style={styles.brandText}>ADD IOT DEVICE</Text>
         </View>
         <TouchableOpacity style={styles.profileButton}>
-          <Text style={styles.profileIcon}>👤</Text>
+          <MaterialIcons name="person" size={18} color="white" style={styles.profileIcon} />
         </TouchableOpacity>
       </Animated.View>
 
@@ -185,7 +186,7 @@ export default function AddIoTScreen() {
           entering={FadeInUp.delay(200).duration(800)}
         >
           <View style={styles.searchContainer}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <MaterialIcons name="search" size={18} color="#666" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
               placeholder="Search IoT devices..."
@@ -302,7 +303,7 @@ export default function AddIoTScreen() {
                     style={styles.closeButton}
                     onPress={() => setShowDetails(false)}
                   >
-                    <Text style={styles.closeIcon}>✕</Text>
+                    <MaterialIcons name="close" size={20} color="#666" style={styles.closeIcon} />
                   </TouchableOpacity>
                 </View>
 
@@ -313,7 +314,7 @@ export default function AddIoTScreen() {
                     <Text style={styles.modalSectionTitle}>Features</Text>
                     {selectedDevice.features.map((feature, index) => (
                       <View key={index} style={styles.modalFeatureItem}>
-                        <Text style={styles.modalFeatureBullet}>✓</Text>
+                        <MaterialIcons name="check" size={16} color="#4CAF50" style={styles.modalFeatureBullet} />
                         <Text style={styles.modalFeatureText}>{feature}</Text>
                       </View>
                     ))}

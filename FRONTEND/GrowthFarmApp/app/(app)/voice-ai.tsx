@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import { router } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { 
   FadeIn,
   FadeInUp,
@@ -24,11 +25,11 @@ export default function VoiceAIScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const quickQuestions = [
-    { id: 1, text: 'สภาพอากาศวันนี้', icon: '🌤️' },
-    { id: 2, text: 'ราคาพืชล่าสุด', icon: '💰' },
-    { id: 3, text: 'การดูแลผลไม้', icon: '🌱' },
-    { id: 4, text: 'วิเคราะห์ข้อมูล', icon: '📊' },
-    { id: 5, text: 'แจ้งเตือนงาน', icon: '🔔' },
+    { id: 1, text: 'สภาพอากาศวันนี้', icon: 'wb-sunny' },
+    { id: 2, text: 'ราคาพืชล่าสุด', icon: 'attach-money' },
+    { id: 3, text: 'การดูแลผลไม้', icon: 'eco' },
+    { id: 4, text: 'วิเคราะห์ข้อมูล', icon: 'analytics' },
+    { id: 5, text: 'แจ้งเตือนงาน', icon: 'notifications' },
   ];
 
   const addMessage = (text: string, type: 'user' | 'bot') => {
@@ -210,7 +211,7 @@ export default function VoiceAIScreen() {
                 style={styles.quickButton}
                 onPress={() => handleQuickQuestion(q.text)}
               >
-                <Text style={styles.quickIcon}>{q.icon}</Text>
+                <MaterialIcons name={q.icon as any} size={20} color="#4CAF50" style={styles.quickIcon} />
                 <Text style={styles.quickText}>{q.text}</Text>
               </TouchableOpacity>
             </Animated.View>
@@ -231,9 +232,12 @@ export default function VoiceAIScreen() {
           onPress={handleStartListening}
           disabled={isListening || isProcessing}
         >
-          <Text style={styles.voiceButtonIcon}>
-            {isListening ? '🔴' : '🎤'}
-          </Text>
+          <MaterialIcons 
+            name={isListening ? 'stop' : 'mic'} 
+            size={32} 
+            color="white" 
+            style={styles.voiceButtonIcon} 
+          />
         </TouchableOpacity>
         
         <Text style={styles.voiceStatus}>

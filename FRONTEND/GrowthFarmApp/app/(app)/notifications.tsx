@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function NotificationsScreen() {
   const [filter, setFilter] = useState('all');
@@ -111,7 +112,7 @@ export default function NotificationsScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>🔔</Text>
+          <MaterialIcons name="notifications" size={32} color="#FF9800" style={styles.headerIcon} />
           <Text style={styles.headerTitle}>Notifications</Text>
           <Text style={styles.headerSubtitle}>Stay updated with your farm alerts</Text>
         </View>
@@ -209,19 +210,19 @@ export default function NotificationsScreen() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionIcon}>✓</Text>
+              <MaterialIcons name="check" size={20} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionText}>Mark All Read</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionIcon}>🗑️</Text>
+              <MaterialIcons name="delete" size={20} color="#F44336" style={styles.actionIcon} />
               <Text style={styles.actionText}>Clear Read</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionIcon}>⚙️</Text>
+              <MaterialIcons name="settings" size={20} color="#666" style={styles.actionIcon} />
               <Text style={styles.actionText}>Settings</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
-              <Text style={styles.actionIcon}>📤</Text>
+              <MaterialIcons name="send" size={20} color="#2196F3" style={styles.actionIcon} />
               <Text style={styles.actionText}>Export</Text>
             </TouchableOpacity>
           </View>

@@ -265,7 +265,7 @@ class ExampleDataService {
         humidity: 65,
         windSpeed: 8.2,
         condition: 'Partly Cloudy',
-        icon: '⛅',
+        icon: 'partly-cloudy',
         feelsLike: 30.1,
         pressure: 1013,
         visibility: 10,
@@ -278,7 +278,7 @@ class ExampleDataService {
           high: 32,
           low: 24,
           condition: 'Partly Cloudy',
-          icon: '⛅',
+          icon: 'partly-cloudy',
           rainChance: 20
         },
         {
@@ -287,7 +287,7 @@ class ExampleDataService {
           high: 29,
           low: 22,
           condition: 'Rainy',
-          icon: '🌧️',
+          icon: 'rainy',
           rainChance: 80
         },
         {
@@ -296,7 +296,7 @@ class ExampleDataService {
           high: 31,
           low: 23,
           condition: 'Sunny',
-          icon: '☀️',
+          icon: 'sunny',
           rainChance: 10
         },
         {
@@ -305,7 +305,7 @@ class ExampleDataService {
           high: 33,
           low: 25,
           condition: 'Sunny',
-          icon: '☀️',
+          icon: 'sunny',
           rainChance: 5
         },
         {
@@ -314,7 +314,7 @@ class ExampleDataService {
           high: 30,
           low: 24,
           condition: 'Cloudy',
-          icon: '☁️',
+          icon: 'cloudy',
           rainChance: 30
         }
       ]

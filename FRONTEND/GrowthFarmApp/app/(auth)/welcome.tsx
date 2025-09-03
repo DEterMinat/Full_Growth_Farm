@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, Animated } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function WelcomeLayout() {
   const authContext = useAuth();
@@ -176,21 +177,21 @@ export default function WelcomeLayout() {
         >
           <View style={styles.feature}>
             <View style={styles.featureIcon}>
-              <Text style={styles.featureEmoji}>🌱</Text>
+              <MaterialIcons name="eco" size={32} color="#4CAF50" style={styles.featureEmoji} />
             </View>
             <Text style={styles.featureText}>Smart{'\n'}monitoring</Text>
           </View>
 
           <View style={styles.feature}>
             <View style={styles.featureIcon}>
-              <Text style={styles.featureEmoji}>📊</Text>
+              <MaterialIcons name="analytics" size={32} color="#2196F3" style={styles.featureEmoji} />
             </View>
             <Text style={styles.featureText}>Yield{'\n'}optimization</Text>
           </View>
 
           <View style={styles.feature}>
             <View style={styles.featureIcon}>
-              <Text style={styles.featureEmoji}>🌤️</Text>
+              <MaterialIcons name="wb-sunny" size={32} color="#FFB74D" style={styles.featureEmoji} />
             </View>
             <Text style={styles.featureText}>Weather{'\n'}integration</Text>
           </View>

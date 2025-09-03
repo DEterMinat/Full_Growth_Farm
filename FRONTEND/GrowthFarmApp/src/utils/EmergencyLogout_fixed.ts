@@ -8,7 +8,7 @@ export class EmergencyLogout {
   // Force clear all authentication data and redirect to welcome
   static async forceLogout(showAlert: boolean = true) {
     try {
-      console.log('🚨 Emergency logout initiated...');
+      console.log('Emergency logout initiated...');
       
       // Clear all possible auth-related keys
       await this.clearAllStorageData();
@@ -29,7 +29,7 @@ export class EmergencyLogout {
       console.log('✅ Emergency logout completed');
       
     } catch (error) {
-      console.error('❌ Emergency logout error:', error);
+      console.error('Emergency logout error:', error);
       
       // Still try to redirect even if clearing data fails
       this.forceRedirectToWelcome();
@@ -39,7 +39,7 @@ export class EmergencyLogout {
   // Clear all authentication-related data from storage
   static async clearAllStorageData() {
     try {
-      console.log('🧹 Clearing all storage data...');
+      console.log('Clearing all storage data...');
       
       // Get all keys first
       const allKeys = await AsyncStorage.getAllKeys();
@@ -57,7 +57,7 @@ export class EmergencyLogout {
       // Remove auth-related keys
       if (authKeys.length > 0) {
         await AsyncStorage.multiRemove(authKeys);
-        console.log('🗑️ Removed auth keys:', authKeys);
+        console.log('Removed auth keys:', authKeys);
       }
       
       // Also remove specific known keys
@@ -72,19 +72,19 @@ export class EmergencyLogout {
       ];
       
       await AsyncStorage.multiRemove(specificKeys);
-      console.log('🗑️ Removed specific keys:', specificKeys);
+      console.log('Removed specific keys:', specificKeys);
       
       console.log('✅ All auth data cleared');
       
     } catch (error) {
-      console.error('❌ Error clearing storage:', error);
+      console.error('Error clearing storage:', error);
       
       // Try to clear everything as last resort
       try {
         await AsyncStorage.clear();
-        console.log('🧹 Emergency: Cleared all storage');
+        console.log('Emergency: Cleared all storage');
       } catch (clearError) {
-        console.error('❌ Failed to clear all storage:', clearError);
+        console.error('Failed to clear all storage:', clearError);
       }
     }
   }
@@ -92,19 +92,19 @@ export class EmergencyLogout {
   // Force navigation to welcome page
   static forceRedirectToWelcome() {
     try {
-      console.log('🚀 Force redirecting to welcome page...');
+      console.log('Force redirecting to welcome page...');
       
       // Simple redirect to index (welcome screen)
       router.replace('/');
       
     } catch (error) {
-      console.error('❌ Navigation error:', error);
+      console.error('Navigation error:', error);
       
       // Fallback: Try push instead of replace
       try {
         router.push('/');
       } catch (pushError) {
-        console.error('❌ Push navigation also failed:', pushError);
+        console.error('Push navigation also failed:', pushError);
       }
     }
   }
@@ -122,7 +122,7 @@ export class EmergencyLogout {
       
       // Check for conflicting states
       if (token && guestMode === 'true') {
-        console.log('⚠️ Conflicting auth states detected');
+        console.log('Conflicting auth states detected');
         return true;
       }
       

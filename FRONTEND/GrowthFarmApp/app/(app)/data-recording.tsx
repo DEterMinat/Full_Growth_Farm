@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function DataRecordingScreen() {
   const recentRecords = [
@@ -28,7 +29,7 @@ export default function DataRecordingScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>📊</Text>
+          <MaterialIcons name="analytics" size={32} color="#2196F3" style={styles.headerIcon} />
           <Text style={styles.headerTitle}>Data Recording</Text>
           <Text style={styles.headerSubtitle}>Track and analyze your farm data</Text>
         </View>
@@ -79,19 +80,19 @@ export default function DataRecordingScreen() {
           <Text style={styles.sectionTitle}>Export Data</Text>
           <View style={styles.exportGrid}>
             <TouchableOpacity style={styles.exportButton}>
-              <Text style={styles.exportIcon}>📄</Text>
+              <MaterialIcons name="description" size={20} color="#4CAF50" style={styles.exportIcon} />
               <Text style={styles.exportText}>CSV Export</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.exportButton}>
-              <Text style={styles.exportIcon}>📊</Text>
+              <MaterialIcons name="table-chart" size={20} color="#2196F3" style={styles.exportIcon} />
               <Text style={styles.exportText}>Excel Report</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.exportButton}>
-              <Text style={styles.exportIcon}>📈</Text>
+              <MaterialIcons name="trending-up" size={20} color="#FF9800" style={styles.exportIcon} />
               <Text style={styles.exportText}>Analytics</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.exportButton}>
-              <Text style={styles.exportIcon}>☁️</Text>
+              <MaterialIcons name="cloud-upload" size={20} color="#9C27B0" style={styles.exportIcon} />
               <Text style={styles.exportText}>Cloud Sync</Text>
             </TouchableOpacity>
           </View>

@@ -12,6 +12,7 @@ import {
 import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 const { width } = Dimensions.get('window');
 
@@ -45,7 +46,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'dashboard',
       title: 'Dashboard',
       subtitle: 'Farm overview and analytics',
-      icon: '📊',
+      icon: 'analytics',
       color: '#10B981',
       route: '/(app)/dashboard'
     },
@@ -53,7 +54,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'crops',
       title: 'Crop Management',
       subtitle: 'Manage your crops and harvests',
-      icon: '🌾',
+      icon: 'grass',
       color: '#059669',
       route: '/(app)/crops'
     },
@@ -61,7 +62,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'iot-control',
       title: 'IoT Control Center',
       subtitle: 'Monitor and control farm devices',
-      icon: '🤖',
+      icon: 'smart-toy',
       color: '#3B82F6',
       route: '/(app)/iot-control'
     },
@@ -69,7 +70,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'marketplace',
       title: 'Marketplace',
       subtitle: 'Buy and sell agricultural products',
-      icon: '🛒',
+      icon: 'shopping-cart',
       color: '#9C27B0',
       route: '/(app)/marketplace'
     },
@@ -77,7 +78,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'notifications',
       title: 'Notifications',
       subtitle: 'Stay updated with alerts',
-      icon: '🔔',
+      icon: 'notifications',
       color: '#F59E0B',
       route: '/(app)/notifications'
     },
@@ -85,7 +86,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'voice-ai',
       title: 'Voice AI Assistant',
       subtitle: 'Get help with voice commands',
-      icon: '🎤',
+      icon: 'mic',
       color: '#8B5CF6',
       route: '/(app)/voice-ai'
     },
@@ -93,7 +94,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       id: 'profile',
       title: 'Profile Settings',
       subtitle: 'Manage your account settings',
-      icon: '👤',
+      icon: 'person',
       color: '#6B7280',
       route: '/(app)/profile'
     },
@@ -163,7 +164,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
           <TouchableOpacity activeOpacity={1} onPress={() => {}}>
             {/* Header */}
             <View style={styles.header}>
-              <Text style={styles.headerIcon}>🌱</Text>
+              <MaterialIcons name="eco" size={24} color="white" style={styles.headerIcon} />
               <View style={styles.headerTextContainer}>
                 <Text style={styles.headerTitle}>Growth Farm</Text>
                 <Text style={styles.headerSubtitle}>
@@ -187,13 +188,13 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
                   onPress={() => handleMenuItemPress(item.route)}
                 >
                   <View style={[styles.menuItemIcon, { backgroundColor: item.color }]}>
-                    <Text style={styles.menuItemIconText}>{item.icon}</Text>
+                    <MaterialIcons name={item.icon as any} size={24} color={item.color} style={styles.menuItemIconText} />
                   </View>
                   <View style={styles.menuItemContent}>
                     <Text style={styles.menuItemTitle}>{item.title}</Text>
                     <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
                   </View>
-                  <Text style={styles.menuItemArrow}>›</Text>
+                  <MaterialIcons name="chevron-right" size={16} color="#9CA3AF" style={styles.menuItemArrow} />
                 </TouchableOpacity>
               ))}
 
@@ -204,7 +205,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
                   onPress={handleSignOut}
                 >
                   <View style={[styles.menuItemIcon, { backgroundColor: '#EF4444' }]}>
-                    <Text style={styles.menuItemIconText}>🚪</Text>
+                    <MaterialIcons name="logout" size={20} color="#EF4444" style={styles.menuItemIconText} />
                   </View>
                   <View style={styles.menuItemContent}>
                     <Text style={[styles.menuItemTitle, { color: '#EF4444' }]}>
@@ -214,7 +215,7 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
                       {isGuest ? 'Return to welcome screen' : 'Sign out of your account'}
                     </Text>
                   </View>
-                  <Text style={[styles.menuItemArrow, { color: '#EF4444' }]}>›</Text>
+                  <MaterialIcons name="chevron-right" size={16} color="#EF4444" style={[styles.menuItemArrow, { color: '#EF4444' }]} />
                 </TouchableOpacity>
               </View>
             </ScrollView>

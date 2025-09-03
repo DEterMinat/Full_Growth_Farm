@@ -7,6 +7,7 @@ import Animated, {
   SlideInRight
 } from 'react-native-reanimated';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Market() {
   return (
@@ -17,11 +18,11 @@ export default function Market() {
         entering={FadeIn.duration(600)}
       >
         <View style={styles.headerLeft}>
-          <Text style={styles.marketIcon}>🏪</Text>
+          <MaterialIcons name="store" size={20} color="white" style={styles.marketIcon} />
           <Text style={styles.brandText}>MARKET PRICES</Text>
         </View>
         <TouchableOpacity style={styles.refreshButton}>
-          <Text style={styles.refreshIcon}>🔄</Text>
+          <MaterialIcons name="refresh" size={18} color="white" style={styles.refreshIcon} />
         </TouchableOpacity>
       </Animated.View>
 
@@ -42,7 +43,7 @@ export default function Market() {
           >
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
-                <Text style={styles.cropIcon}>🌾</Text>
+                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
                 <Text style={styles.cropName}>Wheat</Text>
               </View>
               <View style={styles.priceChange}>
@@ -59,7 +60,7 @@ export default function Market() {
           >
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
-                <Text style={styles.cropIcon}>🌽</Text>
+                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
                 <Text style={styles.cropName}>Corn</Text>
               </View>
               <View style={styles.priceChange}>
@@ -76,7 +77,7 @@ export default function Market() {
           >
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
-                <Text style={styles.cropIcon}>🫘</Text>
+                <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.cropIcon} />
                 <Text style={styles.cropName}>Soybeans</Text>
               </View>
               <View style={styles.priceChange}>
@@ -98,7 +99,7 @@ export default function Market() {
             style={styles.trendCard}
             entering={SlideInLeft.delay(1000).duration(600)}
           >
-            <Text style={styles.trendTitle}>🔥 Hot This Week</Text>
+            <Text style={styles.trendTitle}>Hot This Week</Text>
             <Text style={styles.trendDescription}>Soybeans showing strong upward momentum</Text>
             <View style={styles.trendStats}>
               <Text style={styles.trendStat}>+12.5% this week</Text>
@@ -109,7 +110,7 @@ export default function Market() {
             style={styles.trendCard}
             entering={SlideInRight.delay(1100).duration(600)}
           >
-            <Text style={styles.trendTitle}>📉 Watch Out</Text>
+            <Text style={styles.trendTitle}>Watch Out</Text>
             <Text style={styles.trendDescription}>Corn prices declining due to oversupply</Text>
             <View style={styles.trendStats}>
               <Text style={[styles.trendStat, styles.negative]}>-5.8% this week</Text>
@@ -126,7 +127,7 @@ export default function Market() {
           <View style={styles.actionGrid}>
             <Animated.View entering={SlideInLeft.delay(1400).duration(500)}>
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionIcon}>💰</Text>
+                <MaterialIcons name="attach-money" size={24} color="#4CAF50" style={styles.actionIcon} />
                 <Text style={styles.actionTitle}>Sell Crops</Text>
                 <Text style={styles.actionSubtitle}>Get best prices</Text>
               </TouchableOpacity>
@@ -134,7 +135,7 @@ export default function Market() {
             
             <Animated.View entering={SlideInRight.delay(1500).duration(500)}>
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionIcon}>📈</Text>
+                <MaterialIcons name="trending-up" size={24} color="#2196F3" style={styles.actionIcon} />
                 <Text style={styles.actionTitle}>Price Alerts</Text>
                 <Text style={styles.actionSubtitle}>Set notifications</Text>
               </TouchableOpacity>
@@ -142,7 +143,7 @@ export default function Market() {
             
             <Animated.View entering={SlideInLeft.delay(1600).duration(500)}>
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionIcon}>🔍</Text>
+                <MaterialIcons name="analytics" size={24} color="#FF9800" style={styles.actionIcon} />
                 <Text style={styles.actionTitle}>Market Analysis</Text>
                 <Text style={styles.actionSubtitle}>Detailed reports</Text>
               </TouchableOpacity>
@@ -150,7 +151,7 @@ export default function Market() {
             
             <Animated.View entering={SlideInRight.delay(1700).duration(500)}>
               <TouchableOpacity style={styles.actionCard}>
-                <Text style={styles.actionIcon}>🤝</Text>
+                <MaterialIcons name="handshake" size={24} color="#9C27B0" style={styles.actionIcon} />
                 <Text style={styles.actionTitle}>Find Buyers</Text>
                 <Text style={styles.actionSubtitle}>Connect locally</Text>
               </TouchableOpacity>

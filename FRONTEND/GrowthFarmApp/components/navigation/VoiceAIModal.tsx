@@ -14,6 +14,7 @@ import {
   Animated,
 } from 'react-native';
 import { ChatMessage, ChatResponse } from '../../src/services/geminiService';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface VoiceAIModalProps {
   visible: boolean;
@@ -38,7 +39,7 @@ const VoiceAIModal: React.FC<VoiceAIModalProps> = ({ visible, onClose }) => {
           {
             id: 1,
             type: 'bot',
-            text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยเกษตรกรของคุณ 🌱 มีอะไรให้ช่วยเหลือไหมครับ?',
+            text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยเกษตรกรของคุณ มีอะไรให้ช่วยเหลือไหมครับ?',
             timestamp: new Date().toISOString(),
           }
         ]);
@@ -161,7 +162,7 @@ const VoiceAIModal: React.FC<VoiceAIModalProps> = ({ visible, onClose }) => {
               {
                 id: 1,
                 type: 'bot',
-                text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยเกษตรกรของคุณ 🌱 มีอะไรให้ช่วยเหลือไหมครับ?',
+                text: 'สวัสดีครับ! ผมเป็น AI ผู้ช่วยเกษตรกรของคุณ มีอะไรให้ช่วยเหลือไหมครับ?',
                 timestamp: new Date().toISOString(),
               }
             ]);
@@ -231,7 +232,7 @@ const VoiceAIModal: React.FC<VoiceAIModalProps> = ({ visible, onClose }) => {
             {/* Header */}
             <View style={styles.header}>
               <View style={styles.headerLeft}>
-                <Text style={styles.aiIcon}>🤖</Text>
+                <MaterialIcons name="smart-toy" size={24} color="white" />
                 <View>
                   <Text style={styles.headerTitle}>AI เกษตรกร</Text>
                   <Text style={styles.headerSubtitle}>Powered by Gemini</Text>
@@ -242,13 +243,13 @@ const VoiceAIModal: React.FC<VoiceAIModalProps> = ({ visible, onClose }) => {
                   style={styles.clearButton}
                   onPress={clearChat}
                 >
-                  <Text style={styles.clearButtonText}>🗑️</Text>
+                  <MaterialIcons name="delete" size={18} color="white" />
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.closeButton}
                   onPress={onClose}
                 >
-                  <Text style={styles.closeButtonText}>✕</Text>
+                  <MaterialIcons name="close" size={20} color="white" />
                 </TouchableOpacity>
               </View>
             </View>
@@ -296,7 +297,7 @@ const VoiceAIModal: React.FC<VoiceAIModalProps> = ({ visible, onClose }) => {
                 disabled={!inputText.trim() || isLoading}
               >
                 <Text style={styles.sendButtonText}>
-                  {isLoading ? '⏳' : '📤'}
+                  {isLoading ? <MaterialIcons name="hourglass-empty" size={18} color="white" /> : <MaterialIcons name="send" size={18} color="white" />}
                 </Text>
               </TouchableOpacity>
             </View>

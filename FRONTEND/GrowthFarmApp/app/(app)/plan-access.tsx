@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function PlanAccessScreen() {
   const farmingPlans = [
@@ -68,7 +69,7 @@ export default function PlanAccessScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>📋</Text>
+          <MaterialIcons name="assignment" size={32} color="#4CAF50" style={styles.headerIcon} />
           <Text style={styles.headerTitle}>Plan Access & Update</Text>
           <Text style={styles.headerSubtitle}>Manage your farming plans and schedules</Text>
         </View>
@@ -153,25 +154,25 @@ export default function PlanAccessScreen() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>➕</Text>
+              <MaterialIcons name="add" size={20} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>New Plan</Text>
               <Text style={styles.actionSubtitle}>Create farming plan</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📊</Text>
+              <MaterialIcons name="analytics" size={20} color="#2196F3" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Progress Report</Text>
               <Text style={styles.actionSubtitle}>View analytics</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📅</Text>
+              <MaterialIcons name="event" size={20} color="#FF9800" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Schedule Task</Text>
               <Text style={styles.actionSubtitle}>Add to calendar</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>⚙️</Text>
+              <MaterialIcons name="settings" size={20} color="#9C27B0" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Plan Settings</Text>
               <Text style={styles.actionSubtitle}>Configure plans</Text>
             </TouchableOpacity>

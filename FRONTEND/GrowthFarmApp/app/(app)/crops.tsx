@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Crops() {
   return (
@@ -8,11 +9,11 @@ export default function Crops() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.leafIcon}>🌾</Text>
+          <MaterialIcons name="grass" size={24} color="#4CAF50" style={styles.leafIcon} />
           <Text style={styles.brandText}>CROPS MANAGEMENT</Text>
         </View>
         <TouchableOpacity style={styles.filterButton}>
-          <Text style={styles.filterIcon}>⚙️</Text>
+          <MaterialIcons name="settings" size={20} color="#666" style={styles.filterIcon} />
         </TouchableOpacity>
       </View>
 
@@ -24,7 +25,7 @@ export default function Crops() {
           <View style={styles.cropCard}>
             <View style={styles.cropHeader}>
               <View style={styles.cropInfo}>
-                <Text style={styles.cropIcon}>🌾</Text>
+                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
                 <View>
                   <Text style={styles.cropName}>Wheat</Text>
                   <Text style={styles.cropStage}>Flowering Stage</Text>
@@ -54,7 +55,7 @@ export default function Crops() {
           <View style={styles.cropCard}>
             <View style={styles.cropHeader}>
               <View style={styles.cropInfo}>
-                <Text style={styles.cropIcon}>🌽</Text>
+                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
                 <View>
                   <Text style={styles.cropName}>Corn</Text>
                   <Text style={styles.cropStage}>Vegetative Growth</Text>
@@ -87,22 +88,22 @@ export default function Crops() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionGrid}>
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>➕</Text>
+              <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Add New Crop</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📊</Text>
+              <MaterialIcons name="analytics" size={24} color="#2196F3" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>View Analytics</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>🚿</Text>
+              <MaterialIcons name="water-drop" size={24} color="#00BCD4" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Irrigation</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>🔬</Text>
+              <MaterialIcons name="science" size={24} color="#9C27B0" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Soil Test</Text>
             </TouchableOpacity>
           </View>
@@ -113,7 +114,7 @@ export default function Crops() {
           <Text style={styles.sectionTitle}>Recent Activities</Text>
           <View style={styles.activityList}>
             <View style={styles.activityItem}>
-              <Text style={styles.activityIcon}>💧</Text>
+              <MaterialIcons name="water-drop" size={20} color="#00BCD4" style={styles.activityIcon} />
               <View style={styles.activityContent}>
                 <Text style={styles.activityTitle}>Irrigation completed - Wheat Field A</Text>
                 <Text style={styles.activityTime}>2 hours ago</Text>
@@ -121,7 +122,7 @@ export default function Crops() {
             </View>
             
             <View style={styles.activityItem}>
-              <Text style={styles.activityIcon}>🌱</Text>
+              <MaterialIcons name="eco" size={20} color="#4CAF50" style={styles.activityIcon} />
               <View style={styles.activityContent}>
                 <Text style={styles.activityTitle}>Growth stage updated - Corn Field B</Text>
                 <Text style={styles.activityTime}>5 hours ago</Text>
@@ -129,7 +130,7 @@ export default function Crops() {
             </View>
             
             <View style={styles.activityItem}>
-              <Text style={styles.activityIcon}>🔬</Text>
+              <MaterialIcons name="science" size={20} color="#9C27B0" style={styles.activityIcon} />
               <View style={styles.activityContent}>
                 <Text style={styles.activityTitle}>Soil analysis report available</Text>
                 <Text style={styles.activityTime}>1 day ago</Text>

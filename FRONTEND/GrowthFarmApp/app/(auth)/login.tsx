@@ -18,6 +18,7 @@ import ReAnimated, {
   FadeInDown,
   SlideInLeft
 } from 'react-native-reanimated';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -82,7 +83,7 @@ export default function Login() {
       if (typeof loginAsGuest === 'function') {
         await loginAsGuest();
       } else {
-        console.warn('⚠️ loginAsGuest function not available, using fallback');
+        console.warn('loginAsGuest function not available, using fallback');
         // Fallback: Set guest mode directly in AsyncStorage
         await AsyncStorage.setItem('growth_farm_guest_mode', 'true');
         await AsyncStorage.setItem('growth_farm_user', JSON.stringify({
@@ -137,7 +138,7 @@ export default function Login() {
           style={styles.brandSection}
           entering={FadeInUp.delay(200).duration(800)}
         >
-          <Text style={styles.brandIcon}>🌱</Text>
+          <MaterialIcons name="eco" size={40} color="#4CAF50" />
           <Text style={styles.brandText}>GROWTH FARM</Text>
           <Text style={styles.welcomeText}>Welcome back!</Text>
           <Text style={styles.subText}>Sign in to your account</Text>
@@ -196,7 +197,7 @@ export default function Login() {
           </View>
 
           <TouchableOpacity style={styles.socialButton}>
-            <Text style={styles.socialIcon}>📧</Text>
+            <MaterialIcons name="email" size={20} color="#4285F4" />
             <Text style={styles.socialButtonText}>Continue with Google</Text>
           </TouchableOpacity>
 
@@ -206,7 +207,7 @@ export default function Login() {
             onPress={handleGuestLogin}
             disabled={isLoading}
           >
-            <Text style={styles.guestIcon}>👤</Text>
+            <MaterialIcons name="person" size={20} color="#666" />
             <Text style={styles.guestButtonText}>Continue as Guest</Text>
           </TouchableOpacity>
         </ReAnimated.View>

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import SideMenu from './SideMenu';
 import VoiceAIModal from './VoiceAIModal';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 interface NavBarProps {
   currentRoute?: string;
@@ -42,7 +43,7 @@ export default function NavBar({ currentRoute }: NavBarProps) {
     {
       id: 'menu',
       label: 'Menu',
-      icon: '☰',
+      icon: 'menu',
       route: '',
       isMenu: true,
       isActive: false
@@ -50,28 +51,28 @@ export default function NavBar({ currentRoute }: NavBarProps) {
     {
       id: 'home',
       label: 'Home',
-      icon: '🏠',
+      icon: 'home',
       route: '/(app)/dashboard',
       isActive: activeTab === 'home' || activeTab === '/(app)/dashboard'
     },
     {
       id: 'crops',
       label: 'Crops',
-      icon: '🌾',
+      icon: 'grass',
       route: '/(app)/crops',
       isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
     },
     {
       id: 'market',
       label: 'Market',
-      icon: '🏪',
+      icon: 'store',
       route: '/(app)/market',
       isActive: activeTab === 'market' || activeTab === '/(app)/market'
     },
     {
       id: 'profile',
       label: 'Profile',
-      icon: '👤',
+      icon: 'person',
       route: '/(app)/profile',
       isActive: activeTab === 'profile' || activeTab === '/(app)/profile'
     }
@@ -86,7 +87,7 @@ export default function NavBar({ currentRoute }: NavBarProps) {
         activeOpacity={0.8}
       >
         <View style={styles.floatingVoiceIconContainer}>
-          <Text style={styles.floatingVoiceIcon}>🤖</Text>
+          <MaterialIcons name="smart-toy" size={26} color="white" />
         </View>
       </TouchableOpacity>
 
@@ -103,7 +104,12 @@ export default function NavBar({ currentRoute }: NavBarProps) {
                   activeOpacity={0.7}
                 >
                   <View style={styles.tabContent}>
-                    <Text style={styles.menuIcon}>{tab.icon}</Text>
+                    <MaterialIcons 
+                      name={tab.icon as any} 
+                      size={20} 
+                      color="#666" 
+                      style={styles.menuIcon} 
+                    />
                     <Text style={styles.tabLabel}>{tab.label}</Text>
                   </View>
                 </TouchableOpacity>
@@ -121,12 +127,12 @@ export default function NavBar({ currentRoute }: NavBarProps) {
                 activeOpacity={0.7}
               >
                 <View style={styles.tabContent}>
-                  <Text style={[
-                    styles.tabIcon,
-                    tab.isActive && styles.activeTabIcon
-                  ]}>
-                    {tab.icon}
-                  </Text>
+                  <MaterialIcons 
+                    name={tab.icon as any} 
+                    size={20} 
+                    color={tab.isActive ? "#4CAF50" : "#666"} 
+                    style={styles.tabIcon}
+                  />
                   <Text style={[
                     styles.tabLabel,
                     tab.isActive && styles.activeTabLabel
@@ -199,9 +205,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   tabIcon: {
-    fontSize: 20,
     marginBottom: 2,
-    color: '#666',
   },
   activeTabIcon: {
     color: '#4CAF50',
@@ -217,9 +221,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   menuIcon: {
-    fontSize: 20,
     marginBottom: 2,
-    color: '#666',
   },
   // Floating Voice AI Button Styles
   floatingVoiceButton: {
@@ -249,7 +251,6 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   floatingVoiceIcon: {
-    fontSize: 26,
-    color: 'white',
+    // removed - now using MaterialIcons directly
   },
 });

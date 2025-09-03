@@ -12,6 +12,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { User } from '@/src/services/authService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Dashboard() {
   const { user: authUser, isLoading: authLoading, isGuest } = useAuth();
@@ -75,7 +76,7 @@ export default function Dashboard() {
         entering={FadeInDown.duration(600)}
       >
         <View style={styles.headerLeft}>
-          <Text style={styles.leafIcon}>🌱</Text>
+          <MaterialIcons name="eco" size={20} color="white" style={styles.leafIcon} />
           <Text style={styles.brandText}>GROWTH FARM</Text>
           {isGuest && (
             <View style={styles.guestBadge}>
@@ -86,7 +87,7 @@ export default function Dashboard() {
         <View style={styles.headerRight}>
           <Text style={styles.welcomeUser}>Hi, {currentUser?.full_name || currentUser?.username}!</Text>
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
-            <Text style={styles.profileIcon}>👤</Text>
+            <MaterialIcons name="person" size={18} color="white" />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -106,7 +107,7 @@ export default function Dashboard() {
           
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>📊 This is example data for demonstration purposes</Text>
+              <Text style={styles.demoNoticeText}>This is example data for demonstration purposes</Text>
             </View>
           )}
           
@@ -116,7 +117,7 @@ export default function Dashboard() {
               entering={SlideInLeft.delay(400).duration(600)}
             >
               <Text style={styles.cropLabel}>Crop Type</Text>
-              <Text style={styles.cropIcon}>🌾</Text>
+              <MaterialIcons name="grass" size={24} color="#4CAF50" style={styles.cropIcon} />
               <Text style={styles.cropValue}>Wheat</Text>
             </Animated.View>
 
@@ -125,7 +126,7 @@ export default function Dashboard() {
               entering={SlideInRight.delay(500).duration(600)}
             >
               <Text style={styles.cropLabel}>Growth Stage</Text>
-              <Text style={styles.cropIcon}>📈</Text>
+              <MaterialIcons name="trending-up" size={24} color="#4CAF50" style={styles.cropIcon} />
               <Text style={styles.cropValue}>Flowering</Text>
             </Animated.View>
 
@@ -134,7 +135,7 @@ export default function Dashboard() {
               entering={SlideInLeft.delay(600).duration(600)}
             >
               <Text style={styles.cropLabel}>Plant Health</Text>
-              <Text style={styles.cropIcon}>💚</Text>
+              <MaterialIcons name="favorite" size={24} color="#4CAF50" style={styles.cropIcon} />
               <Text style={styles.cropValue}>Healthy</Text>
             </Animated.View>
 
@@ -143,7 +144,7 @@ export default function Dashboard() {
               entering={SlideInRight.delay(700).duration(600)}
             >
               <Text style={styles.cropLabel}>Soil Moisture</Text>
-              <Text style={styles.cropIcon}>💧</Text>
+              <MaterialIcons name="water-drop" size={24} color="#2196F3" style={styles.cropIcon} />
               <Text style={styles.cropValue}>Optimal</Text>
             </Animated.View>
           </View>
@@ -163,13 +164,13 @@ export default function Dashboard() {
           
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>🛰️ Example satellite/drone imagery data</Text>
+              <Text style={styles.demoNoticeText}>Example satellite/drone imagery data</Text>
             </View>
           )}
           
           <View style={styles.fieldImageContainer}>
             <View style={styles.fieldImage}>
-              <Text style={styles.fieldImageText}>🛰️</Text>
+              <MaterialIcons name="satellite" size={40} color="#4CAF50" />
               <Text style={styles.droneText}>Drone Survey View</Text>
             </View>
             <View style={styles.fieldLegend}>
@@ -199,7 +200,7 @@ export default function Dashboard() {
 
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>🔔 Example notifications and alerts</Text>
+              <Text style={styles.demoNoticeText}>Example notifications and alerts</Text>
             </View>
           )}
 
@@ -208,7 +209,7 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1200).duration(600)}
           >
             <View style={[styles.notificationIcon, { backgroundColor: '#4CAF50' }]}>
-              <Text style={styles.notificationEmoji}>🌧️</Text>
+              <MaterialIcons name="cloud" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
               <Text style={styles.notificationTitle}>Rain Expected</Text>
@@ -221,7 +222,7 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1300).duration(600)}
           >
             <View style={[styles.notificationIcon, { backgroundColor: '#FF9800' }]}>
-              <Text style={styles.notificationEmoji}>🔋</Text>
+              <MaterialIcons name="battery-alert" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
               <Text style={styles.notificationTitle}>Sensor Battery Low</Text>
@@ -234,7 +235,7 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1400).duration(600)}
           >
             <View style={[styles.notificationIcon, { backgroundColor: '#4CAF50' }]}>
-              <Text style={styles.notificationEmoji}>🌡️</Text>
+              <MaterialIcons name="thermostat" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
               <Text style={styles.notificationTitle}>Temperature Optimal</Text>
@@ -260,12 +261,12 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1700).duration(500)}
           >
             <View style={styles.marketCrop}>
-              <Text style={styles.marketIcon}>🌾</Text>
+              <MaterialIcons name="grass" size={20} color="#4CAF50" style={styles.marketIcon} />
               <Text style={styles.marketName}>Wheat</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$7.25/bushel</Text>
-              <Text style={styles.priceChange}>↑</Text>
+              <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
             </View>
           </Animated.View>
 
@@ -274,12 +275,12 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1800).duration(500)}
           >
             <View style={styles.marketCrop}>
-              <Text style={styles.marketIcon}>🌽</Text>
+              <MaterialIcons name="grain" size={20} color="#FF9800" style={styles.marketIcon} />
               <Text style={styles.marketName}>Corn</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$4.12/bushel</Text>
-              <Text style={styles.priceChange}>↓</Text>
+              <MaterialIcons name="arrow-downward" size={16} color="#f44336" />
             </View>
           </Animated.View>
 
@@ -288,12 +289,12 @@ export default function Dashboard() {
             entering={FadeInUp.delay(1900).duration(500)}
           >
             <View style={styles.marketCrop}>
-              <Text style={styles.marketIcon}>🫘</Text>
+              <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.marketIcon} />
               <Text style={styles.marketName}>Soybeans</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$13.87/bushel</Text>
-              <Text style={styles.priceChange}>↑</Text>
+              <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
             </View>
           </Animated.View>
         </Animated.View>
@@ -308,13 +309,13 @@ export default function Dashboard() {
             activeOpacity={0.8}
           >
             <View style={styles.voiceIcon}>
-              <Text style={styles.voiceEmoji}>🎤</Text>
+              <MaterialIcons name="mic" size={24} color="white" />
             </View>
             <View style={styles.voiceContent}>
               <Text style={styles.voiceTitle}>Voice Assistant</Text>
               <Text style={styles.voiceText}>Ask about crop conditions or market prices</Text>
             </View>
-            <Text style={styles.voiceArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={20} color="rgba(255, 255, 255, 0.8)" style={styles.voiceArrow} />
           </TouchableOpacity>
         </Animated.View>
 
@@ -336,7 +337,7 @@ export default function Dashboard() {
             entering={FadeInUp.duration(400)}
           >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>🎤 Voice Assistant</Text>
+              <Text style={styles.modalTitle}>Voice Assistant</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowVoiceModal(false)}
@@ -344,14 +345,14 @@ export default function Dashboard() {
                 accessibilityRole="button"
                 accessibilityLabel="Close voice assistant modal"
               >
-                <Text style={styles.closeIcon}>✕</Text>
+                <MaterialIcons name="close" size={16} color="#666" />
               </TouchableOpacity>
             </View>
 
             <View style={styles.voiceModalBody}>
               <View style={styles.microphoneContainer}>
                 <TouchableOpacity style={styles.microphoneButton}>
-                  <Text style={styles.microphoneIcon}>🎤</Text>
+                  <MaterialIcons name="mic" size={32} color="white" />
                 </TouchableOpacity>
                 <Text style={styles.micStatus}>Tap to speak</Text>
               </View>
@@ -411,7 +412,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   leafIcon: {
-    fontSize: 20,
     marginRight: 8,
   },
   brandText: {
@@ -435,10 +435,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  profileIcon: {
-    fontSize: 18,
-    color: 'white',
   },
   content: {
     flex: 1,
@@ -498,7 +494,6 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   cropIcon: {
-    fontSize: 24,
     marginBottom: 8,
   },
   cropValue: {
@@ -544,10 +539,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 10,
-  },
-  fieldImageText: {
-    fontSize: 40,
-    marginBottom: 5,
   },
   droneText: {
     fontSize: 14,
@@ -615,10 +606,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
-  notificationEmoji: {
-    fontSize: 18,
-    color: 'white',
-  },
   notificationContent: {
     flex: 1,
   },
@@ -671,7 +658,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   marketIcon: {
-    fontSize: 20,
     marginRight: 10,
   },
   marketName: {
@@ -687,10 +673,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
     marginRight: 5,
-  },
-  priceChange: {
-    fontSize: 16,
-    color: '#4CAF50',
   },
   voiceAssistant: {
     backgroundColor: '#4CAF50',
@@ -714,9 +696,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: 15,
   },
-  voiceEmoji: {
-    fontSize: 24,
-  },
   voiceContent: {
     flex: 1,
   },
@@ -731,8 +710,6 @@ const styles = StyleSheet.create({
     color: 'rgba(255, 255, 255, 0.9)',
   },
   voiceArrow: {
-    fontSize: 20,
-    color: 'rgba(255, 255, 255, 0.8)',
     marginLeft: 10,
   },
   bottomSpace: {
@@ -774,11 +751,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  closeIcon: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: 'bold',
-  },
   voiceModalBody: {
     padding: 20,
   },
@@ -799,10 +771,6 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 8,
     elevation: 5,
-  },
-  microphoneIcon: {
-    fontSize: 32,
-    color: 'white',
   },
   micStatus: {
     fontSize: 16,

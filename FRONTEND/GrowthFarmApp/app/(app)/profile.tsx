@@ -4,6 +4,7 @@ import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { User } from '@/src/services/authService';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Profile() {
   const { user: authUser, refreshUser, isGuest, logout } = useAuth();
@@ -44,13 +45,13 @@ export default function Profile() {
         { 
           text: 'Cancel', 
           style: 'cancel',
-          onPress: () => console.log('❌ User cancelled logout')
+          onPress: () => console.log('User cancelled logout')
         },
         {
           text: isGuest ? 'Exit Demo' : 'Sign Out',
           style: 'destructive',
           onPress: async () => {
-            console.log('🎯 Profile logout - using AuthContext logout');
+            console.log('Profile logout - using AuthContext logout');
             await logout(true);
           }
         }
@@ -73,7 +74,7 @@ export default function Profile() {
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
-          <Text style={styles.profileIcon}>👤</Text>
+          <MaterialIcons name="person" size={20} color="white" style={styles.profileIcon} />
           <Text style={styles.brandText}>PROFILE</Text>
           {isGuest && (
             <View style={styles.guestBadge}>
@@ -82,7 +83,7 @@ export default function Profile() {
           )}
         </View>
         <TouchableOpacity style={styles.editButton}>
-          <Text style={styles.editIcon}>✏️</Text>
+          <MaterialIcons name="edit" size={18} color="white" />
         </TouchableOpacity>
       </View>
 
@@ -91,7 +92,7 @@ export default function Profile() {
         <View style={styles.section}>
           <View style={styles.profileHeader}>
             <View style={styles.avatarContainer}>
-              <Text style={styles.avatarIcon}>👨‍🌾</Text>
+              <MaterialIcons name="person" size={40} color="#4CAF50" />
             </View>
             <View style={styles.profileInfo}>
               <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
@@ -152,34 +153,34 @@ export default function Profile() {
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>📝</Text>
+              <MaterialIcons name="edit" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Edit Profile</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>🔔</Text>
+              <MaterialIcons name="notifications" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Notifications</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>🔒</Text>
+              <MaterialIcons name="lock" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Privacy & Security</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>💳</Text>
+              <MaterialIcons name="payment" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Subscription</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
         </View>
 
@@ -189,7 +190,7 @@ export default function Profile() {
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>🌙</Text>
+              <MaterialIcons name="dark-mode" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Dark Mode</Text>
             </View>
             <View style={styles.toggle}>
@@ -199,7 +200,7 @@ export default function Profile() {
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>🌐</Text>
+              <MaterialIcons name="language" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Language</Text>
             </View>
             <Text style={styles.settingValue}>English</Text>
@@ -207,10 +208,10 @@ export default function Profile() {
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>📊</Text>
+              <MaterialIcons name="analytics" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Data & Analytics</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
         </View>
 
@@ -220,41 +221,41 @@ export default function Profile() {
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>❓</Text>
+              <MaterialIcons name="help" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Help Center</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>💬</Text>
+              <MaterialIcons name="support" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Contact Support</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>⭐</Text>
+              <MaterialIcons name="star-rate" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Rate App</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
-              <Text style={styles.settingIcon}>📄</Text>
+              <MaterialIcons name="description" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>Terms & Privacy</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
         </View>
 
         {/* Logout */}
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <Text style={styles.logoutIcon}>🚪</Text>
+            <MaterialIcons name="logout" size={18} color="#f44336" style={styles.logoutIcon} />
             <Text style={styles.logoutText}>Sign Out</Text>
           </TouchableOpacity>
         </View>
@@ -287,7 +288,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   profileIcon: {
-    fontSize: 20,
     marginRight: 8,
   },
   brandText: {
@@ -303,10 +303,6 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  editIcon: {
-    fontSize: 18,
-    color: 'white',
   },
   content: {
     flex: 1,
@@ -335,9 +331,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 20,
-  },
-  avatarIcon: {
-    fontSize: 40,
   },
   profileInfo: {
     flex: 1,
@@ -420,17 +413,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingIcon: {
-    fontSize: 18,
     marginRight: 12,
   },
   settingText: {
     fontSize: 16,
     color: '#333',
     fontWeight: '500',
-  },
-  settingArrow: {
-    fontSize: 18,
-    color: '#999',
   },
   settingValue: {
     fontSize: 14,
@@ -456,7 +444,6 @@ const styles = StyleSheet.create({
     paddingVertical: 15,
   },
   logoutIcon: {
-    fontSize: 18,
     marginRight: 8,
   },
   logoutText: {

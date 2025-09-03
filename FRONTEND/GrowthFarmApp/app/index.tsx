@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Index() {
@@ -59,7 +60,8 @@ export default function Index() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>🌱 Growth Farm</Text>
+        <MaterialIcons name="eco" size={40} color="#4CAF50" />
+        <Text style={styles.loadingText}>Growth Farm</Text>
         <Text style={styles.subText}>Initializing...</Text>
       </View>
     );
@@ -70,7 +72,7 @@ export default function Index() {
     <View style={styles.container}>
       <View style={styles.content}>
         <View style={styles.logoContainer}>
-          <Text style={styles.logo}>🌱</Text>
+          <MaterialIcons name="eco" size={64} color="#4CAF50" style={styles.logo} />
           <Text style={styles.title}>Growth Farm</Text>
           <Text style={styles.subtitle}>Smart Agriculture Management</Text>
         </View>
@@ -94,7 +96,8 @@ export default function Index() {
             style={styles.guestButton}
             onPress={handleGuestLogin}
           >
-            <Text style={styles.guestButtonText}>👤 Try as Guest</Text>
+            <MaterialIcons name="person" size={18} color="#007AFF" />
+            <Text style={styles.guestButtonText}>Try as Guest</Text>
           </TouchableOpacity>
         </View>
 

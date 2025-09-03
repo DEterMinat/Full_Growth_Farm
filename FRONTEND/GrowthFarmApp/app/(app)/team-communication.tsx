@@ -7,13 +7,14 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import NavBar from '@/components/navigation/NavBar';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function TeamCommunicationScreen() {
   const teamMembers = [
-    { id: 1, name: 'John Smith', role: 'Farm Manager', status: 'online', avatar: '👨‍🌾' },
-    { id: 2, name: 'Sarah Johnson', role: 'Crop Specialist', status: 'online', avatar: '👩‍🔬' },
-    { id: 3, name: 'Mike Wilson', role: 'Equipment Tech', status: 'away', avatar: '👨‍🔧' },
-    { id: 4, name: 'Lisa Brown', role: 'Data Analyst', status: 'offline', avatar: '👩‍💻' }
+    { id: 1, name: 'John Smith', role: 'Farm Manager', status: 'online', avatar: 'person' },
+    { id: 2, name: 'Sarah Johnson', role: 'Crop Specialist', status: 'online', avatar: 'person' },
+    { id: 3, name: 'Mike Wilson', role: 'Equipment Tech', status: 'away', avatar: 'person' },
+    { id: 4, name: 'Lisa Brown', role: 'Data Analyst', status: 'offline', avatar: 'person' }
   ];
 
   const recentMessages = [
@@ -41,17 +42,17 @@ export default function TeamCommunicationScreen() {
   ];
 
   const channels = [
-    { id: 1, name: 'General Updates', members: 12, unread: 3, icon: '📢' },
-    { id: 2, name: 'Field Operations', members: 8, unread: 0, icon: '🚜' },
-    { id: 3, name: 'Equipment Status', members: 6, unread: 1, icon: '⚙️' },
-    { id: 4, name: 'Weather Alerts', members: 15, unread: 2, icon: '🌤️' }
+    { id: 1, name: 'General Updates', members: 12, unread: 3, icon: 'campaign' },
+    { id: 2, name: 'Field Operations', members: 8, unread: 0, icon: 'agriculture' },
+    { id: 3, name: 'Equipment Status', members: 6, unread: 1, icon: 'settings' },
+    { id: 4, name: 'Weather Alerts', members: 15, unread: 2, icon: 'wb-sunny' }
   ];
 
   return (
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <Text style={styles.headerIcon}>💬</Text>
+          <MaterialIcons name="chat" size={32} color="#4CAF50" style={styles.headerIcon} />
           <Text style={styles.headerTitle}>Team Communication</Text>
           <Text style={styles.headerSubtitle}>Collaborate with your team</Text>
         </View>
@@ -78,7 +79,7 @@ export default function TeamCommunicationScreen() {
           {teamMembers.map((member) => (
             <TouchableOpacity key={member.id} style={styles.memberCard}>
               <View style={styles.memberInfo}>
-                <Text style={styles.memberAvatar}>{member.avatar}</Text>
+                <MaterialIcons name={member.avatar as any} size={32} color="#4CAF50" style={styles.memberAvatar} />
                 <View style={styles.memberDetails}>
                   <Text style={styles.memberName}>{member.name}</Text>
                   <Text style={styles.memberRole}>{member.role}</Text>
@@ -105,7 +106,7 @@ export default function TeamCommunicationScreen() {
           {channels.map((channel) => (
             <TouchableOpacity key={channel.id} style={styles.channelCard}>
               <View style={styles.channelInfo}>
-                <Text style={styles.channelIcon}>{channel.icon}</Text>
+                <MaterialIcons name={channel.icon as any} size={24} color="#4CAF50" style={styles.channelIcon} />
                 <View style={styles.channelDetails}>
                   <Text style={styles.channelName}>{channel.name}</Text>
                   <Text style={styles.channelMembers}>{channel.members} members</Text>
@@ -149,7 +150,7 @@ export default function TeamCommunicationScreen() {
           <Text style={styles.sectionTitle}>Quick Actions</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📝</Text>
+              <MaterialIcons name="edit" size={20} color="#2196F3" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>New Message</Text>
               <Text style={styles.actionSubtitle}>Send to team</Text>
             </TouchableOpacity>
@@ -161,13 +162,13 @@ export default function TeamCommunicationScreen() {
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📋</Text>
+              <MaterialIcons name="assignment" size={20} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Task Board</Text>
               <Text style={styles.actionSubtitle}>Assign tasks</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
-              <Text style={styles.actionIcon}>📊</Text>
+              <MaterialIcons name="analytics" size={20} color="#FF9800" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>Reports</Text>
               <Text style={styles.actionSubtitle}>Team analytics</Text>
             </TouchableOpacity>

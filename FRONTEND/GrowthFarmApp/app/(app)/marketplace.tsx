@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { 
   FadeIn,
   FadeInUp,
@@ -38,7 +39,7 @@ export default function MarketplaceScreen() {
       price: '$24.50',
       seller: 'GreenGrow Ltd.',
       rating: 4.7,
-      image: '🌱',
+      image: 'eco',
       category: 'Fertilizers',
       discount: false
     }
@@ -99,11 +100,11 @@ export default function MarketplaceScreen() {
         entering={FadeIn.duration(600)}
       >
         <View style={styles.headerLeft}>
-          <Text style={styles.leafIcon}>🌱</Text>
+          <MaterialIcons name="eco" size={24} color="white" style={styles.leafIcon} />
           <Text style={styles.brandText}>Smart Farming</Text>
         </View>
         <TouchableOpacity style={styles.profileButton}>
-          <Text style={styles.profileIcon}>👤</Text>
+          <MaterialIcons name="person" size={20} color="white" style={styles.profileIcon} />
         </TouchableOpacity>
       </Animated.View>
 
@@ -123,7 +124,7 @@ export default function MarketplaceScreen() {
               placeholderTextColor="#999"
             />
             <TouchableOpacity style={styles.filterButton}>
-              <Text style={styles.filterIcon}>🔍</Text>
+              <MaterialIcons name="search" size={18} color="#666" style={styles.filterIcon} />
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -172,7 +173,7 @@ export default function MarketplaceScreen() {
                 entering={SlideInLeft.delay(1000 + index * 200).duration(600)}
               >
                 <View style={styles.productImageContainer}>
-                  <Text style={styles.productImage}>{product.image}</Text>
+                  <MaterialIcons name={product.image as any} size={40} color="#4CAF50" style={styles.productImage} />
                   {product.discount && (
                     <View style={styles.discountBadge}>
                       <Text style={styles.discountText}>SALE</Text>
@@ -188,7 +189,7 @@ export default function MarketplaceScreen() {
                     )}
                   </View>
                   <View style={styles.ratingContainer}>
-                    <Text style={styles.ratingIcon}>⭐</Text>
+                    <MaterialIcons name="star" size={14} color="#FFD700" style={styles.ratingIcon} />
                     <Text style={styles.ratingText}>{product.rating}</Text>
                   </View>
                   <TouchableOpacity style={styles.addToCartButton}>

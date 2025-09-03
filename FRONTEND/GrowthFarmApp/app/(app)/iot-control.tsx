@@ -8,6 +8,7 @@ import {
   Switch,
 } from 'react-native';
 import { router } from 'expo-router';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { 
   FadeIn,
   FadeInUp,
@@ -55,7 +56,7 @@ export default function IotControlScreen() {
         entering={FadeIn.duration(600)}
       >
         <View style={styles.headerLeft}>
-          <Text style={styles.leafIcon}>🌱</Text>
+          <MaterialIcons name="eco" size={20} color="white" style={styles.leafIcon} />
           <Text style={styles.brandText}>GROWTH FARM</Text>
         </View>
         <View style={styles.headerRight}>
@@ -66,7 +67,7 @@ export default function IotControlScreen() {
             <Text style={styles.addButtonText}>ADD+</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.profileButton}>
-            <Text style={styles.profileIcon}>👤</Text>
+            <MaterialIcons name="person" size={18} color="white" style={styles.profileIcon} />
           </TouchableOpacity>
         </View>
       </Animated.View>

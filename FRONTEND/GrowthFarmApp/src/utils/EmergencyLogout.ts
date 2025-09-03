@@ -6,29 +6,29 @@ export default class EmergencyLogout {
   // Force logout and clean up all data
   static async forceLogout(shouldNavigate: boolean = true): Promise<void> {
     try {
-      console.log('🚨 Emergency logout initiated');
+      console.log('Emergency logout initiated');
       
       // Clear ALL data for a clean logout (more aggressive approach)
       await AsyncStorage.clear();
-      console.log('🧹 All storage cleared');
+      console.log('All storage cleared');
       
       if (shouldNavigate) {
-        console.log('🚀 Navigating to welcome screen...');
+        console.log('Navigating to welcome screen...');
         // Force navigation to welcome
         router.replace('/');
-        console.log('✅ Navigation completed');
+        console.log('Navigation completed');
       }
       
     } catch (error) {
-      console.error('❌ Emergency logout failed:', error);
+      console.error('Emergency logout failed:', error);
       
       // Force navigation even if clearing fails
       if (shouldNavigate) {
         try {
           router.replace('/');
-          console.log('🆘 Fallback navigation completed');
+          console.log('Fallback navigation completed');
         } catch (navError) {
-          console.error('❌ Navigation also failed:', navError);
+          console.error('Navigation also failed:', navError);
         }
       }
     }
@@ -47,7 +47,7 @@ export default class EmergencyLogout {
       
       // Check for conflicting states
       if (token && guestMode === 'true') {
-        console.log('⚠️ Conflicting auth states detected');
+        console.log('Conflicting auth states detected');
         return true;
       }
       
@@ -82,15 +82,15 @@ User: ${userData ? 'exists' : 'none'}`;
         'growth_farm_user',
         'growth_farm_guest_mode'
       ]);
-      console.log('✅ Quick logout completed');
+      console.log('Quick logout completed');
     } catch (error) {
-      console.error('❌ Quick logout failed:', error);
+      console.error('Quick logout failed:', error);
     }
   }
 
   // Logout with user confirmation
   static async logoutWithConfirmation(isGuest: boolean = false): Promise<boolean> {
-    console.log('📋 Showing logout confirmation dialog...');
+    console.log('Showing logout confirmation dialog...');
     
     const title = isGuest ? 'Exit Demo' : 'Sign Out';
     const message = isGuest 
@@ -106,7 +106,7 @@ User: ${userData ? 'exists' : 'none'}`;
             text: 'Cancel', 
             style: 'cancel',
             onPress: () => {
-              console.log('❌ User cancelled logout');
+              console.log('User cancelled logout');
               resolve(false);
             }
           },
@@ -114,9 +114,9 @@ User: ${userData ? 'exists' : 'none'}`;
             text: isGuest ? 'Exit Demo' : 'Sign Out',
             style: 'destructive',
             onPress: async () => {
-              console.log('✅ User confirmed logout, performing logout...');
+              console.log('User confirmed logout, performing logout...');
               await this.forceLogout(true); // Change to true to navigate
-              console.log('🎯 Logout process completed');
+              console.log('Logout process completed');
               resolve(true);
             }
           }
