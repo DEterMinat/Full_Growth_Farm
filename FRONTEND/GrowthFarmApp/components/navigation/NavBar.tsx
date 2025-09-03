@@ -62,14 +62,6 @@ export default function NavBar({ currentRoute }: NavBarProps) {
       isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
     },
     {
-      id: 'voice',
-      label: '',
-      icon: '🎤',
-      route: '',
-      isVoice: true,
-      isActive: false
-    },
-    {
       id: 'market',
       label: 'Market',
       icon: '🏪',
@@ -86,81 +78,80 @@ export default function NavBar({ currentRoute }: NavBarProps) {
   ];
 
   return (
-    <View style={styles.container}>
-      <View style={styles.navBar}>
-        {tabs.map((tab) => {
-          if (tab.isMenu) {
+    <>
+      {/* Floating Voice AI Button */}
+      <TouchableOpacity
+        style={styles.floatingVoiceButton}
+        onPress={handleVoicePress}
+        activeOpacity={0.8}
+      >
+        <View style={styles.floatingVoiceIconContainer}>
+          <Text style={styles.floatingVoiceIcon}>🎤</Text>
+        </View>
+      </TouchableOpacity>
+
+      {/* Bottom Navigation Bar */}
+      <View style={styles.container}>
+        <View style={styles.navBar}>
+          {tabs.map((tab) => {
+            if (tab.isMenu) {
+              return (
+                <TouchableOpacity
+                  key={tab.id}
+                  style={styles.tabButton}
+                  onPress={handleMenuPress}
+                  activeOpacity={0.7}
+                >
+                  <View style={styles.tabContent}>
+                    <Text style={styles.menuIcon}>{tab.icon}</Text>
+                    <Text style={styles.tabLabel}>{tab.label}</Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            }
+
             return (
               <TouchableOpacity
                 key={tab.id}
-                style={styles.tabButton}
-                onPress={handleMenuPress}
+                style={[
+                  styles.tabButton,
+                  tab.isActive && styles.activeTabButton
+                ]}
+                onPress={() => handleTabPress(tab.id, tab.route)}
                 activeOpacity={0.7}
               >
                 <View style={styles.tabContent}>
-                  <Text style={styles.menuIcon}>{tab.icon}</Text>
-                  <Text style={styles.tabLabel}>{tab.label}</Text>
+                  <Text style={[
+                    styles.tabIcon,
+                    tab.isActive && styles.activeTabIcon
+                  ]}>
+                    {tab.icon}
+                  </Text>
+                  <Text style={[
+                    styles.tabLabel,
+                    tab.isActive && styles.activeTabLabel
+                  ]}>
+                    {tab.label}
+                  </Text>
                 </View>
               </TouchableOpacity>
             );
-          }
+          })}
+        </View>
 
-          if (tab.isVoice) {
-            return (
-              <TouchableOpacity
-                key={tab.id}
-                style={styles.voiceButton}
-                onPress={handleVoicePress}
-                activeOpacity={0.8}
-              >
-                <View style={styles.voiceIconContainer}>
-                  <Text style={styles.voiceIcon}>{tab.icon}</Text>
-                </View>
-              </TouchableOpacity>
-            );
-          }
+        {/* Side Menu */}
+        <SideMenu
+          visible={sideMenuVisible}
+          onClose={closeSideMenu}
+        />
 
-          return (
-            <TouchableOpacity
-              key={tab.id}
-              style={[
-                styles.tabButton,
-                tab.isActive && styles.activeTabButton
-              ]}
-              onPress={() => handleTabPress(tab.id, tab.route)}
-              activeOpacity={0.7}
-            >
-              <View style={styles.tabContent}>
-                <Text style={[
-                  styles.tabIcon,
-                  tab.isActive && styles.activeTabIcon
-                ]}>
-                  {tab.icon}
-                </Text>
-                <Text style={[
-                  styles.tabLabel,
-                  tab.isActive && styles.activeTabLabel
-                ]}>
-                  {tab.label}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
+        {/* Voice AI Modal */}
+        <VoiceAIModal
+          visible={voiceModalVisible}
+          onClose={closeVoiceModal}
+        />
       </View>
-
-      {/* Side Menu */}
-      <SideMenu
-        visible={sideMenuVisible}
-        onClose={closeSideMenu}
-      />
-
-      {/* Voice AI Modal */}
-      <VoiceAIModal
-        visible={voiceModalVisible}
-        onClose={closeVoiceModal}
-      />
-    </View>
+    </>
   );
 }
 
@@ -225,34 +216,40 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     fontWeight: '600',
   },
-  voiceButton: {
+  menuIcon: {
+    fontSize: 20,
+    marginBottom: 2,
+    color: '#666',
+  },
+  // Floating Voice AI Button Styles
+  floatingVoiceButton: {
+    position: 'absolute',
+    bottom: 120, // Position above the navbar
+    right: 20,
+    zIndex: 1000,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 8,
   },
-  voiceIconContainer: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+  floatingVoiceIconContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     backgroundColor: '#4CAF50',
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#4CAF50',
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 6,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 10,
+    borderWidth: 3,
+    borderColor: 'white',
   },
-  voiceIcon: {
-    fontSize: 22,
+  floatingVoiceIcon: {
+    fontSize: 26,
     color: 'white',
-  },
-  menuIcon: {
-    fontSize: 20,
-    marginBottom: 2,
-    color: '#666',
   },
 });
