@@ -8,11 +8,13 @@ import {
   Animated,
   Dimensions,
   Modal,
+  Platform,
 } from 'react-native';
 import { router } from 'expo-router';
 import { useAuth } from '@/src/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const { width } = Dimensions.get('window');
 
@@ -23,19 +25,20 @@ interface SideMenuProps {
 
 export default function SideMenu({ visible, onClose }: SideMenuProps) {
   const { isGuest, logout } = useAuth();
+  const insets = useSafeAreaInsets();
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
 
   React.useEffect(() => {
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 0,
-        duration: 300,
+        duration: 250,
         useNativeDriver: true,
       }).start();
     } else {
       Animated.timing(slideAnim, {
         toValue: -width,
-        duration: 300,
+        duration: 200,
         useNativeDriver: true,
       }).start();
     }
@@ -101,8 +104,10 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
   ];
 
   const handleMenuItemPress = (route?: string) => {
+    console.log('🎯 Menu item pressed:', route);
     onClose();
     if (route) {
+      console.log('🚀 Navigating to:', route);
       router.push(route as any);
     }
   };
@@ -158,10 +163,18 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
         <Animated.View
           style={[
             styles.sideMenu,
-            { transform: [{ translateX: slideAnim }] }
+            { 
+              transform: [{ translateX: slideAnim }],
+              paddingTop: insets.top,
+              paddingBottom: insets.bottom,
+            }
           ]}
         >
-          <TouchableOpacity activeOpacity={1} onPress={() => {}}>
+          <TouchableOpacity 
+            activeOpacity={1} 
+            onPress={(e) => e.stopPropagation()}
+            style={{ flex: 1 }}
+          >
             {/* Header */}
             <View style={styles.header}>
               <MaterialIcons name="eco" size={24} color="#4CAF50" />
@@ -180,29 +193,41 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
             </View>
 
             {/* Menu Items */}
-            <ScrollView style={styles.menuContainer} showsVerticalScrollIndicator={false}>
-              {menuItems.map((item) => (
-                <TouchableOpacity
-                  key={item.id}
-                  style={styles.menuItem}
-                  onPress={() => handleMenuItemPress(item.route)}
-                >
-                  <View style={[styles.menuItemIcon, { backgroundColor: item.color }]}>
-                    <MaterialIcons name={item.icon as any} size={20} color="white" />
-                  </View>
-                  <View style={styles.menuItemContent}>
-                    <Text style={styles.menuItemTitle}>{item.title}</Text>
-                    <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
-                  </View>
-                  <MaterialIcons name="chevron-right" size={20} color="#999" />
-                </TouchableOpacity>
-              ))}
+            <ScrollView 
+              style={styles.menuContainer} 
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ flexGrow: 1 }}
+              bounces={Platform.OS === 'ios'}
+            >
+              {menuItems.map((item, index) => {
+                return (
+                  <TouchableOpacity
+                    key={item.id}
+                    style={styles.menuItem}
+                    onPress={() => {
+                      console.log('🎯 Menu item clicked:', item.title, item.route);
+                      handleMenuItemPress(item.route);
+                    }}
+                    activeOpacity={0.7}
+                  >
+                    <View style={[styles.menuItemIcon, { backgroundColor: item.color }]}>
+                      <MaterialIcons name={item.icon as any} size={20} color="white" />
+                    </View>
+                    <View style={styles.menuItemContent}>
+                      <Text style={styles.menuItemTitle}>{item.title}</Text>
+                      <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+                    </View>
+                    <MaterialIcons name="chevron-right" size={20} color="#999" />
+                  </TouchableOpacity>
+                );
+              })}
 
               {/* Sign Out Section */}
               <View style={styles.signOutSection}>
                 <TouchableOpacity
                   style={styles.signOutButton}
                   onPress={handleSignOut}
+                  activeOpacity={0.7}
                 >
                   <View style={[styles.menuItemIcon, { backgroundColor: '#EF4444' }]}>
                     <MaterialIcons name="logout" size={20} color="white" />
@@ -244,7 +269,7 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   sideMenu: {
-    width: Math.min(300, width * 0.8),
+    width: Math.min(320, width * 0.85), // เพิ่มขนาดสำหรับหน้าจอเล็ก
     height: '100%',
     backgroundColor: '#ffffff',
     shadowColor: '#000',
@@ -252,14 +277,27 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 10,
     elevation: 10,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 12,
+      },
+      android: {
+        elevation: 15,
+      },
+    }),
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    paddingHorizontal: 20,
+    paddingVertical: 15,
     backgroundColor: '#f8fafc',
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#e2e8f0',
+    minHeight: 60, // กำหนดความสูงขั้นต่ำ
   },
   headerIcon: {
     fontSize: 32,
@@ -293,23 +331,36 @@ const styles = StyleSheet.create({
   },
   menuContainer: {
     flex: 1,
-    paddingVertical: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 4, // เพิ่ม padding ซ้าย-ขวา
   },
   menuItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f1f5f9',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 8,
+    marginVertical: 2,
+    borderRadius: 8,
+    minHeight: 56, // กำหนดความสูงขั้นต่ำสำหรับ touch target
+    backgroundColor: 'transparent', // กลับเป็น transparent
+    ...Platform.select({
+      ios: {
+        backgroundColor: 'transparent',
+      },
+      android: {
+        backgroundColor: 'transparent',
+        borderRadius: 8,
+      },
+    }),
   },
   menuItemIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: 12,
   },
   menuItemIconText: {
     fontSize: 18,
@@ -334,23 +385,30 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   signOutSection: {
-    marginTop: 20,
-    paddingTop: 20,
-    borderTopWidth: 1,
+    marginTop: 16,
+    paddingTop: 16,
+    marginHorizontal: 8,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e5e7eb',
   },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    marginHorizontal: 0,
+    borderRadius: 8,
+    minHeight: 56,
+    backgroundColor: 'transparent',
   },
   footer: {
-    padding: 20,
-    borderTopWidth: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#e2e8f0',
     backgroundColor: '#f8fafc',
     alignItems: 'center',
+    minHeight: 60, // กำหนดความสูงขั้นต่ำ
   },
   footerText: {
     fontSize: 12,
