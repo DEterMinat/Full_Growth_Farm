@@ -17,7 +17,7 @@ const healthRoutes = require('./routes/health');
 const tablesRoutes = require('./routes/tables');
 
 const app = express();
-const PORT = process.env.API_SERVER_PORT || 3000;
+const PORT = process.env.API_SERVER_PORT || 30039;
 const HOST = process.env.API_SERVER_HOST || '0.0.0.0';
 
 // Middleware
@@ -26,7 +26,7 @@ app.use(morgan('combined'));
 
 // Configure CORS with multiple origins
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
-  'http://localhost:3000',
+  'http://localhost:30039',
   'http://localhost:19006',
   `http://localhost:${PORT}`,
   `http://119.59.102.61:${PORT}`
