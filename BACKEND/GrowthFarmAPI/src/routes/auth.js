@@ -8,16 +8,17 @@ const router = express.Router();
 
 // Register
 router.post('/register', [
-  body('email').isEmail().normalizeEmail(),
-  body('username').isLength({ min: 3 }).trim(),
-  body('password').isLength({ min: 6 })
+  body('email').isEmail().normalizeEmail().withMessage('กรุณาใส่อีเมลที่ถูกต้อง'),
+  body('username').isLength({ min: 3 }).trim().withMessage('ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร'),
+  body('password').isLength({ min: 6 }).withMessage('รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        success: false,
         error: {
-          message: 'Validation failed',
+          message: 'ข้อมูลไม่ถูกต้อง',
           details: errors.array(),
           status: 400
         }
@@ -35,8 +36,9 @@ router.post('/register', [
 
     if (existingUser) {
       return res.status(409).json({
+        success: false,
         error: {
-          message: 'User with this email or username already exists',
+          message: 'อีเมลหรือชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว',
           status: 409
         }
       });
@@ -60,8 +62,16 @@ router.post('/register', [
     );
 
     res.status(201).json({
-      message: 'User registered successfully',
-      user,
+      success: true,
+      message: 'สมัครสมาชิกสำเร็จ',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber
+      },
       token,
       tokenType: 'Bearer'
     });
@@ -69,8 +79,9 @@ router.post('/register', [
   } catch (error) {
     console.error('Register error:', error);
     res.status(500).json({
+      success: false,
       error: {
-        message: 'Failed to register user',
+        message: 'ไม่สามารถสมัครสมาชิกได้',
         status: 500
       }
     });
@@ -79,15 +90,16 @@ router.post('/register', [
 
 // Login
 router.post('/login', [
-  body('login').notEmpty().trim(), // can be email or username
-  body('password').notEmpty()
+  body('login').notEmpty().trim().withMessage('กรุณาใส่อีเมลหรือชื่อผู้ใช้'), // can be email or username
+  body('password').notEmpty().withMessage('กรุณาใส่รหัสผ่าน')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        success: false,
         error: {
-          message: 'Validation failed',
+          message: 'ข้อมูลไม่ถูกต้อง',
           details: errors.array(),
           status: 400
         }
@@ -105,8 +117,9 @@ router.post('/login', [
 
     if (!user || !await user.checkPassword(password)) {
       return res.status(401).json({
+        success: false,
         error: {
-          message: 'Invalid credentials',
+          message: 'อีเมล/ชื่อผู้ใช้ หรือรหัสผ่านไม่ถูกต้อง',
           status: 401
         }
       });
@@ -114,8 +127,9 @@ router.post('/login', [
 
     if (!user.isActive) {
       return res.status(401).json({
+        success: false,
         error: {
-          message: 'Account is deactivated',
+          message: 'บัญชีผู้ใช้ถูกปิดใช้งาน',
           status: 401
         }
       });
@@ -129,8 +143,16 @@ router.post('/login', [
     );
 
     res.json({
-      message: 'Login successful',
-      user,
+      success: true,
+      message: 'เข้าสู่ระบบสำเร็จ',
+      user: {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        phoneNumber: user.phoneNumber
+      },
       token,
       tokenType: 'Bearer'
     });
@@ -138,8 +160,9 @@ router.post('/login', [
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({
+      success: false,
       error: {
-        message: 'Failed to login',
+        message: 'ไม่สามารถเข้าสู่ระบบได้',
         status: 500
       }
     });
@@ -150,13 +173,16 @@ router.post('/login', [
 router.get('/me', authenticateToken, async (req, res) => {
   try {
     res.json({
+      success: true,
+      message: 'ข้อมูลผู้ใช้',
       user: req.user
     });
   } catch (error) {
     console.error('Get user error:', error);
     res.status(500).json({
+      success: false,
       error: {
-        message: 'Failed to get user information',
+        message: 'ไม่สามารถดึงข้อมูลผู้ใช้ได้',
         status: 500
       }
     });
@@ -166,14 +192,15 @@ router.get('/me', authenticateToken, async (req, res) => {
 // Logout (client-side token invalidation)
 router.post('/logout', authenticateToken, (req, res) => {
   res.json({
-    message: 'Logged out successfully. Please remove the token from client storage.'
+    success: true,
+    message: 'ออกจากระบบสำเร็จ กรุณาลบ token ออกจากเครื่องลูกข่าย'
   });
 });
 
 // Update profile
 router.put('/profile', authenticateToken, [
-  body('email').optional().isEmail().normalizeEmail(),
-  body('username').optional().isLength({ min: 3 }).trim(),
+  body('email').optional().isEmail().normalizeEmail().withMessage('กรุณาใส่อีเมลที่ถูกต้อง'),
+  body('username').optional().isLength({ min: 3 }).trim().withMessage('ชื่อผู้ใช้ต้องมีอย่างน้อย 3 ตัวอักษร'),
   body('firstName').optional().trim(),
   body('lastName').optional().trim(),
   body('phoneNumber').optional().trim()
@@ -182,8 +209,9 @@ router.put('/profile', authenticateToken, [
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        success: false,
         error: {
-          message: 'Validation failed',
+          message: 'ข้อมูลไม่ถูกต้อง',
           details: errors.array(),
           status: 400
         }
@@ -206,8 +234,9 @@ router.put('/profile', authenticateToken, [
 
       if (existingUser) {
         return res.status(409).json({
+          success: false,
           error: {
-            message: 'Email or username already exists',
+            message: 'อีเมลหรือชื่อผู้ใช้นี้มีอยู่ในระบบแล้ว',
             status: 409
           }
         });
@@ -224,15 +253,17 @@ router.put('/profile', authenticateToken, [
     });
 
     res.json({
-      message: 'Profile updated successfully',
+      success: true,
+      message: 'อัปเดตข้อมูลส่วนตัวสำเร็จ',
       user: req.user
     });
 
   } catch (error) {
     console.error('Update profile error:', error);
     res.status(500).json({
+      success: false,
       error: {
-        message: 'Failed to update profile',
+        message: 'ไม่สามารถอัปเดตข้อมูลส่วนตัวได้',
         status: 500
       }
     });
@@ -241,15 +272,16 @@ router.put('/profile', authenticateToken, [
 
 // Change password
 router.put('/password', authenticateToken, [
-  body('currentPassword').notEmpty(),
-  body('newPassword').isLength({ min: 6 })
+  body('currentPassword').notEmpty().withMessage('กรุณาใส่รหัสผ่านปัจจุบัน'),
+  body('newPassword').isLength({ min: 6 }).withMessage('รหัสผ่านใหม่ต้องมีอย่างน้อย 6 ตัวอักษร')
 ], async (req, res) => {
   try {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
+        success: false,
         error: {
-          message: 'Validation failed',
+          message: 'ข้อมูลไม่ถูกต้อง',
           details: errors.array(),
           status: 400
         }
@@ -261,8 +293,9 @@ router.put('/password', authenticateToken, [
     // Verify current password
     if (!await req.user.checkPassword(currentPassword)) {
       return res.status(400).json({
+        success: false,
         error: {
-          message: 'Current password is incorrect',
+          message: 'รหัสผ่านปัจจุบันไม่ถูกต้อง',
           status: 400
         }
       });
@@ -272,14 +305,16 @@ router.put('/password', authenticateToken, [
     await req.user.update({ password: newPassword });
 
     res.json({
-      message: 'Password changed successfully'
+      success: true,
+      message: 'เปลี่ยนรหัสผ่านสำเร็จ'
     });
 
   } catch (error) {
     console.error('Change password error:', error);
     res.status(500).json({
+      success: false,
       error: {
-        message: 'Failed to change password',
+        message: 'ไม่สามารถเปลี่ยนรหัสผ่านได้',
         status: 500
       }
     });

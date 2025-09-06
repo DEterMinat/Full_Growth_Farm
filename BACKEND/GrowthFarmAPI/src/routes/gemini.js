@@ -2,6 +2,7 @@ const express = require('express');
 const { body, validationResult } = require('express-validator');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const { authenticateToken } = require('../middleware/auth');
+const dialectDetector = require('../utils/dialectDetector');
 
 const router = express.Router();
 
@@ -21,23 +22,74 @@ if (process.env.GEMINI_API_KEY) {
   console.warn('⚠️  GEMINI_API_KEY not found in environment variables');
 }
 
-// Mock AI responses for development
+// Mock AI responses for development (รองรับภาษาถิ่น)
 const mockResponses = {
-  crop_advice: [
-    'Based on the current weather conditions, I recommend checking soil moisture levels before the next watering cycle.',
-    'Consider applying organic mulch to retain soil moisture and regulate temperature.',
-    'The upcoming rain forecast suggests delaying fertilizer application until after the weather clears.'
-  ],
-  pest_management: [
-    'High humidity levels create favorable conditions for fungal diseases. Ensure proper air circulation around plants.',
-    'Monitor for signs of aphids and spider mites, which tend to increase during warm, dry periods.',
-    'Consider using beneficial insects like ladybugs for natural pest control.'
-  ],
-  general: [
-    'How can I help you with your farming questions today?',
-    'I can provide advice on crop management, pest control, weather planning, and agricultural best practices.',
-    'What specific farming challenge would you like assistance with?'
-  ]
+  crop_advice: {
+    northern: [
+      'แม่นแล้ว สำหรับข้าวโพดในที่สูงแบบนี้ ต้องระวังอุณหภูมิที่เปลี่ยนแปลงเร็ว',
+      'ลองใส่ปุ๋ยคอกผสมขุยมะพร้าว จักช่วยเก็บความชื้นในดิน',
+      'ช่วงนี้หมอกควันเยอะ ควรปกป้องใบอ่อนด้วยร่มเงา'
+    ],
+    northeastern: [
+      'แม่นแล้วหล่ะ ข้าวเหนียวช่วงนี้ต้องระวังน้ำแล้ง',
+      'ลองขุดสระเก็บน้ำฝน จักได้น้ำใช้ยาวๆ',
+      'มันสำปะหลังปลูกตอนนี้ดี ดินยังชื้นอยู่'
+    ],
+    southern: [
+      'ยางช่วงนี้กรีดได้ดีหล่า ฝนยังไม่มาเต็มที่',
+      'มะพร้าวควรใส่ปุ๋ยเพิ่ม เพราะฝนจะล้างธาตุอาหารออกไป',
+      'ทุเรียนช่วงนี้ต้องระวังแมลงวันผลไม้จิ'
+    ],
+    central: [
+      'ข้าวเจ้าช่วงนี้ควรใส่ปุ๋ยยูเรียเพิ่มครับ',
+      'ผักใบเขียวปลูกได้ดีในช่วงนี้ครับ อากาศเย็นลง',
+      'นาข้าวควรระวังโรคไหม้ใบในหน้าฝนครับ'
+    ]
+  },
+  pest_management: {
+    northern: [
+      'แมลงหนอนช่วงนี้เยอะ ใช้แสงไฟดักจับได้ดี',
+      'โรคใบจุดช่วงหมอกควัน ควรพ่นยากำจัดเชื้อรา',
+      'ปลวกขึ้นมาเยอะ ใช้น้ำสบู่พ่นได้'
+    ],
+    northeastern: [
+      'หนอนกออ่อนเยอะหล่ะ ใช้ไฟดักตอนค่ำ',
+      'เพลี้ยอ่อนแฟบไปหมด พ่นสบู่เหลวลองดู',
+      'ปลวกขึ้นมากช่วงฝนตกแล้วแดด ใช้ไผ่แหลมจิ้มดิน'
+    ],
+    southern: [
+      'ด้วงแรดในมะพร้าวเยอะหล่า ใช้กับดักฟีโรโมน',
+      'โรคใบไหม้ในยางพารา พ่นยาทองแดง',
+      'หนอนกินใบทุเรียน เก็บด้วยมือวิธีเดียว'
+    ],
+    central: [
+      'เพลี้ยอ่อนในผักใบเขียวครับ ใช้น้ำสบู่พ่น',
+      'หนอนเจาะลำต้นข้าวโพด ตัดส่วนที่เสียทิ้งครับ',
+      'โรคราสนิมในถั่วเขียว พ่นยากำจัดเชื้อราครับ'
+    ]
+  },
+  general: {
+    northern: [
+      'สวัสดีแหนะ มีอะไรจะถามเรื่องการเกษตรป่าว?',
+      'เฮาพร้อมช่วยเรื่องการปลูกพืชในภาคเหนือแหนะ',
+      'ต้องการคำแนะนำเรื่องอะไรจัก บอกมาได้เลยแหนะ'
+    ],
+    northeastern: [
+      'สบายดีป่าวหล่ะ มีปัญหาเรื่องการเกษตรป่าว?',
+      'เฮาช่วยแนะนำเรื่องการปลูกพืชได้หล่ะ',
+      'มีอะไรอยากรู้เรื่องการเกษตร ถามมาได้เลยหล่ะ'
+    ],
+    southern: [
+      'ว่าไงหล่า มีปัญหาเรื่องสวนป่าว?',
+      'พร้อมช่วยเรื่องยางพารา มะพร้าว หรือผลไม้หล่า',
+      'มีอะไรจะถามเรื่องการเกษตร บอกมาได้เลยจิ'
+    ],
+    central: [
+      'สวัสดีครับ/ค่ะ มีอะไรให้ช่วยเรื่องการเกษตรไหมครับ?',
+      'พร้อมให้คำแนะนำเรื่องการปลูกพืชครับ/ค่ะ',
+      'มีคำถามเรื่องการเกษตรอะไรไหมครับ/ค่ะ'
+    ]
+  }
 };
 
 // Chat with AI assistant
@@ -59,42 +111,37 @@ router.post('/chat', authenticateToken, [
 
     const { message, context } = req.body;
 
+    // ตรวจจับภาษาถิ่น
+    const detectedDialect = dialectDetector.detectDialect(message);
+    console.log(`Detected dialect: ${detectedDialect}`);
+
     let response;
     let source = 'mock';
 
     if (model && genAI) {
       try {
-        // Prepare context for agricultural AI
-        const agriculturalContext = `You are an expert agricultural AI assistant for a smart farming application. 
-        User context: ${context || 'General farming inquiry'}
-        
-        Provide helpful, practical advice for farmers. Focus on:
-        - Crop management and optimization
-        - Weather-based recommendations  
-        - Pest and disease management
-        - Soil health and nutrition
-        - Sustainable farming practices
-        - Technology integration in farming
-        
-        User question: ${message}`;
+        // สร้าง Prompt ตามภาษาถิ่นที่ตรวจพบ
+        const dialectPrompt = dialectDetector.createDialectPrompt(message, context, detectedDialect);
 
-        const result = await model.generateContent(agriculturalContext);
+        const result = await model.generateContent(dialectPrompt);
         const aiResponse = await result.response;
-        response = aiResponse.text();
-        source = 'gemini';
+        response = dialectDetector.formatResponse(aiResponse.text(), detectedDialect);
+        source = 'gemini-1.5-flash';
 
       } catch (aiError) {
         console.warn('Gemini AI error, using mock response:', aiError.message);
         
         // Fallback to mock responses
         const category = detectCategory(message);
-        const responses = mockResponses[category] || mockResponses.general;
+        const dialectResponses = mockResponses[category] || mockResponses.general;
+        const responses = dialectResponses[detectedDialect] || dialectResponses.central;
         response = responses[Math.floor(Math.random() * responses.length)];
       }
     } else {
       // Use mock responses when API key is not available
       const category = detectCategory(message);
-      const responses = mockResponses[category] || mockResponses.general;
+      const dialectResponses = mockResponses[category] || mockResponses.general;
+      const responses = dialectResponses[detectedDialect] || dialectResponses.central;
       response = responses[Math.floor(Math.random() * responses.length)];
     }
 
@@ -105,6 +152,8 @@ router.post('/chat', authenticateToken, [
       userMessage: message,
       aiResponse: response,
       context: context,
+      detectedDialect: detectedDialect,
+      dialectName: dialectDetector.dialects[detectedDialect].name,
       timestamp: new Date().toISOString(),
       source: source
     };
@@ -112,7 +161,11 @@ router.post('/chat', authenticateToken, [
     res.json({
       response: response,
       conversation: conversation,
-      suggestions: generateSuggestions(message),
+      suggestions: dialectDetector.generateDialectSuggestions(detectedDialect),
+      detectedDialect: {
+        code: detectedDialect,
+        name: dialectDetector.dialects[detectedDialect].name
+      },
       source: source
     });
 
@@ -306,31 +359,21 @@ router.post('/demo/chat', [
 
     const { message, context } = req.body;
 
+    // ตรวจจับภาษาถิ่น
+    const detectedDialect = dialectDetector.detectDialect(message);
+    console.log(`Demo - Detected dialect: ${detectedDialect}`);
+
     let response;
     let source = 'mock';
 
     if (model && genAI) {
       try {
-        // Prepare context for agricultural AI
-        const agriculturalContext = `คุณเป็นผู้เชี่ยวชาญด้านเกษตรกรรม AI สำหรับแอปพลิเคชันการเกษตรอัจฉริยะ
-        
-        บริบทของผู้ใช้: ${context || 'คำถามเกี่ยวกับการเกษตรทั่วไป'}
-        
-        ให้คำแนะนำที่เป็นประโยชน์และปฏิบัติได้จริงสำหรับเกษตรกร โดยเน้น:
-        - การจัดการพืชผลและการเพิ่มประสิทธิภาพ
-        - คำแนะนำตามสภาพอากาศ
-        - การจัดการศัตรูพืชและโรคพืช
-        - สุขภาพดินและธาตุอาหาร
-        - การเกษตรที่ยั่งยืน
-        - การใช้เทคโนโลยีในการเกษตร
-        
-        คำถามของผู้ใช้: ${message}
-        
-        ตอบเป็นภาษาไทยที่เข้าใจง่าย และให้คำแนะนำที่เป็นประโยชน์`;
+        // สร้าง Prompt ตามภาษาถิ่นที่ตรวจพบ
+        const dialectPrompt = dialectDetector.createDialectPrompt(message, context, detectedDialect);
 
-        const result = await model.generateContent(agriculturalContext);
+        const result = await model.generateContent(dialectPrompt);
         const aiResponse = await result.response;
-        response = aiResponse.text();
+        response = dialectDetector.formatResponse(aiResponse.text(), detectedDialect);
         source = 'gemini-1.5-flash';
 
       } catch (aiError) {
@@ -338,13 +381,15 @@ router.post('/demo/chat', [
         
         // Fallback to mock responses
         const category = detectCategory(message);
-        const responses = mockResponses[category] || mockResponses.general;
+        const dialectResponses = mockResponses[category] || mockResponses.general;
+        const responses = dialectResponses[detectedDialect] || dialectResponses.central;
         response = responses[Math.floor(Math.random() * responses.length)];
       }
     } else {
       // Use mock responses when API key is not available
       const category = detectCategory(message);
-      const responses = mockResponses[category] || mockResponses.general;
+      const dialectResponses = mockResponses[category] || mockResponses.general;
+      const responses = dialectResponses[detectedDialect] || dialectResponses.central;
       response = responses[Math.floor(Math.random() * responses.length)];
     }
 
@@ -354,6 +399,8 @@ router.post('/demo/chat', [
       userMessage: message,
       aiResponse: response,
       context: context,
+      detectedDialect: detectedDialect,
+      dialectName: dialectDetector.dialects[detectedDialect].name,
       timestamp: new Date().toISOString(),
       source: source,
       category: detectCategory(message)
@@ -362,7 +409,11 @@ router.post('/demo/chat', [
     res.json({
       response: response,
       conversation: conversation,
-      suggestions: generateSuggestions(message),
+      suggestions: dialectDetector.generateDialectSuggestions(detectedDialect),
+      detectedDialect: {
+        code: detectedDialect,
+        name: dialectDetector.dialects[detectedDialect].name
+      },
       source: source,
       note: 'Demo mode - no authentication required'
     });

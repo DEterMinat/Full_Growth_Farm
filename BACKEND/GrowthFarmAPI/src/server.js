@@ -10,7 +10,6 @@ const localization = require('./middleware/localization');
 
 // Import routes
 const authRoutes = require('./routes/auth');
-const authThaiRoutes = require('./routes/auth_thai');
 const farmRoutes = require('./routes/farms');
 const marketplaceRoutes = require('./routes/marketplace');
 const weatherRoutes = require('./routes/weather');
@@ -62,7 +61,6 @@ app.use(localization.middleware());
 
 // Routes
 app.use('/auth', authRoutes);
-app.use('/auth/th', authThaiRoutes); // Thai version of auth
 app.use('/farms', farmRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/weather', weatherRoutes);
@@ -95,20 +93,19 @@ app.get('/', (req, res) => {
     },
     endpoints: {
       health: '/health - สุขภาพระบบ',
-      auth: '/auth - ระบบสมาชิก (English)',
-      authThai: '/auth/th - ระบบสมาชิก (ไทย)',
+      auth: '/auth - ระบบสมาชิก (ภาษาไทย)',
       farms: '/farms - ฟาร์ม',
       marketplace: '/marketplace - ตลาดกลาง',
       weather: '/weather - สภาพอากาศ',
-      ai: '/ai - ปัญญาประดิษฐ์',
+      ai: '/ai - ปัญญาประดิษฐ์ (รองรับภาษาถิ่น)',
       tables: '/api/tables - ข้อมูลตาราง'
     },
     features: [
-      'ระบบสมาชิกและการยืนยันตัวตน',
+      'ระบบสมาชิกและการยืนยันตัวตน (ภาษาไทย)',
       'จัดการฟาร์มและพื้นที่เพาะปลูก',
       'ตลาดกลางซื้อขายผลผลิต',
       'ข้อมูลสภาพอากาศ',
-      'ปัญญาประดิษฐ์ Gemini 1.5 Flash',
+      'ปัญญาประดิษฐ์ Gemini 1.5 Flash รองรับภาษาถิ่น',
       'การควบคุม IoT และเซ็นเซอร์',
       'รายงานและการวิเคราะห์'
     ]
