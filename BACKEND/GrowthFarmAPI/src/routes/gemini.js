@@ -12,10 +12,13 @@ let model = null;
 if (process.env.GEMINI_API_KEY) {
   try {
     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    model = genAI.getGenerativeModel({ model: 'gemini-pro' });
+    model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
+    console.log('✅ Gemini 1.5 Flash AI initialized successfully');
   } catch (error) {
-    console.warn('Gemini AI initialization failed:', error.message);
+    console.warn('⚠️  Gemini AI initialization failed:', error.message);
   }
+} else {
+  console.warn('⚠️  GEMINI_API_KEY not found in environment variables');
 }
 
 // Mock AI responses for development
@@ -270,6 +273,8 @@ function generateSuggestions(message) {
 router.get('/status', (req, res) => {
   res.json({
     status: model && genAI ? 'available' : 'limited',
+    model: model && genAI ? 'gemini-1.5-flash' : 'mock',
+    service: 'Growth Farm AI Assistant',
     features: {
       chat: true,
       recommendations: true,
@@ -277,8 +282,225 @@ router.get('/status', (req, res) => {
       realTimeAI: model && genAI ? true : false
     },
     provider: model && genAI ? 'Google Gemini' : 'Mock AI',
+    available: true,
     lastUpdated: new Date().toISOString()
   });
+});
+
+// Demo Chat endpoint (ไม่ต้อง authentication)
+router.post('/demo/chat', [
+  body('message').notEmpty().trim(),
+  body('context').optional().trim()
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        error: {
+          message: 'Validation failed',
+          details: errors.array(),
+          status: 400
+        }
+      });
+    }
+
+    const { message, context } = req.body;
+
+    let response;
+    let source = 'mock';
+
+    if (model && genAI) {
+      try {
+        // Prepare context for agricultural AI
+        const agriculturalContext = `คุณเป็นผู้เชี่ยวชาญด้านเกษตรกรรม AI สำหรับแอปพลิเคชันการเกษตรอัจฉริยะ
+        
+        บริบทของผู้ใช้: ${context || 'คำถามเกี่ยวกับการเกษตรทั่วไป'}
+        
+        ให้คำแนะนำที่เป็นประโยชน์และปฏิบัติได้จริงสำหรับเกษตรกร โดยเน้น:
+        - การจัดการพืชผลและการเพิ่มประสิทธิภาพ
+        - คำแนะนำตามสภาพอากาศ
+        - การจัดการศัตรูพืชและโรคพืช
+        - สุขภาพดินและธาตุอาหาร
+        - การเกษตรที่ยั่งยืน
+        - การใช้เทคโนโลยีในการเกษตร
+        
+        คำถามของผู้ใช้: ${message}
+        
+        ตอบเป็นภาษาไทยที่เข้าใจง่าย และให้คำแนะนำที่เป็นประโยชน์`;
+
+        const result = await model.generateContent(agriculturalContext);
+        const aiResponse = await result.response;
+        response = aiResponse.text();
+        source = 'gemini-1.5-flash';
+
+      } catch (aiError) {
+        console.warn('Gemini AI error, using mock response:', aiError.message);
+        
+        // Fallback to mock responses
+        const category = detectCategory(message);
+        const responses = mockResponses[category] || mockResponses.general;
+        response = responses[Math.floor(Math.random() * responses.length)];
+      }
+    } else {
+      // Use mock responses when API key is not available
+      const category = detectCategory(message);
+      const responses = mockResponses[category] || mockResponses.general;
+      response = responses[Math.floor(Math.random() * responses.length)];
+    }
+
+    // Demo conversation without user authentication
+    const conversation = {
+      id: `demo_conv_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      userMessage: message,
+      aiResponse: response,
+      context: context,
+      timestamp: new Date().toISOString(),
+      source: source,
+      category: detectCategory(message)
+    };
+
+    res.json({
+      response: response,
+      conversation: conversation,
+      suggestions: generateSuggestions(message),
+      source: source,
+      note: 'Demo mode - no authentication required'
+    });
+
+  } catch (error) {
+    console.error('Demo AI chat error:', error);
+    res.status(500).json({
+      error: {
+        message: 'Failed to process AI request',
+        status: 500
+      }
+    });
+  }
+});
+
+// Demo Recommendations endpoint (ไม่ต้อง authentication)
+router.get('/demo/recommendations', async (req, res) => {
+  try {
+    const { farmId, cropType, language = 'th' } = req.query;
+
+    // Demo recommendations in Thai
+    const recommendations = [
+      {
+        category: 'คำแนะนำสภาพอากาศ',
+        title: 'เตรียมรับมือฝนตก',
+        description: 'คาดการณ์ฝนตกหนักใน 48 ชั่วโมง ควรเตรียมการระบายน้ำและป้องกันพืชที่เสี่ยง',
+        priority: 'สูง',
+        actionRequired: true,
+        estimatedBenefit: 'ป้องกันความเสียหาย 15,000-30,000 บาท',
+        cropType: cropType || 'มะเขือเทศ',
+        icon: '🌧️'
+      },
+      {
+        category: 'การจัดการพืชผล',
+        title: 'ช่วงเวลาเก็บเกี่ยวที่เหมาะสม',
+        description: 'สภาพอากาศปัจจุบันเหมาะสำหรับการเก็บเกี่ยว แนะนำให้เร่งตารางเก็บเกี่ยว',
+        priority: 'ปานกลาง',
+        actionRequired: false,
+        estimatedBenefit: 'เพิ่มคุณภาพผลผลิต 10-15%',
+        cropType: cropType || 'มะเขือเทศ',
+        icon: '🌾'
+      },
+      {
+        category: 'การควบคุมศัตรูพืช',
+        title: 'เฝ้าระวังแมลงศัตรูพืช',
+        description: 'ความชื้นสูงอาจเพิ่มกิจกรรมของแมลงศัตรูพืช ควรตรวจสอบและป้องกัน',
+        priority: 'ปานกลาง',
+        actionRequired: true,
+        estimatedBenefit: 'ป้องกันการสูญเสียผลผลิต 10-15%',
+        cropType: cropType || 'มะเขือเทศ',
+        icon: '🐛'
+      },
+      {
+        category: 'การจัดการน้ำ',
+        title: 'ปรับลดการให้น้ำ',
+        description: 'ลดการให้น้ำ 30% เนื่องจากคาดการณ์ฝนตกและความชื้นดินสูง',
+        priority: 'ต่ำ',
+        actionRequired: false,
+        estimatedBenefit: 'ประหยัดค่าน้ำ 1,500-3,000 บาท',
+        cropType: cropType || 'มะเขือเทศ',
+        icon: '💧'
+      }
+    ];
+
+    res.json({
+      recommendations: recommendations,
+      farmId: farmId || 'demo-farm',
+      cropType: cropType || 'มะเขือเทศ',
+      generatedAt: new Date().toISOString(),
+      source: model && genAI ? 'ai-enhanced' : 'rule-based',
+      note: 'Demo mode - no authentication required',
+      language: language
+    });
+
+  } catch (error) {
+    console.error('Demo recommendations error:', error);
+    res.status(500).json({
+      error: {
+        message: 'Failed to generate demo recommendations',
+        status: 500
+      }
+    });
+  }
+});
+
+// Demo Conversations endpoint (ไม่ต้อง authentication)
+router.get('/demo/conversations', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+
+    // Mock conversation history in Thai
+    const conversations = [
+      {
+        id: 'demo_conv_1',
+        userMessage: 'วิธีดูแลต้นมะเขือเทศในหน้าฝนยังไง?',
+        aiResponse: 'ในหน้าฝนควรให้ความสำคัญกับการระบายน้ำที่ดี หลีกเลี่ยงน้ำขัง และเพิ่มการระบายอากาศเพื่อป้องกันโรคเชื้อรา',
+        timestamp: new Date(Date.now() - 86400000).toISOString(),
+        source: 'gemini-1.5-flash',
+        category: 'crop_advice'
+      },
+      {
+        id: 'demo_conv_2',
+        userMessage: 'ปุ์ยอะไรดีสำหรับข้าวโพด?',
+        aiResponse: 'ข้าวโพดต้องการไนโตรเจนสูง แนะนำใช้ปุ๋ยเคมี 16-20-0 ในช่วงแรก และ 46-0-0 ในช่วงออกดอก',
+        timestamp: new Date(Date.now() - 172800000).toISOString(),
+        source: 'gemini-1.5-flash',
+        category: 'crop_advice'
+      },
+      {
+        id: 'demo_conv_3',
+        userMessage: 'จัดการแมลงศัตรูพืชอย่างไร?',
+        aiResponse: 'ใช้วิธีการป้องกันแบบผสมผสาน: ตรวจสอบสม่ำเสมอ ใช้ศัตรูธรรมชาติ และพ่นยาเมื่อจำเป็น',
+        timestamp: new Date(Date.now() - 259200000).toISOString(),
+        source: 'gemini-1.5-flash',
+        category: 'pest_management'
+      }
+    ];
+
+    res.json({
+      conversations: conversations,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total: conversations.length,
+        pages: Math.ceil(conversations.length / limit)
+      },
+      note: 'Demo mode - no authentication required'
+    });
+
+  } catch (error) {
+    console.error('Demo conversations error:', error);
+    res.status(500).json({
+      error: {
+        message: 'Failed to fetch demo conversations',
+        status: 500
+      }
+    });
+  }
 });
 
 module.exports = router;

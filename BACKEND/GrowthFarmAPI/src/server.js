@@ -6,9 +6,11 @@ require('dotenv').config();
 
 const { sequelize } = require('./config/database');
 const { initializeAssociations } = require('./scripts/sync-database');
+const localization = require('./middleware/localization');
 
 // Import routes
 const authRoutes = require('./routes/auth');
+const authThaiRoutes = require('./routes/auth_thai');
 const farmRoutes = require('./routes/farms');
 const marketplaceRoutes = require('./routes/marketplace');
 const weatherRoutes = require('./routes/weather');
@@ -55,8 +57,12 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
+// Add localization middleware
+app.use(localization.middleware());
+
 // Routes
 app.use('/auth', authRoutes);
+app.use('/auth/th', authThaiRoutes); // Thai version of auth
 app.use('/farms', farmRoutes);
 app.use('/marketplace', marketplaceRoutes);
 app.use('/weather', weatherRoutes);
@@ -70,14 +76,17 @@ app.get('/', (req, res) => {
   const port = process.env.PORT || 8000;
   
   res.json({
-    message: '🌱 Growth Farm API Server',
+    success: true,
+    message: '🌱 ระบบ Growth Farm API',
+    description: 'API สำหรับระบบการเกษตรอัจฉริยะ',
     version: '1.0.0',
-    status: 'running',
+    status: 'ทำงานปกติ',
     timestamp: new Date().toISOString(),
     server: {
       host: host,
       port: port,
       url: `http://${host}:${port}`,
+      language: 'ภาษาไทย + English',
       database: {
         host: process.env.DB_HOST,
         database: process.env.DB_NAME,
@@ -85,14 +94,24 @@ app.get('/', (req, res) => {
       }
     },
     endpoints: {
-      health: '/health',
-      auth: '/auth',
-      farms: '/farms',
-      marketplace: '/marketplace',
-      weather: '/weather',
-      ai: '/ai',
-      tables: '/api/tables'
-    }
+      health: '/health - สุขภาพระบบ',
+      auth: '/auth - ระบบสมาชิก (English)',
+      authThai: '/auth/th - ระบบสมาชิก (ไทย)',
+      farms: '/farms - ฟาร์ม',
+      marketplace: '/marketplace - ตลาดกลาง',
+      weather: '/weather - สภาพอากาศ',
+      ai: '/ai - ปัญญาประดิษฐ์',
+      tables: '/api/tables - ข้อมูลตาราง'
+    },
+    features: [
+      'ระบบสมาชิกและการยืนยันตัวตน',
+      'จัดการฟาร์มและพื้นที่เพาะปลูก',
+      'ตลาดกลางซื้อขายผลผลิต',
+      'ข้อมูลสภาพอากาศ',
+      'ปัญญาประดิษฐ์ Gemini 1.5 Flash',
+      'การควบคุม IoT และเซ็นเซอร์',
+      'รายงานและการวิเคราะห์'
+    ]
   });
 });
 

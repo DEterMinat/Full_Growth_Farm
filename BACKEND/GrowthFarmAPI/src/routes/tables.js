@@ -31,13 +31,14 @@ router.get('/users', async (req, res) => {
     });
     res.json({
       success: true,
+      message: 'ดึงข้อมูลผู้ใช้สำเร็จ',
       count: users.length,
       data: users
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Failed to fetch users',
+      message: 'ไม่สามารถดึงข้อมูลผู้ใช้ได้',
       error: error.message
     });
   }

@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    // Check database connection
+    // ตรวจสอบการเชื่อมต่อฐานข้อมูล
     await sequelize.authenticate();
     
     const uptime = process.uptime();
@@ -17,28 +17,40 @@ router.get('/', async (req, res) => {
     };
 
     res.json({
-      status: 'healthy',
+      success: true,
+      status: 'สุขภาพดี',
+      message: 'ระบบทำงานปกติ',
       timestamp: new Date().toISOString(),
       uptime: uptimeFormatted,
       version: '1.0.0',
       environment: process.env.NODE_ENV || 'development',
-      database: 'connected',
+      database: 'เชื่อมต่อแล้ว',
       services: {
-        api: 'online',
-        database: 'connected',
-        auth: 'available'
+        api: 'ออนไลน์',
+        database: 'เชื่อมต่อแล้ว',
+        auth: 'พร้อมใช้งาน',
+        ai: 'พร้อมใช้งาน'
+      },
+      server: {
+        host: process.env.API_SERVER_HOST || 'localhost',
+        port: process.env.PORT || 30007,
+        nodeVersion: process.version,
+        platform: process.platform
       }
     });
   } catch (error) {
     console.error('Health check failed:', error);
     res.status(503).json({
-      status: 'unhealthy',
+      success: false,
+      status: 'มีปัญหา',
+      message: 'ระบบมีปัญหา',
       timestamp: new Date().toISOString(),
-      error: 'Database connection failed',
+      error: 'การเชื่อมต่อฐานข้อมูลล้มเหลว',
       services: {
-        api: 'online',
-        database: 'disconnected',
-        auth: 'limited'
+        api: 'ออนไลน์',
+        database: 'ขาดการเชื่อมต่อ',
+        auth: 'จำกัด',
+        ai: 'ไม่พร้อมใช้งาน'
       }
     });
   }
