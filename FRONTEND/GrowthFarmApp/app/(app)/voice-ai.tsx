@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, TextInput, Alert } from 'react-native';
 import { router } from 'expo-router';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { 
@@ -27,6 +27,39 @@ export default function VoiceAIScreen() {
   ]);
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [textInput, setTextInput] = useState('');
+  const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'error'>('checking');
+
+  // Test API connection on component mount
+  useEffect(() => {
+    const testApiConnection = async () => {
+      try {
+        console.log('Testing API connection...');
+        const status = await geminiAPI.getAIStatus();
+        console.log('API Status:', status);
+        setApiStatus('connected');
+        
+        // Update the first message to show connection status
+        setMessages(prev => prev.map(msg => 
+          msg.id === 1 
+            ? { ...msg, text: t('voice_ai.greeting_message') + ' (Connected to AI)' }
+            : msg
+        ));
+      } catch (error) {
+        console.error('API connection test failed:', error);
+        setApiStatus('error');
+        
+        // Update the first message to show error
+        setMessages(prev => prev.map(msg => 
+          msg.id === 1 
+            ? { ...msg, text: t('voice_ai.greeting_message') + ' (Offline - Using cached responses)' }
+            : msg
+        ));
+      }
+    };
+
+    testApiConnection();
+  }, [t]);
 
   const quickQuestions = [
     { id: 1, text: t('voice_ai.weather_today'), icon: 'wb-sunny' },
@@ -49,6 +82,49 @@ export default function VoiceAIScreen() {
     setMessages(prev => [...prev, newMessage]);
   };
 
+  const handleSendMessage = async (messageText: string) => {
+    if (!messageText.trim()) return;
+    
+    addMessage(messageText, 'user');
+    setIsProcessing(true);
+    
+    try {
+      console.log('Sending message to AI:', messageText);
+      
+      // Use Gemini AI for conversation
+      const conversationHistory = messages.slice(-5); // Last 5 messages for context
+      const response = await geminiAPI.chatWithAI(messageText, conversationHistory);
+      
+      console.log('AI Response:', response); // Debug log
+      
+      if (response.success && response.response) {
+        addMessage(response.response, 'bot');
+      } else {
+        console.log('API response not successful:', response);
+        addMessage(t('voice_ai.processing_error'), 'bot');
+      }
+    } catch (error) {
+      console.error('Error details:', error);
+      // Show user-friendly error
+      Alert.alert(
+        t('voice_ai.error_title'),
+        t('voice_ai.connection_error'),
+        [{ text: 'OK' }]
+      );
+      // Fallback response
+      addMessage(t('voice_ai.api_error'), 'bot');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleTextSend = () => {
+    if (textInput.trim()) {
+      handleSendMessage(textInput.trim());
+      setTextInput('');
+    }
+  };
+
   const handleStartListening = async () => {
     if (isListening || isProcessing) return;
     
@@ -57,84 +133,15 @@ export default function VoiceAIScreen() {
     // Simulate voice input (สามารถเพิ่ม speech recognition จริงได้ภายหลัง)
     setTimeout(async () => {
       setIsListening(false);
-      setIsProcessing(true);
       
       // Add simulated user message
       const userMessage = t('voice_ai.weather_today') + '?';
-      addMessage(userMessage, 'user');
-      
-      try {
-        console.log('Sending voice message to AI:', userMessage);
-        
-        // Use Gemini AI for conversation
-        const conversationHistory = messages.slice(-5); // Last 5 messages for context
-        const response = await geminiAPI.chatWithAI(userMessage, conversationHistory);
-        
-        console.log('AI Response:', response); // Debug log
-        
-        if (response.success && response.response) {
-          addMessage(response.response, 'bot');
-        } else {
-          console.log('API response not successful:', response);
-          addMessage(t('voice_ai.processing_error'), 'bot');
-        }
-      } catch (error) {
-        console.error('Error details:', error);
-        // Fallback response
-        addMessage(t('voice_ai.weather_fallback'), 'bot');
-      } finally {
-        setIsProcessing(false);
-      }
+      await handleSendMessage(userMessage);
     }, 3000);
   };
 
   const handleQuickQuestion = async (question: string) => {
-    addMessage(question, 'user');
-    
-    setIsProcessing(true);
-    try {
-      console.log('Asking quick question:', question);
-      
-      // Use Gemini AI for quick questions
-      const response = await geminiAPI.askQuickQuestion(question);
-      
-      console.log('Quick question response:', response); // Debug log
-      
-      if (response.success && response.response) {
-        addMessage(response.response, 'bot');
-      } else {
-        console.log('Quick question API response not successful:', response);
-        addMessage(t('voice_ai.answer_error'), 'bot');
-      }
-    } catch (error) {
-      console.error('Quick question error details:', error);
-      
-      // Fallback to local responses if API fails
-      let fallbackResponse = '';
-      switch (question) {
-        case t('voice_ai.weather_today'):
-          fallbackResponse = t('voice_ai.weather_fallback');
-          break;
-        case t('voice_ai.latest_crop_prices'):
-          fallbackResponse = t('voice_ai.prices_fallback');
-          break;
-        case t('voice_ai.fruit_care'):
-          fallbackResponse = t('voice_ai.fruit_care_fallback');
-          break;
-        case t('voice_ai.data_analysis'):
-          fallbackResponse = t('voice_ai.analysis_fallback');
-          break;
-        case t('voice_ai.task_notifications'):
-          fallbackResponse = t('voice_ai.tasks_fallback');
-          break;
-        default:
-          fallbackResponse = t('voice_ai.api_error');
-      }
-      
-      addMessage(fallbackResponse, 'bot');
-    } finally {
-      setIsProcessing(false);
-    }
+    await handleSendMessage(question);
   };
 
   return (
@@ -225,9 +232,39 @@ export default function VoiceAIScreen() {
 
       {/* Voice Input */}
       <Animated.View 
-        style={styles.voiceSection}
+        style={styles.inputSection}
         entering={ZoomIn.delay(1500).duration(800)}
       >
+        {/* Text Input */}
+        <View style={styles.textInputContainer}>
+          <TextInput
+            style={styles.textInput}
+            value={textInput}
+            onChangeText={setTextInput}
+            placeholder={t('voice_ai.type_message_placeholder')}
+            placeholderTextColor="#666"
+            multiline
+            maxLength={1000}
+            onSubmitEditing={handleTextSend}
+            editable={!isProcessing}
+          />
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
+              (!textInput.trim() || isProcessing) && styles.sendButtonDisabled
+            ]}
+            onPress={handleTextSend}
+            disabled={!textInput.trim() || isProcessing}
+          >
+            <MaterialIcons 
+              name="send" 
+              size={20} 
+              color={(!textInput.trim() || isProcessing) ? "#999" : "white"} 
+            />
+          </TouchableOpacity>
+        </View>
+
+        {/* Voice Button */}
         <TouchableOpacity
           style={[
             styles.voiceButton,
@@ -375,6 +412,44 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#333',
     fontWeight: '500',
+  },
+  inputSection: {
+    backgroundColor: 'white',
+    padding: 20,
+    alignItems: 'center',
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+  },
+  textInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    width: '100%',
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    maxHeight: 100,
+    marginRight: 10,
+    paddingVertical: 5,
+  },
+  sendButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 20,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  sendButtonDisabled: {
+    backgroundColor: '#ccc',
   },
   voiceSection: {
     backgroundColor: 'white',

@@ -496,6 +496,9 @@
     "fruit_care_fallback": "During this period, apply potassium fertilizer, prune branches, and watch for rust disease. Check every 3-4 days (cached data)",
     "analysis_fallback": "This month's production increased 12%, costs decreased 8%, profit increased 25% compared to last month (cached data)",
     "tasks_fallback": "Today's tasks: Water Zone A (08:00), Check IoT sensors (10:00), Harvest mangoes (14:00) (cached data)",
-    "api_error": "Sorry, unable to answer the question at this time"
+    "api_error": "Sorry, unable to answer the question at this time",
+    "type_message_placeholder": "Type a message and press Enter...",
+    "error_title": "Connection Error",
+    "connection_error": "Unable to connect to AI service. Please check your connection and try again."
   }
 }

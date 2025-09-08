@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://localhost:30039';
 
 export interface ChatMessage {
   id?: number;
@@ -12,6 +12,11 @@ export interface ChatResponse {
   message: string;
   response: string;
   timestamp: string;
+  conversation?: any;
+  suggestions?: any;
+  detectedDialect?: any;
+  source?: string;
+  note?: string;
 }
 
 class GeminiAPIClient {
@@ -28,7 +33,21 @@ class GeminiAPIClient {
       console.error(`HTTP error! status: ${response.status}, body: ${errorText}`);
       throw new Error(`API Error: ${response.status} - ${errorText}`);
     }
-    return await response.json();
+    
+    const data = await response.json();
+    
+    // Transform the backend response to match our interface
+    return {
+      success: true,
+      message: 'Response received',
+      response: data.response || data.message || '',
+      timestamp: new Date().toISOString(),
+      conversation: data.conversation,
+      suggestions: data.suggestions,
+      detectedDialect: data.detectedDialect,
+      source: data.source,
+      note: data.note
+    };
   }
 
   // Chat with AI
@@ -36,7 +55,7 @@ class GeminiAPIClient {
     try {
       console.log('Sending chat request:', { message, conversationHistory });
       
-      const response = await fetch(`${this.baseURL}/api/gemini/chat`, {
+      const response = await fetch(`${this.baseURL}/ai/demo/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,7 +82,7 @@ class GeminiAPIClient {
     condition?: string;
   }): Promise<ChatResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/api/gemini/weather-advice`, {
+      const response = await fetch(`${this.baseURL}/ai/weather-advice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +104,7 @@ class GeminiAPIClient {
   // Get crop advice
   async getCropAdvice(cropType: string, growthStage?: string): Promise<ChatResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/api/gemini/crop-advice`, {
+      const response = await fetch(`${this.baseURL}/ai/crop-advice`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -115,7 +134,7 @@ class GeminiAPIClient {
     soil_temperature?: number;
   }): Promise<ChatResponse> {
     try {
-      const response = await fetch(`${this.baseURL}/api/gemini/sensor-analysis`, {
+      const response = await fetch(`${this.baseURL}/ai/sensor-analysis`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -139,13 +158,15 @@ class GeminiAPIClient {
     try {
       console.log('Sending quick question:', questionType);
       
-      const response = await fetch(`${this.baseURL}/api/gemini/quick-question`, {
+      // Use the demo chat endpoint for quick questions as well
+      const response = await fetch(`${this.baseURL}/ai/demo/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          question_type: questionType,
+          message: questionType,
+          context: 'quick_question'
         }),
       });
 
@@ -159,7 +180,7 @@ class GeminiAPIClient {
   // Check AI status
   async getAIStatus(): Promise<any> {
     try {
-      const response = await fetch(`${this.baseURL}/api/gemini/status`);
+      const response = await fetch(`${this.baseURL}/ai/status`);
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
