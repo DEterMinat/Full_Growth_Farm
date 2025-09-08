@@ -11,13 +11,17 @@ import Animated, {
   ZoomIn
 } from 'react-native-reanimated';
 import { geminiAPI, ChatMessage } from '@/src/services/geminiService';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 
 export default function VoiceAIScreen() {
+  const { t } = useTranslation();
+  
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: 1,
       type: 'bot',
-      text: 'สวัสดีครับ! ผมคือ AI Assistant ของ Growth Farm พร้อมช่วยเหลือคุณทุกเรื่องเกี่ยวกับการเกษตรครับ',
+      text: t('voice_ai.greeting_message'),
       timestamp: '10:30 AM'
     }
   ]);
@@ -25,11 +29,11 @@ export default function VoiceAIScreen() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const quickQuestions = [
-    { id: 1, text: 'สภาพอากาศวันนี้', icon: 'wb-sunny' },
-    { id: 2, text: 'ราคาพืชล่าสุด', icon: 'attach-money' },
-    { id: 3, text: 'การดูแลผลไม้', icon: 'eco' },
-    { id: 4, text: 'วิเคราะห์ข้อมูล', icon: 'analytics' },
-    { id: 5, text: 'แจ้งเตือนงาน', icon: 'notifications' },
+    { id: 1, text: t('voice_ai.weather_today'), icon: 'wb-sunny' },
+    { id: 2, text: t('voice_ai.latest_crop_prices'), icon: 'attach-money' },
+    { id: 3, text: t('voice_ai.fruit_care'), icon: 'eco' },
+    { id: 4, text: t('voice_ai.data_analysis'), icon: 'analytics' },
+    { id: 5, text: t('voice_ai.task_notifications'), icon: 'notifications' },
   ];
 
   const addMessage = (text: string, type: 'user' | 'bot') => {
@@ -56,7 +60,7 @@ export default function VoiceAIScreen() {
       setIsProcessing(true);
       
       // Add simulated user message
-      const userMessage = 'สภาพอากาศวันนี้เป็นยังไงบ้างครับ?';
+      const userMessage = t('voice_ai.weather_today') + '?';
       addMessage(userMessage, 'user');
       
       try {
@@ -72,12 +76,12 @@ export default function VoiceAIScreen() {
           addMessage(response.response, 'bot');
         } else {
           console.log('API response not successful:', response);
-          addMessage('ขออภัยครับ ไม่สามารถประมวลผลได้ในขณะนี้', 'bot');
+          addMessage(t('voice_ai.processing_error'), 'bot');
         }
       } catch (error) {
         console.error('Error details:', error);
         // Fallback response
-        addMessage('วันนี้อากาศแจ่มใส อุณหภูมิ 28-32°C ความชื้น 65% เหมาะสำหรับการเก็บเกี่ยวผลไม้และการรดน้ำต้นไม้ครับ (ข้อมูลแคช)', 'bot');
+        addMessage(t('voice_ai.weather_fallback'), 'bot');
       } finally {
         setIsProcessing(false);
       }
@@ -100,7 +104,7 @@ export default function VoiceAIScreen() {
         addMessage(response.response, 'bot');
       } else {
         console.log('Quick question API response not successful:', response);
-        addMessage('ขออภัยครับ ไม่สามารถตอบคำถามได้ในขณะนี้', 'bot');
+        addMessage(t('voice_ai.answer_error'), 'bot');
       }
     } catch (error) {
       console.error('Quick question error details:', error);
@@ -108,23 +112,23 @@ export default function VoiceAIScreen() {
       // Fallback to local responses if API fails
       let fallbackResponse = '';
       switch (question) {
-        case 'สภาพอากาศวันนี้':
-          fallbackResponse = 'วันนี้อากาศแจ่มใส อุณหภูมิ 28-32°C ความชื้น 65% เหมาะสำหรับการทำงานในไร่ครับ (ข้อมูลแคช)';
+        case t('voice_ai.weather_today'):
+          fallbackResponse = t('voice_ai.weather_fallback');
           break;
-        case 'ราคาพืชล่าสุด':
-          fallbackResponse = 'ราคาข้าว 15,500 บาท/ตัน มันสำปะหลัง 3,200 บาท/ตัน อ้อย 1,100 บาท/ตัน (ข้อมูลแคช)';
+        case t('voice_ai.latest_crop_prices'):
+          fallbackResponse = t('voice_ai.prices_fallback');
           break;
-        case 'การดูแลผลไม้':
-          fallbackResponse = 'ช่วงนี้ควรให้ปุ่ยโปแตสเซียม ตัดแต่งกิ่ง และระวังโรคราสนิม ตรวจสอบทุก 3-4 วันครับ (ข้อมูลแคช)';
+        case t('voice_ai.fruit_care'):
+          fallbackResponse = t('voice_ai.fruit_care_fallback');
           break;
-        case 'วิเคราะห์ข้อมูล':
-          fallbackResponse = 'ผลผลิตเดือนนี้เพิ่มขึ้น 12% ต้นทุนลดลง 8% กำไรเพิ่มขึ้น 25% เทียบกับเดือนที่แล้วครับ (ข้อมูลแคช)';
+        case t('voice_ai.data_analysis'):
+          fallbackResponse = t('voice_ai.analysis_fallback');
           break;
-        case 'แจ้งเตือนงาน':
-          fallbackResponse = 'งานที่ต้องทำวันนี้: รดน้ำโซน A (08:00), ตรวจสอบ IoT เซ็นเซอร์ (10:00), เก็บเกี่ยวมะม่วง (14:00) (ข้อมูลแคช)';
+        case t('voice_ai.task_notifications'):
+          fallbackResponse = t('voice_ai.tasks_fallback');
           break;
         default:
-          fallbackResponse = 'เกิดข้อผิดพลาดในการเชื่อมต่อ AI กรุณาตรวจสอบการเชื่อมต่ออินเทอร์เน็ต';
+          fallbackResponse = t('voice_ai.api_error');
       }
       
       addMessage(fallbackResponse, 'bot');
@@ -146,8 +150,8 @@ export default function VoiceAIScreen() {
         >
           <Text style={styles.backIcon}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Voice Assistant</Text>
-        <View style={styles.placeholder} />
+        <Text style={styles.headerTitle}>{t('voice_ai.title')}</Text>
+        <LanguageToggleButton />
       </Animated.View>
 
       {/* Conversation */}
@@ -180,7 +184,7 @@ export default function VoiceAIScreen() {
             entering={FadeIn.duration(400)}
           >
             <View style={styles.typingIndicator}>
-              <Text style={styles.typingText}>กำลังคิด</Text>
+              <Text style={styles.typingText}>{t('voice_ai.thinking')}</Text>
               <View style={styles.typingDots}>
                 <Text style={styles.dot}>•</Text>
                 <Text style={styles.dot}>•</Text>
@@ -196,7 +200,7 @@ export default function VoiceAIScreen() {
         style={styles.quickQuestionsSection}
         entering={FadeInUp.delay(800).duration(600)}
       >
-        <Text style={styles.quickTitle}>คำถามที่นิยม</Text>
+        <Text style={styles.quickTitle}>{t('voice_ai.popular_questions')}</Text>
         <ScrollView 
           horizontal 
           style={styles.quickScroll}
@@ -241,7 +245,7 @@ export default function VoiceAIScreen() {
         </TouchableOpacity>
         
         <Text style={styles.voiceStatus}>
-          {isListening ? 'Listening...' : isProcessing ? 'Processing...' : 'Tap to speak'}
+          {isListening ? t('voice_ai.listening') : isProcessing ? t('voice_ai.processing') : t('voice_ai.tap_to_speak')}
         </Text>
       </Animated.View>
     </View>
@@ -279,9 +283,6 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-  },
-  placeholder: {
-    width: 40,
   },
   conversation: {
     flex: 1,

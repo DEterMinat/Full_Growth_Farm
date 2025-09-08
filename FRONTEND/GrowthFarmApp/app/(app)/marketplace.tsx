@@ -14,33 +14,36 @@ import Animated, {
   SlideInLeft,
   SlideInRight
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import NavBar from '@/components/navigation/NavBar';
 
 export default function MarketplaceScreen() {
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('All Products');
+  const [selectedCategory, setSelectedCategory] = useState(t('market.all_products'));
 
   const featuredProducts = [
     {
       id: 1,
-      name: 'Organic Tomato Seeds',
+      name: t('market.organic_tomato_seeds'),
       price: '$12.99',
       originalPrice: '$15.99',
       seller: 'Premium Seeds Co.',
       rating: 4.8,
       image: 'local-florist',
-      category: 'Seeds',
+      category: t('market.seeds'),
       discount: true,
       discountPercent: '19% OFF'
     },
     {
       id: 2,
-      name: 'Organic Fertilizer',
+      name: t('market.organic_fertilizer'),
       price: '$24.50',
       seller: 'GreenGrow Ltd.',
       rating: 4.7,
       image: 'eco',
-      category: 'Fertilizers',
+      category: t('market.fertilizers'),
       discount: false
     }
   ];
@@ -48,19 +51,19 @@ export default function MarketplaceScreen() {
   const myOrders = [
     {
       id: '45782',
-      item: 'Soil Moisture Sensor',
+      item: t('market.soil_moisture_sensor'),
       quantity: 2,
       price: '$35.99',
-      status: 'Shipping',
+      status: t('market.shipping'),
       deliveryDate: 'Jun 15',
       image: 'sensors'
     },
     {
       id: '45689',
-      item: 'Drip Irrigation Kit',
+      item: t('market.drip_irrigation_kit'),
       quantity: 1,
       price: '$89.99',
-      status: 'Completed',
+      status: t('market.completed'),
       deliveryDate: 'Jun 2',
       image: 'water-drop'
     }
@@ -69,28 +72,28 @@ export default function MarketplaceScreen() {
   const messages = [
     {
       id: 1,
-      sender: 'Maria Johnson',
-      message: 'Is the organic fertilizer still available?',
+      sender: t('market.maria_johnson'),
+      message: t('market.is_organic_fertilizer_available'),
       time: '10:23 AM',
       avatar: 'person'
     },
     {
       id: 2,
-      sender: 'Support Team',
-      message: 'Your order #45782 has been shipped!',
-      time: 'Yesterday',
+      sender: t('market.support_team'),
+      message: t('market.order_shipped'),
+      time: t('market.yesterday'),
       avatar: 'support-agent'
     },
     {
       id: 3,
-      sender: 'Robert Smith',
-      message: 'Thank you for the quick delivery!',
+      sender: t('market.robert_smith'),
+      message: t('market.thank_you_delivery'),
       time: 'Jun 3',
       avatar: 'person'
     }
   ];
 
-  const categories = ['All Products', 'Seeds', 'Fertilizers', 'Tools'];
+  const categories = [t('market.all_products'), t('market.seeds'), t('market.fertilizers'), t('market.tools')];
 
   return (
     <View style={styles.container}>
@@ -101,10 +104,10 @@ export default function MarketplaceScreen() {
       >
         <View style={styles.headerLeft}>
           <MaterialIcons name="eco" size={24} color="white" style={styles.leafIcon} />
-          <Text style={styles.brandText}>Smart Farming</Text>
+          <Text style={styles.brandText}>{t('market.smart_farming')}</Text>
         </View>
         <TouchableOpacity style={styles.profileButton}>
-          <MaterialIcons name="person" size={20} color="white" style={styles.profileIcon} />
+          <LanguageToggleButton size="small" />
         </TouchableOpacity>
       </Animated.View>
 
@@ -114,11 +117,11 @@ export default function MarketplaceScreen() {
           style={styles.searchSection}
           entering={FadeInUp.delay(200).duration(800)}
         >
-          <Text style={styles.marketplaceTitle}>Marketplace</Text>
+          <Text style={styles.marketplaceTitle}>{t('navigation.marketplace')}</Text>
           <View style={styles.searchContainer}>
             <TextInput
               style={styles.searchInput}
-              placeholder="Search products"
+              placeholder={t('market.search_products')}
               value={searchText}
               onChangeText={setSearchText}
               placeholderTextColor="#999"
@@ -164,7 +167,7 @@ export default function MarketplaceScreen() {
           style={styles.section}
           entering={FadeInUp.delay(800).duration(800)}
         >
-          <Text style={styles.sectionTitle}>Featured Products</Text>
+          <Text style={styles.sectionTitle}>{t('market.featured_products')}</Text>
           <View style={styles.productsGrid}>
             {featuredProducts.map((product, index) => (
               <Animated.View 
@@ -176,7 +179,7 @@ export default function MarketplaceScreen() {
                   <MaterialIcons name={product.image as any} size={40} color="#4CAF50" style={styles.productImage} />
                   {product.discount && (
                     <View style={styles.discountBadge}>
-                      <Text style={styles.discountText}>SALE</Text>
+                      <Text style={styles.discountText}>{t('market.sale')}</Text>
                     </View>
                   )}
                 </View>
@@ -193,7 +196,7 @@ export default function MarketplaceScreen() {
                     <Text style={styles.ratingText}>{product.rating}</Text>
                   </View>
                   <TouchableOpacity style={styles.addToCartButton}>
-                    <Text style={styles.addToCartText}>Add to Cart</Text>
+                    <Text style={styles.addToCartText}>{t('market.add_to_cart')}</Text>
                   </TouchableOpacity>
                 </View>
               </Animated.View>
@@ -207,25 +210,25 @@ export default function MarketplaceScreen() {
           entering={FadeInUp.delay(1400).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>My Orders</Text>
+            <Text style={styles.sectionTitle}>{t('market.my_orders')}</Text>
             <TouchableOpacity>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>{t('market.view_all')}</Text>
             </TouchableOpacity>
           </View>
           
           {/* Order Status Tabs */}
           <View style={styles.orderTabs}>
             <TouchableOpacity style={[styles.orderTab, styles.selectedOrderTab]}>
-              <Text style={[styles.orderTabText, styles.selectedOrderTabText]}>All</Text>
+              <Text style={[styles.orderTabText, styles.selectedOrderTabText]}>{t('market.all')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.orderTab}>
-              <Text style={styles.orderTabText}>Pending</Text>
+              <Text style={styles.orderTabText}>{t('market.pending')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.orderTab}>
-              <Text style={styles.orderTabText}>Shipping</Text>
+              <Text style={styles.orderTabText}>{t('market.shipping')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.orderTab}>
-              <Text style={styles.orderTabText}>Completed</Text>
+              <Text style={styles.orderTabText}>{t('market.completed')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -237,10 +240,10 @@ export default function MarketplaceScreen() {
               entering={SlideInRight.delay(1600 + index * 200).duration(600)}
             >
               <View style={styles.orderHeader}>
-                <Text style={styles.orderNumber}>Order #{order.id}</Text>
+                <Text style={styles.orderNumber}>{t('market.order')} #{order.id}</Text>
                 <View style={[
                   styles.orderStatusBadge,
-                  order.status === 'Completed' ? styles.completedBadge : styles.shippingBadge
+                  order.status === t('market.completed') ? styles.completedBadge : styles.shippingBadge
                 ]}>
                   <Text style={styles.orderStatusText}>{order.status}</Text>
                 </View>
@@ -250,14 +253,14 @@ export default function MarketplaceScreen() {
                 <MaterialIcons name={order.image as any} size={32} color="#4CAF50" style={styles.orderItemIcon} />
                 <View style={styles.orderDetails}>
                   <Text style={styles.orderItemName}>{order.item}</Text>
-                  <Text style={styles.orderQuantity}>Qty: {order.quantity} • {order.price}</Text>
+                  <Text style={styles.orderQuantity}>{t('market.qty')}: {order.quantity} • {order.price}</Text>
                   <Text style={styles.orderDelivery}>
-                    {order.status === 'Completed' ? 'Delivered:' : 'Est. delivery:'} {order.deliveryDate}
+                    {order.status === t('market.completed') ? t('market.delivered'):  t('market.est_delivery')} {order.deliveryDate}
                   </Text>
                 </View>
                 <TouchableOpacity style={styles.orderActionButton}>
                   <Text style={styles.orderActionText}>
-                    {order.status === 'Completed' ? 'Review' : 'Track'}
+                    {order.status === t('market.completed') ? t('market.review') : t('market.track')}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -271,9 +274,9 @@ export default function MarketplaceScreen() {
           entering={FadeInUp.delay(2000).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Messages</Text>
+            <Text style={styles.sectionTitle}>{t('market.messages')}</Text>
             <TouchableOpacity>
-              <Text style={styles.viewAllText}>View All</Text>
+              <Text style={styles.viewAllText}>{t('market.view_all')}</Text>
             </TouchableOpacity>
           </View>
           
@@ -334,9 +337,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   profileButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',

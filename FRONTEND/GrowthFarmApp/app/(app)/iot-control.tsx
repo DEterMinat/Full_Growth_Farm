@@ -15,9 +15,12 @@ import Animated, {
   SlideInLeft,
   SlideInRight
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import NavBar from '@/components/navigation/NavBar';
 
 export default function IotControlScreen() {
+  const { t } = useTranslation();
   const [wateringActive, setWateringActive] = useState(true);
   const [wateringFrequency, setWateringFrequency] = useState(2); // 0-4 scale (Once to 5x daily)
   const [waterAmount, setWaterAmount] = useState(2); // 0-3 scale (Light to Heavy)
@@ -29,23 +32,39 @@ export default function IotControlScreen() {
   const [microbialSchedule, setMicrobialSchedule] = useState('weekly');
 
   const getFrequencyText = (value: number) => {
-    const frequencies = ['Once', 'Daily', 'Twice daily', '3x daily', '4x daily', '5x daily'];
-    return frequencies[value] || 'Twice daily';
+    const frequencies = [
+      t('iot_control.once'),
+      t('iot_control.daily'),
+      t('iot_control.twice_daily'),
+      t('iot_control.3x_daily'),
+      t('iot_control.4x_daily'),
+      t('iot_control.5x_daily')
+    ];
+    return frequencies[value] || t('iot_control.twice_daily');
   };
 
   const getWaterAmountText = (value: number) => {
-    const amounts = ['Light (100ml)', 'Medium (250ml)', 'Heavy (400ml)', 'Maximum (500ml)'];
-    return amounts[value] || 'Medium (250ml)';
+    const amounts = [
+      t('iot_control.light_100ml'),
+      t('iot_control.medium_250ml'),
+      t('iot_control.heavy_400ml'),
+      t('iot_control.maximum_500ml')
+    ];
+    return amounts[value] || t('iot_control.medium_250ml');
   };
 
   const getMicrobialRatioText = (value: number) => {
-    const ratios = ['Standard (1:1)', 'Standard (1:3)', 'Concentrated (1:5)'];
-    return ratios[value] || 'Standard (1:3)';
+    const ratios = [
+      t('iot_control.standard_1_1'),
+      t('iot_control.standard_1_3'),
+      t('iot_control.concentrated_1_5')
+    ];
+    return ratios[value] || t('iot_control.standard_1_3');
   };
 
   const getPestIntensityText = (value: number) => {
-    const intensities = ['Low', 'Medium', 'High', 'Maximum'];
-    return intensities[value] || 'Medium';
+    const intensities = [t('iot_control.low'), t('iot_control.medium'), t('iot_control.high'), t('iot_control.maximum')];
+    return intensities[value] || t('iot_control.medium');
   };
 
   return (
@@ -57,7 +76,7 @@ export default function IotControlScreen() {
       >
         <View style={styles.headerLeft}>
           <MaterialIcons name="eco" size={20} color="white" style={styles.leafIcon} />
-          <Text style={styles.brandText}>GROWTH FARM</Text>
+          <Text style={styles.brandText}>{t('market.smart_farming')}</Text>
         </View>
         <View style={styles.headerRight}>
           <TouchableOpacity 
@@ -67,7 +86,7 @@ export default function IotControlScreen() {
             <Text style={styles.addButtonText}>ADD+</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.profileButton}>
-            <MaterialIcons name="person" size={18} color="white" style={styles.profileIcon} />
+            <LanguageToggleButton size="small" />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -77,8 +96,8 @@ export default function IotControlScreen() {
           style={styles.titleSection}
           entering={FadeInUp.delay(200).duration(800)}
         >
-          <Text style={styles.pageTitle}>IoT Control Center</Text>
-          <Text style={styles.pageSubtitle}>Manage your smart farming devices</Text>
+          <Text style={styles.pageTitle}>{t('iot_control.title')}</Text>
+          <Text style={styles.pageSubtitle}>{t('iot_control.subtitle')}</Text>
         </Animated.View>
 
         {/* Watering Schedule */}
@@ -87,10 +106,10 @@ export default function IotControlScreen() {
           entering={SlideInLeft.delay(400).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Watering Schedule</Text>
+            <Text style={styles.sectionTitle}>{t('iot_control.watering_schedule')}</Text>
             <View style={styles.toggleContainer}>
               <Text style={[styles.statusText, { color: wateringActive ? '#4CAF50' : '#666' }]}>
-                {wateringActive ? 'Active' : 'Inactive'}
+                {wateringActive ? t('iot_control.active') : t('iot_control.inactive')}
               </Text>
               <Switch
                 value={wateringActive}
@@ -104,7 +123,7 @@ export default function IotControlScreen() {
           <View style={styles.controlContent}>
             <View style={styles.sliderSection}>
               <View style={styles.sliderHeader}>
-                <Text style={styles.sliderLabel}>Frequency</Text>
+                <Text style={styles.sliderLabel}>{t('iot_control.frequency')}</Text>
                 <Text style={styles.sliderValue}>{getFrequencyText(wateringFrequency)}</Text>
               </View>
               <View style={styles.sliderContainer}>
@@ -123,15 +142,15 @@ export default function IotControlScreen() {
                   />
                 </View>
                 <View style={styles.sliderLabels}>
-                  <Text style={styles.sliderEndLabel}>Once</Text>
-                  <Text style={styles.sliderEndLabel}>5x daily</Text>
+                  <Text style={styles.sliderEndLabel}>{t('iot_control.once')}</Text>
+                  <Text style={styles.sliderEndLabel}>{t('iot_control.5x_daily')}</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.sliderSection}>
               <View style={styles.sliderHeader}>
-                <Text style={styles.sliderLabel}>Water amount</Text>
+                <Text style={styles.sliderLabel}>{t('iot_control.water_amount')}</Text>
                 <Text style={styles.sliderValue}>{getWaterAmountText(waterAmount)}</Text>
               </View>
               <View style={styles.sliderContainer}>
@@ -150,28 +169,28 @@ export default function IotControlScreen() {
                   />
                 </View>
                 <View style={styles.sliderLabels}>
-                  <Text style={styles.sliderEndLabel}>Light</Text>
-                  <Text style={styles.sliderEndLabel}>Heavy</Text>
+                  <Text style={styles.sliderEndLabel}>{t('iot_control.light')}</Text>
+                  <Text style={styles.sliderEndLabel}>{t('iot_control.heavy')}</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.scheduleGrid}>
               <View style={styles.scheduleCard}>
-                <Text style={styles.scheduleLabel}>Next watering</Text>
+                <Text style={styles.scheduleLabel}>{t('iot_control.next_watering')}</Text>
                 <View style={styles.scheduleTime}>
                   <MaterialIcons name="schedule" size={16} color="#666" style={styles.timeIcon} />
                   <View>
-                    <Text style={styles.timeText}>Today, 6:00 PM</Text>
+                    <Text style={styles.timeText}>{t('iot_control.today_6pm')}</Text>
                   </View>
                 </View>
               </View>
               <View style={styles.scheduleCard}>
-                <Text style={styles.scheduleLabel}>Last watering</Text>
+                <Text style={styles.scheduleLabel}>{t('iot_control.last_watering')}</Text>
                 <View style={styles.scheduleTime}>
                   <Text style={styles.timeIcon}>🔄</Text>
                   <View>
-                    <Text style={styles.timeText}>Today, 8:30 AM</Text>
+                    <Text style={styles.timeText}>{t('iot_control.today_8_30am')}</Text>
                   </View>
                 </View>
               </View>
@@ -185,10 +204,10 @@ export default function IotControlScreen() {
           entering={SlideInRight.delay(600).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Pest Control</Text>
+            <Text style={styles.sectionTitle}>{t('iot_control.pest_control')}</Text>
             <View style={styles.toggleContainer}>
               <Text style={[styles.statusText, { color: pestControlActive ? '#4CAF50' : '#666' }]}>
-                {pestControlActive ? 'Active' : 'Inactive'}
+                {pestControlActive ? t('iot_control.active') : t('iot_control.inactive')}
               </Text>
               <Switch
                 value={pestControlActive}
@@ -215,8 +234,8 @@ export default function IotControlScreen() {
                   {pestControlMode === 'preventive' && <View style={styles.radioDot} />}
                 </View>
                 <View style={styles.radioContent}>
-                  <Text style={styles.radioTitle}>Preventive</Text>
-                  <Text style={styles.radioSubtitle}>Regular low-intensity treatment</Text>
+                  <Text style={styles.radioTitle}>{t('iot_control.preventive')}</Text>
+                  <Text style={styles.radioSubtitle}>{t('iot_control.preventive_desc')}</Text>
                 </View>
               </TouchableOpacity>
 
@@ -234,15 +253,15 @@ export default function IotControlScreen() {
                   {pestControlMode === 'targeted' && <View style={styles.radioDot} />}
                 </View>
                 <View style={styles.radioContent}>
-                  <Text style={styles.radioTitle}>Targeted</Text>
-                  <Text style={styles.radioSubtitle}>High-intensity spot treatment</Text>
+                  <Text style={styles.radioTitle}>{t('iot_control.targeted')}</Text>
+                  <Text style={styles.radioSubtitle}>{t('iot_control.targeted_desc')}</Text>
                 </View>
               </TouchableOpacity>
             </View>
 
             <View style={styles.sliderSection}>
               <View style={styles.sliderHeader}>
-                <Text style={styles.sliderLabel}>Treatment intensity</Text>
+                <Text style={styles.sliderLabel}>{t('iot_control.treatment_intensity')}</Text>
                 <Text style={styles.sliderValue}>{getPestIntensityText(pestIntensity)}</Text>
               </View>
               <View style={styles.sliderContainer}>
@@ -264,7 +283,7 @@ export default function IotControlScreen() {
             </View>
 
             <TouchableOpacity style={styles.manualButton}>
-              <Text style={styles.manualButtonText}>Run Manual Scan</Text>
+              <Text style={styles.manualButtonText}>{t('iot_control.run_manual_scan')}</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -275,10 +294,10 @@ export default function IotControlScreen() {
           entering={SlideInLeft.delay(800).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Microbial Mix</Text>
+            <Text style={styles.sectionTitle}>{t('iot_control.microbial_mix')}</Text>
             <View style={styles.toggleContainer}>
               <Text style={[styles.statusText, { color: microbialActive ? '#4CAF50' : '#666' }]}>
-                {microbialActive ? 'Active' : 'Inactive'}
+                {microbialActive ? t('iot_control.active') : t('iot_control.inactive')}
               </Text>
               <Switch
                 value={microbialActive}
@@ -292,7 +311,7 @@ export default function IotControlScreen() {
           <View style={styles.controlContent}>
             <View style={styles.sliderSection}>
               <View style={styles.sliderHeader}>
-                <Text style={styles.sliderLabel}>Mix ratio</Text>
+                <Text style={styles.sliderLabel}>{t('iot_control.mix_ratio')}</Text>
                 <Text style={styles.sliderValue}>{getMicrobialRatioText(microbialRatio)}</Text>
               </View>
               <View style={styles.sliderContainer}>
@@ -314,7 +333,7 @@ export default function IotControlScreen() {
             </View>
 
             <View style={styles.scheduleOptions}>
-              <Text style={styles.scheduleOptionsTitle}>Schedule application</Text>
+              <Text style={styles.scheduleOptionsTitle}>{t('iot_control.schedule_application')}</Text>
               <View style={styles.scheduleButtonsRow}>
                 <TouchableOpacity 
                   style={[
@@ -326,7 +345,7 @@ export default function IotControlScreen() {
                   <Text style={[
                     styles.scheduleButtonText,
                     microbialSchedule === 'weekly' && styles.scheduleButtonTextSelected
-                  ]}>Weekly</Text>
+                  ]}>{t('iot_control.weekly')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={[
@@ -338,7 +357,7 @@ export default function IotControlScreen() {
                   <Text style={[
                     styles.scheduleButtonText,
                     microbialSchedule === 'biweekly' && styles.scheduleButtonTextSelected
-                  ]}>Bi-weekly</Text>
+                  ]}>{t('iot_control.bi_weekly')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity 
                   style={[
@@ -350,13 +369,13 @@ export default function IotControlScreen() {
                   <Text style={[
                     styles.scheduleButtonText,
                     microbialSchedule === 'monthly' && styles.scheduleButtonTextSelected
-                  ]}>Monthly</Text>
+                  ]}>{t('iot_control.monthly')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
 
             <TouchableOpacity style={styles.activateButton}>
-              <Text style={styles.activateButtonText}>Activate System</Text>
+              <Text style={styles.activateButtonText}>{t('iot_control.activate_system')}</Text>
             </TouchableOpacity>
           </View>
         </Animated.View>
@@ -414,9 +433,9 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   profileButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',

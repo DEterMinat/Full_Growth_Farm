@@ -172,9 +172,9 @@ export default function NotificationsScreen() {
         {/* Notifications List */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>
-            {filter === 'all' ? 'All Notifications' : 
-             filter === 'unread' ? 'Unread Notifications' :
-             filter === 'high' ? 'High Priority' : 'Alert Notifications'}
+            {filter === 'all' ? t('notifications.all_notifications') : 
+             filter === 'unread' ? t('notifications.unread_notifications') :
+             filter === 'high' ? t('notifications.high_priority') : t('notifications.alert_notifications')}
           </Text>
           {filteredNotifications.map((notification) => (
             <TouchableOpacity key={notification.id} style={[
@@ -214,23 +214,23 @@ export default function NotificationsScreen() {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t('notifications.quick_actions')}</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionButton}>
               <MaterialIcons name="check" size={20} color="#4CAF50" style={styles.actionIcon} />
-              <Text style={styles.actionText}>Mark All Read</Text>
+              <Text style={styles.actionText}>{t('notifications.mark_all_read')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
               <MaterialIcons name="delete" size={20} color="#F44336" style={styles.actionIcon} />
-              <Text style={styles.actionText}>Clear Read</Text>
+              <Text style={styles.actionText}>{t('notifications.clear_read')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
               <MaterialIcons name="settings" size={20} color="#666" style={styles.actionIcon} />
-              <Text style={styles.actionText}>Settings</Text>
+              <Text style={styles.actionText}>{t('common.settings')}</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.actionButton}>
               <MaterialIcons name="send" size={20} color="#2196F3" style={styles.actionIcon} />
-              <Text style={styles.actionText}>Export</Text>
+              <Text style={styles.actionText}>{t('notifications.export')}</Text>
             </TouchableOpacity>
           </View>
         </View>
