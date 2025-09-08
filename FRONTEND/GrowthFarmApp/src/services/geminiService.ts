@@ -1,4 +1,4 @@
-const API_BASE_URL = 'http://localhost:30039';
+const API_BASE_URL = 'http://119.59.102.61:30039';
 
 export interface ChatMessage {
   id?: number;
@@ -55,6 +55,11 @@ class GeminiAPIClient {
     try {
       console.log('Sending chat request:', { message, conversationHistory });
       
+      // Convert conversation history to context string
+      const context = conversationHistory?.map(msg => 
+        `${msg.type === 'user' ? 'User' : 'Bot'}: ${msg.text}`
+      ).join('\n') || '';
+      
       const response = await fetch(`${this.baseURL}/ai/demo/chat`, {
         method: 'POST',
         headers: {
@@ -62,7 +67,7 @@ class GeminiAPIClient {
         },
         body: JSON.stringify({
           message,
-          conversation_history: conversationHistory,
+          context: context || undefined,
         }),
       });
 

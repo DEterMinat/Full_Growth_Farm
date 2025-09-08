@@ -175,7 +175,11 @@ const startServer = async () => {
       console.log(`   GET  /farms - Get all farms`);
       console.log(`   GET  /marketplace/products - Get products`);
       console.log(`   GET  /weather - Get weather data`);
-      console.log(`   POST /ai/chat - Chat with AI`);
+      console.log(`   POST /ai/chat - Chat with AI (requires auth)`);
+      console.log(`   POST /ai/demo/chat - Demo Chat with AI (no auth)`);
+      console.log(`   GET  /ai/demo/recommendations - Demo AI recommendations`);
+      console.log(`   GET  /ai/demo/conversations - Demo conversation history`);
+      console.log(`   GET  /ai/status - AI service status`);
       console.log(`   GET  /api/tables/all - Get all table info`);
       console.log(`   GET  /api/tables/users - Get all users`);
       console.log(`   GET  /api/tables/farms - Get all farms`);
