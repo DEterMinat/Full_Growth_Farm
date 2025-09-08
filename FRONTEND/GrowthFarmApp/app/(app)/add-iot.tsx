@@ -17,6 +17,7 @@ import Animated, {
   SlideInLeft
 } from 'react-native-reanimated';
 import NavBar from '@/components/navigation/NavBar';
+import { useTranslation } from 'react-i18next';
 
 interface IoTDevice {
   id: string;
@@ -30,6 +31,7 @@ interface IoTDevice {
 }
 
 export default function AddIoTScreen() {
+  const { t } = useTranslation();
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showDetails, setShowDetails] = useState(false);
@@ -119,11 +121,11 @@ export default function AddIoTScreen() {
   ];
 
   const categories = [
-    { id: 'all', name: 'All Devices', icon: 'devices' },
-    { id: 'sensor', name: 'Sensors', icon: 'sensors' },
-    { id: 'irrigation', name: 'Irrigation', icon: 'water-drop' },
-    { id: 'monitoring', name: 'Monitoring', icon: 'visibility' },
-    { id: 'protection', name: 'Protection', icon: 'shield' }
+    { id: 'all', name: t('addiot.all_devices'), icon: 'devices' },
+    { id: 'sensor', name: t('addiot.sensors'), icon: 'sensors' },
+    { id: 'irrigation', name: t('addiot.pumps'), icon: 'water-drop' },
+    { id: 'monitoring', name: t('addiot.controllers'), icon: 'visibility' },
+    { id: 'protection', name: t('addiot.cameras'), icon: 'shield' }
   ];
 
   const filteredDevices = iotDevices.filter(device => {
@@ -141,15 +143,15 @@ export default function AddIoTScreen() {
   const handleAddDevice = () => {
     if (selectedDevice) {
       Alert.alert(
-        'Add IoT Device',
-        `Add ${selectedDevice.name} to your farm?`,
+        t('addiot.add_device_confirm'),
+        `${t('addiot.add_device')} ${selectedDevice.name} ${t('addiot.add_to_farm')}`,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: t('addiot.cancel'), style: 'cancel' },
           {
-            text: 'Add Device',
+            text: t('addiot.add_device'),
             onPress: () => {
               setShowDetails(false);
-              Alert.alert('Success', `${selectedDevice.name} has been added to your farm!`);
+              Alert.alert(t('addiot.success'), `${selectedDevice.name} ${t('addiot.device_added')}`);
               router.back();
             }
           }
@@ -172,7 +174,7 @@ export default function AddIoTScreen() {
           >
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.brandText}>ADD IOT DEVICE</Text>
+          <Text style={styles.brandText}>{t('addiot.title')}</Text>
         </View>
         <TouchableOpacity style={styles.profileButton}>
           <MaterialIcons name="person" size={18} color="white" style={styles.profileIcon} />
@@ -189,7 +191,7 @@ export default function AddIoTScreen() {
             <MaterialIcons name="search" size={18} color="#666" style={styles.searchIcon} />
             <TextInput
               style={styles.searchInput}
-              placeholder="Search IoT devices..."
+              placeholder={t('addiot.search_placeholder')}
               value={searchQuery}
               onChangeText={setSearchQuery}
               placeholderTextColor="#999"

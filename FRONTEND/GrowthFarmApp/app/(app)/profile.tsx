@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { User } from '@/src/services/authService';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Profile() {
+  const { t } = useTranslation();
   const { user: authUser, refreshUser, isGuest, logout } = useAuth();
   const [user, setUser] = useState<User | null>(authUser);
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +18,7 @@ export default function Profile() {
       setIsLoading(true);
       await refreshUser();
     } catch (error: any) {
-      Alert.alert('Error', 'Failed to load user data: ' + error.message);
+      Alert.alert(t('profile.error'), t('profile.failed_load_user') + error.message);
       router.push('/(auth)/login');
     } finally {
       setIsLoading(false);
@@ -33,22 +35,22 @@ export default function Profile() {
   }, [authUser]);
 
   const handleLogout = async () => {
-    const title = isGuest ? 'Exit Demo' : 'Sign Out';
+    const title = isGuest ? t('profile.exit_demo') : t('profile.sign_out');
     const message = isGuest 
-      ? 'Are you sure you want to exit demo mode?' 
-      : 'Are you sure you want to sign out?';
+      ? t('profile.are_you_sure_exit')
+      : t('profile.are_you_sure_signout');
 
     Alert.alert(
       title,
       message,
       [
         { 
-          text: 'Cancel', 
+          text: t('profile.cancel'), 
           style: 'cancel',
           onPress: () => console.log('User cancelled logout')
         },
         {
-          text: isGuest ? 'Exit Demo' : 'Sign Out',
+          text: isGuest ? t('profile.exit_demo') : t('profile.sign_out'),
           style: 'destructive',
           onPress: async () => {
             console.log('Profile logout - using AuthContext logout');
@@ -62,7 +64,7 @@ export default function Profile() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{t('profile.loading')}</Text>
       </View>
     );
   }
@@ -75,10 +77,10 @@ export default function Profile() {
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <MaterialIcons name="person" size={20} color="white" style={styles.profileIcon} />
-          <Text style={styles.brandText}>PROFILE</Text>
+          <Text style={styles.brandText}>{t('profile.profile_header')}</Text>
           {isGuest && (
             <View style={styles.guestBadge}>
-              <Text style={styles.guestBadgeText}>DEMO</Text>
+              <Text style={styles.guestBadgeText}>{t('profile.demo_badge')}</Text>
             </View>
           )}
         </View>
@@ -98,7 +100,7 @@ export default function Profile() {
               <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
               <Text style={styles.userRole}>
-                Farm Owner
+                {t('profile.farm_owner')}
               </Text>
             </View>
           </View>
@@ -106,40 +108,40 @@ export default function Profile() {
           <View style={styles.statsContainer}>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>3</Text>
-              <Text style={styles.statLabel}>Farms</Text>
+              <Text style={styles.statLabel}>{t('profile.farms')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>85.5</Text>
-              <Text style={styles.statLabel}>Total Acres</Text>
+              <Text style={styles.statLabel}>{t('profile.total_acres')}</Text>
             </View>
             <View style={styles.statItem}>
               <Text style={styles.statValue}>12</Text>
-              <Text style={styles.statLabel}>Crop Types</Text>
+              <Text style={styles.statLabel}>{t('profile.crop_types')}</Text>
             </View>
           </View>
         </View>
 
         {/* Account Information */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Information</Text>
+          <Text style={styles.sectionTitle}>{t('profile.account_information')}</Text>
           
           <View style={styles.infoCard}>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Username</Text>
+              <Text style={styles.infoLabel}>{t('profile.username')}</Text>
               <Text style={styles.infoValue}>{user?.username}</Text>
             </View>
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Email</Text>
+              <Text style={styles.infoLabel}>{t('profile.email')}</Text>
               <Text style={styles.infoValue}>{user?.email}</Text>
             </View>
             {user?.phone && (
               <View style={styles.infoRow}>
-                <Text style={styles.infoLabel}>Phone</Text>
+                <Text style={styles.infoLabel}>{t('profile.phone')}</Text>
                 <Text style={styles.infoValue}>{user.phone}</Text>
               </View>
             )}
             <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Member Since</Text>
+              <Text style={styles.infoLabel}>{t('profile.member_since')}</Text>
               <Text style={styles.infoValue}>
                 {new Date(user?.created_at || '').toLocaleDateString()}
               </Text>
@@ -149,12 +151,12 @@ export default function Profile() {
 
         {/* Account Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Account Settings</Text>
+          <Text style={styles.sectionTitle}>{t('profile.account_settings')}</Text>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="edit" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Edit Profile</Text>
+              <Text style={styles.settingText}>{t('profile.edit_profile')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -162,7 +164,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="notifications" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Notifications</Text>
+              <Text style={styles.settingText}>{t('profile.notification')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -170,7 +172,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="lock" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Privacy & Security</Text>
+              <Text style={styles.settingText}>{t('profile.privacy_security')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -178,7 +180,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="payment" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Subscription</Text>
+              <Text style={styles.settingText}>{t('profile.subscription')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -186,22 +188,22 @@ export default function Profile() {
 
         {/* App Settings */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>App Settings</Text>
+          <Text style={styles.sectionTitle}>{t('profile.app_settings')}</Text>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="dark-mode" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Dark Mode</Text>
+              <Text style={styles.settingText}>{t('profile.dark_mode')}</Text>
             </View>
             <View style={styles.toggle}>
-              <Text style={styles.toggleText}>Off</Text>
+              <Text style={styles.toggleText}>{t('profile.off')}</Text>
             </View>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="language" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Language</Text>
+              <Text style={styles.settingText}>{t('profile.language')}</Text>
             </View>
             <Text style={styles.settingValue}>English</Text>
           </TouchableOpacity>
@@ -209,7 +211,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="analytics" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Data & Analytics</Text>
+              <Text style={styles.settingText}>{t('profile.data_analytics')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -217,12 +219,12 @@ export default function Profile() {
 
         {/* Support & Help */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Support & Help</Text>
+          <Text style={styles.sectionTitle}>{t('profile.support_help')}</Text>
           
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="help" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Help Center</Text>
+              <Text style={styles.settingText}>{t('profile.help_center')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -230,7 +232,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="support" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Contact Support</Text>
+              <Text style={styles.settingText}>{t('profile.contact_support')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -238,7 +240,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="star-rate" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Rate App</Text>
+              <Text style={styles.settingText}>{t('profile.rate_app')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -246,7 +248,7 @@ export default function Profile() {
           <TouchableOpacity style={styles.settingItem}>
             <View style={styles.settingLeft}>
               <MaterialIcons name="description" size={18} color="#666" style={styles.settingIcon} />
-              <Text style={styles.settingText}>Terms & Privacy</Text>
+              <Text style={styles.settingText}>{t('profile.terms_privacy')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={18} color="#999" />
           </TouchableOpacity>
@@ -256,7 +258,7 @@ export default function Profile() {
         <View style={styles.section}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
             <MaterialIcons name="logout" size={18} color="#f44336" style={styles.logoutIcon} />
-            <Text style={styles.logoutText}>Sign Out</Text>
+            <Text style={styles.logoutText}>{t('profile.sign_out')}</Text>
           </TouchableOpacity>
         </View>
 

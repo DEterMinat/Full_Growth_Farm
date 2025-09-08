@@ -15,6 +15,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -24,6 +25,7 @@ interface SideMenuProps {
 }
 
 export default function SideMenu({ visible, onClose }: SideMenuProps) {
+  const { t } = useTranslation();
   const { isGuest, logout } = useAuth();
   const insets = useSafeAreaInsets();
   const slideAnim = React.useRef(new Animated.Value(-width)).current;
@@ -47,56 +49,56 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
   const menuItems = [
     {
       id: 'dashboard',
-      title: 'Dashboard',
-      subtitle: 'Farm overview and analytics',
+      title: t('sidemenu.dashboard_title'),
+      subtitle: t('sidemenu.dashboard_subtitle'),
       icon: 'dashboard',
       color: '#10B981',
       route: '/(app)/dashboard'
     },
     {
       id: 'crops',
-      title: 'Crop Management',
-      subtitle: 'Manage your crops and harvests',
+      title: t('sidemenu.crop_management_title'),
+      subtitle: t('sidemenu.crop_management_subtitle'),
       icon: 'grass',
       color: '#059669',
       route: '/(app)/crops'
     },
     {
       id: 'iot-control',
-      title: 'IoT Control Center',
-      subtitle: 'Monitor and control farm devices',
+      title: t('sidemenu.iot_control_title'),
+      subtitle: t('sidemenu.iot_control_subtitle'),
       icon: 'smart-toy',
       color: '#3B82F6',
       route: '/(app)/iot-control'
     },
     {
       id: 'marketplace',
-      title: 'Marketplace',
-      subtitle: 'Buy and sell agricultural products',
+      title: t('sidemenu.marketplace_title'),
+      subtitle: t('sidemenu.marketplace_subtitle'),
       icon: 'shopping-cart',
       color: '#9C27B0',
       route: '/(app)/marketplace'
     },
     {
       id: 'notifications',
-      title: 'Notifications',
-      subtitle: 'Stay updated with alerts',
+      title: t('sidemenu.notifications_title'),
+      subtitle: t('sidemenu.notifications_subtitle'),
       icon: 'notifications',
       color: '#F59E0B',
       route: '/(app)/notifications'
     },
     {
       id: 'voice-ai',
-      title: 'Voice AI Assistant',
-      subtitle: 'Get help with voice commands',
+      title: t('sidemenu.voice_ai_title'),
+      subtitle: t('sidemenu.voice_ai_subtitle'),
       icon: 'mic',
       color: '#8B5CF6',
       route: '/(app)/voice-ai'
     },
     {
       id: 'profile',
-      title: 'Profile Settings',
-      subtitle: 'Manage your account settings',
+      title: t('sidemenu.profile_title'),
+      subtitle: t('sidemenu.profile_subtitle'),
       icon: 'person',
       color: '#6B7280',
       route: '/(app)/profile'
@@ -234,10 +236,10 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
                   </View>
                   <View style={styles.menuItemContent}>
                     <Text style={[styles.menuItemTitle, { color: '#EF4444' }]}>
-                      {isGuest ? 'Exit Demo' : 'Sign Out'}
+                      {isGuest ? t('sidemenu.exit_demo') : t('sidemenu.sign_out')}
                     </Text>
                     <Text style={styles.menuItemSubtitle}>
-                      {isGuest ? 'Return to welcome screen' : 'Sign out of your account'}
+                      {isGuest ? t('sidemenu.return_welcome') : t('sidemenu.sign_out_subtitle')}
                     </Text>
                   </View>
                   <MaterialIcons name="chevron-right" size={20} color="#EF4444" />

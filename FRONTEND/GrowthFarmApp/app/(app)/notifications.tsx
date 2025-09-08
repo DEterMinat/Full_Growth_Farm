@@ -6,74 +6,76 @@ import {
   ScrollView,
   TouchableOpacity,
 } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const [filter, setFilter] = useState('all');
 
   const notifications = [
     {
       id: 1,
       type: 'alert',
-      title: 'Low Soil Moisture Alert',
-      message: 'Sector B soil moisture dropped to 45%. Irrigation recommended.',
-      time: '5 min ago',
+      title: t('notifications.low_soil_moisture'),
+      message: t('notifications.low_soil_desc'),
+      time: `5 ${t('notifications.min_ago')}`,
       read: false,
       priority: 'high'
     },
     {
       id: 2,
       type: 'info',
-      title: 'Weather Update',
-      message: 'Rain expected tomorrow afternoon. Consider adjusting irrigation schedule.',
-      time: '1 hour ago',
+      title: t('notifications.weather_update'),
+      message: t('notifications.weather_desc'),
+      time: `1 ${t('notifications.hour_ago')}`,
       read: false,
       priority: 'medium'
     },
     {
       id: 3,
       type: 'success',
-      title: 'Harvest Ready',
-      message: 'Tomatoes in greenhouse A are ready for harvest.',
-      time: '2 hours ago',
+      title: t('notifications.harvest_ready'),
+      message: t('notifications.harvest_desc'),
+      time: `2 ${t('notifications.hours_ago')}`,
       read: true,
       priority: 'medium'
     },
     {
       id: 4,
       type: 'warning',
-      title: 'Equipment Maintenance',
-      message: 'Water pump #2 requires scheduled maintenance in 3 days.',
-      time: '4 hours ago',
+      title: t('notifications.equipment_maintenance'),
+      message: t('notifications.equipment_desc'),
+      time: `4 ${t('notifications.hours_ago')}`,
       read: true,
       priority: 'low'
     },
     {
       id: 5,
       type: 'info',
-      title: 'Data Sync Complete',
-      message: 'All sensor data has been successfully synchronized to cloud.',
-      time: '6 hours ago',
+      title: t('notifications.data_sync'),
+      message: t('notifications.data_sync_desc'),
+      time: `6 ${t('notifications.hours_ago')}`,
       read: true,
       priority: 'low'
     },
     {
       id: 6,
       type: 'alert',
-      title: 'Pest Detection',
-      message: 'Unusual insect activity detected in corn field section C.',
-      time: '8 hours ago',
+      title: t('notifications.pest_detection'),
+      message: t('notifications.pest_desc'),
+      time: `8 ${t('notifications.hours_ago')}`,
       read: true,
       priority: 'high'
     }
   ];
 
   const filterOptions = [
-    { id: 'all', label: 'All', count: notifications.length },
-    { id: 'unread', label: 'Unread', count: notifications.filter(n => !n.read).length },
-    { id: 'high', label: 'High Priority', count: notifications.filter(n => n.priority === 'high').length },
-    { id: 'alerts', label: 'Alerts', count: notifications.filter(n => n.type === 'alert').length }
+    { id: 'all', label: t('notifications.all'), count: notifications.length },
+    { id: 'unread', label: t('notifications.unread'), count: notifications.filter(n => !n.read).length },
+    { id: 'high', label: t('notifications.high_priority'), count: notifications.filter(n => n.priority === 'high').length },
+    { id: 'alerts', label: t('notifications.alerts'), count: notifications.filter(n => n.type === 'alert').length }
   ];
 
   const filteredNotifications = notifications.filter(notification => {
@@ -113,33 +115,33 @@ export default function NotificationsScreen() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
           <MaterialIcons name="notifications" size={32} color="#FF9800" style={styles.headerIcon} />
-          <Text style={styles.headerTitle}>Notifications</Text>
-          <Text style={styles.headerSubtitle}>Stay updated with your farm alerts</Text>
+          <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
+          <Text style={styles.headerSubtitle}>{t('notifications.stay_updated')}</Text>
         </View>
 
         {/* Summary Cards */}
         <View style={styles.summarySection}>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryNumber}>{notifications.filter(n => !n.read).length}</Text>
-            <Text style={styles.summaryLabel}>Unread</Text>
+            <Text style={styles.summaryLabel}>{t('notifications.unread')}</Text>
           </View>
           <View style={styles.summaryCard}>
             <Text style={[styles.summaryNumber, { color: '#F44336' }]}>
               {notifications.filter(n => n.priority === 'high').length}
             </Text>
-            <Text style={styles.summaryLabel}>High Priority</Text>
+            <Text style={styles.summaryLabel}>{t('notifications.high_priority')}</Text>
           </View>
           <View style={styles.summaryCard}>
             <Text style={[styles.summaryNumber, { color: '#FF9800' }]}>
               {notifications.filter(n => n.type === 'alert').length}
             </Text>
-            <Text style={styles.summaryLabel}>Alerts</Text>
+            <Text style={styles.summaryLabel}>{t('notifications.alerts')}</Text>
           </View>
         </View>
 
         {/* Filter Options */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Filter Notifications</Text>
+          <Text style={styles.sectionTitle}>{t('notifications.filter_notifications')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
             {filterOptions.map((option) => (
               <TouchableOpacity

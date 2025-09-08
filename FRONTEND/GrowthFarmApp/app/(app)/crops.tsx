@@ -1,16 +1,18 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Crops() {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
         <View style={styles.headerLeft}>
           <MaterialIcons name="grass" size={24} color="#4CAF50" style={styles.leafIcon} />
-          <Text style={styles.brandText}>CROPS MANAGEMENT</Text>
+          <Text style={styles.brandText}>{t('crops.crops_management')}</Text>
         </View>
         <TouchableOpacity style={styles.filterButton}>
           <MaterialIcons name="settings" size={20} color="#666" style={styles.filterIcon} />
@@ -20,33 +22,33 @@ export default function Crops() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Current Crops Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Current Crops</Text>
+          <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
           
           <View style={styles.cropCard}>
             <View style={styles.cropHeader}>
               <View style={styles.cropInfo}>
                 <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
                 <View>
-                  <Text style={styles.cropName}>Wheat</Text>
-                  <Text style={styles.cropStage}>Flowering Stage</Text>
+                  <Text style={styles.cropName}>{t('crops.wheat')}</Text>
+                  <Text style={styles.cropStage}>{t('crops.flowering_stage')}</Text>
                 </View>
               </View>
               <View style={styles.cropStatus}>
-                <Text style={styles.statusBadge}>Healthy</Text>
+                <Text style={styles.statusBadge}>{t('crops.healthy')}</Text>
               </View>
             </View>
             
             <View style={styles.cropStats}>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Area</Text>
-                <Text style={styles.statValue}>25.5 acres</Text>
+                <Text style={styles.statLabel}>{t('crops.area')}</Text>
+                <Text style={styles.statValue}>25.5 {t('crops.acres')}</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Planted</Text>
+                <Text style={styles.statLabel}>{t('crops.planted')}</Text>
                 <Text style={styles.statValue}>Mar 15</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Harvest</Text>
+                <Text style={styles.statLabel}>{t('crops.harvest')}</Text>
                 <Text style={styles.statValue}>Jul 20</Text>
               </View>
             </View>
@@ -57,26 +59,26 @@ export default function Crops() {
               <View style={styles.cropInfo}>
                 <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
                 <View>
-                  <Text style={styles.cropName}>Corn</Text>
-                  <Text style={styles.cropStage}>Vegetative Growth</Text>
+                  <Text style={styles.cropName}>{t('crops.corn')}</Text>
+                  <Text style={styles.cropStage}>{t('crops.vegetative_growth')}</Text>
                 </View>
               </View>
               <View style={styles.cropStatus}>
-                <Text style={[styles.statusBadge, styles.warningBadge]}>Monitor</Text>
+                <Text style={[styles.statusBadge, styles.warningBadge]}>{t('crops.monitor')}</Text>
               </View>
             </View>
             
             <View style={styles.cropStats}>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Area</Text>
-                <Text style={styles.statValue}>18.2 acres</Text>
+                <Text style={styles.statLabel}>{t('crops.area')}</Text>
+                <Text style={styles.statValue}>18.2 {t('crops.acres')}</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Planted</Text>
+                <Text style={styles.statLabel}>{t('crops.planted')}</Text>
                 <Text style={styles.statValue}>Apr 02</Text>
               </View>
               <View style={styles.statItem}>
-                <Text style={styles.statLabel}>Harvest</Text>
+                <Text style={styles.statLabel}>{t('crops.harvest')}</Text>
                 <Text style={styles.statValue}>Aug 15</Text>
               </View>
             </View>
@@ -85,55 +87,55 @@ export default function Crops() {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <Text style={styles.sectionTitle}>{t('crops.quick_actions')}</Text>
           <View style={styles.actionGrid}>
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>Add New Crop</Text>
+              <Text style={styles.actionTitle}>{t('crops.add_new_crop')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="analytics" size={24} color="#2196F3" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>View Analytics</Text>
+              <Text style={styles.actionTitle}>{t('crops.view_analytics')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="water-drop" size={24} color="#00BCD4" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>Irrigation</Text>
+              <Text style={styles.actionTitle}>{t('crops.irrigation')}</Text>
             </TouchableOpacity>
             
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="science" size={24} color="#9C27B0" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>Soil Test</Text>
+              <Text style={styles.actionTitle}>{t('crops.soil_test')}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Recent Activities */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Recent Activities</Text>
+          <Text style={styles.sectionTitle}>{t('crops.recent_activities')}</Text>
           <View style={styles.activityList}>
             <View style={styles.activityItem}>
               <MaterialIcons name="water-drop" size={20} color="#00BCD4" style={styles.activityIcon} />
               <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Irrigation completed - Wheat Field A</Text>
-                <Text style={styles.activityTime}>2 hours ago</Text>
+                <Text style={styles.activityTitle}>{t('crops.irrigation_completed')}</Text>
+                <Text style={styles.activityTime}>2 {t('crops.hours_ago')}</Text>
               </View>
             </View>
             
             <View style={styles.activityItem}>
               <MaterialIcons name="eco" size={20} color="#4CAF50" style={styles.activityIcon} />
               <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Growth stage updated - Corn Field B</Text>
-                <Text style={styles.activityTime}>5 hours ago</Text>
+                <Text style={styles.activityTitle}>{t('crops.growth_stage_updated')}</Text>
+                <Text style={styles.activityTime}>5 {t('crops.hours_ago')}</Text>
               </View>
             </View>
             
             <View style={styles.activityItem}>
               <MaterialIcons name="science" size={20} color="#9C27B0" style={styles.activityIcon} />
               <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>Soil analysis report available</Text>
-                <Text style={styles.activityTime}>1 day ago</Text>
+                <Text style={styles.activityTitle}>{t('crops.soil_analysis_report')}</Text>
+                <Text style={styles.activityTime}>1 {t('crops.day_ago')}</Text>
               </View>
             </View>
           </View>

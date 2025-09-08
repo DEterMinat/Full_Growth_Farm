@@ -8,6 +8,8 @@ import React from 'react';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AuthProvider } from '@/src/contexts/AuthContext';
+import { LanguageProvider } from '@/src/contexts/LanguageContext';
+import '@/src/i18n/i18n';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -24,17 +26,19 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider>
-      <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack screenOptions={{ headerShown: false }}>
-          <Stack.Screen name="index" />
-          <Stack.Screen name="(auth)" />
-          <Stack.Screen name="(app)" />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeProvider>
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="index" />
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(app)" />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeProvider>
+      </AuthProvider>
+    </LanguageProvider>
   );
 }
 

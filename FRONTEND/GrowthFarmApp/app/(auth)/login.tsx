@@ -10,7 +10,9 @@ import {
   Alert 
 } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReAnimated, { 
   FadeIn,
@@ -21,10 +23,11 @@ import ReAnimated, {
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { login, loginAsGuest } = useAuth();
+  const { login } = useAuth();
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -76,24 +79,17 @@ export default function Login() {
   const handleGuestLogin = async () => {
     try {
       console.log('🎭 Handling Guest login...');
-      console.log('🎭 loginAsGuest type:', typeof loginAsGuest);
       setIsLoading(true);
       
-      // Check if loginAsGuest function exists
-      if (typeof loginAsGuest === 'function') {
-        await loginAsGuest();
-      } else {
-        console.warn('loginAsGuest function not available, using fallback');
-        // Fallback: Set guest mode directly in AsyncStorage
-        await AsyncStorage.setItem('growth_farm_guest_mode', 'true');
-        await AsyncStorage.setItem('growth_farm_user', JSON.stringify({
-          id: 'guest',
-          username: 'Guest User',
-          email: 'guest@growthfarm.com',
-          full_name: 'Demo User',
-          is_guest: true
-        }));
-      }
+      // Fallback: Set guest mode directly in AsyncStorage
+      await AsyncStorage.setItem('growth_farm_guest_mode', 'true');
+      await AsyncStorage.setItem('growth_farm_user', JSON.stringify({
+        id: 'guest',
+        username: 'Guest User',
+        email: 'guest@growthfarm.com',
+        full_name: 'Demo User',
+        is_guest: true
+      }));
       
       console.log('🎭 Guest login successful, redirecting to dashboard...');
       // Use replace instead of push to prevent going back to login
@@ -112,6 +108,11 @@ export default function Login() {
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+      {/* Language Toggle Button */}
+      <View style={styles.languageToggle}>
+        <LanguageToggleButton size="small" showText={false} />
+      </View>
+      
       <Animated.View 
         style={[
           styles.content,
@@ -129,7 +130,6 @@ export default function Login() {
           <TouchableOpacity style={styles.backButton} onPress={handleBackToWelcome}>
             <Text style={styles.backIcon}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Login</Text>
           <View style={styles.placeholder} />
         </ReAnimated.View>
 
@@ -140,8 +140,8 @@ export default function Login() {
         >
           <MaterialIcons name="eco" size={40} color="#4CAF50" />
           <Text style={styles.brandText}>GROWTH FARM</Text>
-          <Text style={styles.welcomeText}>Welcome back!</Text>
-          <Text style={styles.subText}>Sign in to your account</Text>
+          <Text style={styles.welcomeText}>{t('auth.welcome_back')}</Text>
+          <Text style={styles.subText}>{t('auth.sign_in_account')}</Text>
         </ReAnimated.View>
 
         {/* Login Form */}
@@ -150,10 +150,10 @@ export default function Login() {
           entering={SlideInLeft.delay(400).duration(800)}
         >
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Email</Text>
+            <Text style={styles.inputLabel}>{t('auth.email')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your email"
+              placeholder={t('auth.enter_email')}
               placeholderTextColor="#999"
               value={email}
               onChangeText={setEmail}
@@ -164,10 +164,10 @@ export default function Login() {
           </View>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Password</Text>
+            <Text style={styles.inputLabel}>{t('auth.password')}</Text>
             <TextInput
               style={styles.input}
-              placeholder="Enter your password"
+              placeholder={t('auth.enter_password')}
               placeholderTextColor="#999"
               value={password}
               onChangeText={setPassword}
@@ -177,7 +177,7 @@ export default function Login() {
           </View>
 
           <TouchableOpacity style={styles.forgotPassword}>
-            <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            <Text style={styles.forgotPasswordText}>{t('auth.forgot_password')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity 
@@ -186,7 +186,7 @@ export default function Login() {
             disabled={isLoading}
           >
             <Text style={styles.loginButtonText}>
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {isLoading ? t('common.loading') : t('common.login')}
             </Text>
           </TouchableOpacity>
 
@@ -208,7 +208,7 @@ export default function Login() {
             disabled={isLoading}
           >
             <MaterialIcons name="person" size={20} color="#666" />
-            <Text style={styles.guestButtonText}>Continue as Guest</Text>
+            <Text style={styles.guestButtonText}>{t('auth.login_as_guest')}</Text>
           </TouchableOpacity>
         </ReAnimated.View>
 
@@ -217,9 +217,9 @@ export default function Login() {
           style={styles.registerSection}
           entering={FadeIn.delay(600).duration(600)}
         >
-          <Text style={styles.registerText}>Don&apos;t have an account? </Text>
+          <Text style={styles.registerText}>{t('auth.no_account')} </Text>
           <TouchableOpacity onPress={handleRegister}>
-            <Text style={styles.registerLink}>Sign Up</Text>
+            <Text style={styles.registerLink}>{t('common.register')}</Text>
           </TouchableOpacity>
         </ReAnimated.View>
       </Animated.View>
@@ -402,6 +402,12 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#4CAF50',
     fontWeight: 'bold',
+  },
+  languageToggle: {
+    position: 'absolute',
+    top: 60,
+    right: 20,
+    zIndex: 1000,
   },
   guestButton: {
     flexDirection: 'row',

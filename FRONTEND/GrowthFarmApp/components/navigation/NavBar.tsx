@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { router, usePathname } from 'expo-router';
 import SideMenu from './SideMenu';
 import VoiceAIModal from './VoiceAIModal';
+import { LanguageToggleButton } from '../LanguageToggleButton';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { useTranslation } from 'react-i18next';
 
 interface NavBarProps {
   currentRoute?: string;
@@ -11,6 +13,7 @@ interface NavBarProps {
 }
 
 export default function NavBar({ currentRoute }: NavBarProps) {
+  const { t } = useTranslation();
   const pathname = usePathname();
   const [activeTab, setActiveTab] = useState(currentRoute || pathname);
   const [sideMenuVisible, setSideMenuVisible] = useState(false);
@@ -42,7 +45,7 @@ export default function NavBar({ currentRoute }: NavBarProps) {
   const tabs = [
     {
       id: 'menu',
-      label: 'Menu',
+      label: t('common.menu') || 'Menu',
       icon: 'menu',
       route: '',
       isMenu: true,
@@ -50,28 +53,28 @@ export default function NavBar({ currentRoute }: NavBarProps) {
     },
     {
       id: 'home',
-      label: 'Home',
+      label: t('navigation.dashboard') || 'Home',
       icon: 'home',
       route: '/(app)/dashboard',
       isActive: activeTab === 'home' || activeTab === '/(app)/dashboard'
     },
     {
       id: 'crops',
-      label: 'Crops',
+      label: t('navigation.crops') || 'Crops',
       icon: 'grass',
       route: '/(app)/crops',
       isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
     },
     {
       id: 'market',
-      label: 'Market',
+      label: t('navigation.market') || 'Market',
       icon: 'store',
       route: '/(app)/market',
       isActive: activeTab === 'market' || activeTab === '/(app)/market'
     },
     {
       id: 'profile',
-      label: 'Profile',
+      label: t('navigation.profile') || 'Profile',
       icon: 'person',
       route: '/(app)/profile',
       isActive: activeTab === 'profile' || activeTab === '/(app)/profile'
@@ -222,6 +225,13 @@ const styles = StyleSheet.create({
   },
   menuIcon: {
     marginBottom: 2,
+  },
+  // Language Toggle Button Styles
+  topLanguageToggle: {
+    position: 'absolute',
+    top: 60, // Below status bar
+    left: 20, // Changed from right to left to avoid collision
+    zIndex: 1000,
   },
   // Floating Voice AI Button Styles
   floatingVoiceButton: {

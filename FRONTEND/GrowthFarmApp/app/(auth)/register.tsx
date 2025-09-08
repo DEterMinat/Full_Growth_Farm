@@ -10,10 +10,13 @@ import {
   Alert 
 } from 'react-native';
 import { router } from 'expo-router';
+import { useTranslation } from 'react-i18next';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import authService from '@/src/services/authService';
 
 export default function Register() {
+  const { t } = useTranslation();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

@@ -8,16 +8,20 @@ import Animated, {
   SlideInLeft,
   SlideInRight
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { User } from '@/src/services/authService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Dashboard() {
-  const { user: authUser, isLoading: authLoading, isGuest } = useAuth();
+  const { t } = useTranslation();
+  const { user: authUser, isLoading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(authUser);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
+  const isGuest = !authUser || authUser.username === 'guest';
 
   useEffect(() => {
     console.log('Dashboard useEffect - authUser:', authUser, 'authLoading:', authLoading);
@@ -77,15 +81,18 @@ export default function Dashboard() {
       >
         <View style={styles.headerLeft}>
           <MaterialIcons name="eco" size={20} color="white" style={styles.leafIcon} />
-          <Text style={styles.brandText}>GROWTH FARM</Text>
+          <Text style={styles.brandText}>{t('dashboard.growth_farm')}</Text>
           {isGuest && (
             <View style={styles.guestBadge}>
-              <Text style={styles.guestBadgeText}>DEMO MODE</Text>
+              <Text style={styles.guestBadgeText}>{t('common.demo_mode')}</Text>
             </View>
           )}
         </View>
         <View style={styles.headerRight}>
-          <Text style={styles.welcomeUser}>Hi, {currentUser?.full_name || currentUser?.username}!</Text>
+          <View style={styles.welcomeContainer}>
+            <Text style={styles.welcomeUser}>{t('dashboard.hi_user')}, {currentUser?.full_name || currentUser?.username}!</Text>
+          </View>
+          <LanguageToggleButton size="small" style={styles.languageButton} />
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
             <MaterialIcons name="person" size={18} color="white" />
           </TouchableOpacity>
@@ -99,15 +106,15 @@ export default function Dashboard() {
           entering={FadeInUp.delay(200).duration(800)}
         >
           <View style={styles.statusHeader}>
-            <Text style={styles.statusTitle}>Current Crop Status</Text>
+            <Text style={styles.statusTitle}>{t('dashboard.current_crop_status')}</Text>
             <Text style={styles.statusTime}>
-              {isGuest ? 'Demo Data' : 'Updated 10 min ago'}
+              {isGuest ? t('common.demo_data') : t('common.updated') + ' 10 min ago'}
             </Text>
           </View>
           
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>This is example data for demonstration purposes</Text>
+              <Text style={styles.demoNoticeText}>{t('dashboard.demo_notice')}</Text>
             </View>
           )}
           
@@ -116,36 +123,36 @@ export default function Dashboard() {
               style={styles.cropStatusCard}
               entering={SlideInLeft.delay(400).duration(600)}
             >
-              <Text style={styles.cropLabel}>Crop Type</Text>
+              <Text style={styles.cropLabel}>{t('dashboard.crop_type')}</Text>
               <MaterialIcons name="grass" size={24} color="#4CAF50" style={styles.cropIcon} />
-              <Text style={styles.cropValue}>Wheat</Text>
+              <Text style={styles.cropValue}>{t('dashboard.wheat')}</Text>
             </Animated.View>
 
             <Animated.View 
               style={styles.cropStatusCard}
               entering={SlideInRight.delay(500).duration(600)}
             >
-              <Text style={styles.cropLabel}>Growth Stage</Text>
+              <Text style={styles.cropLabel}>{t('dashboard.growth_stage')}</Text>
               <MaterialIcons name="trending-up" size={24} color="#4CAF50" style={styles.cropIcon} />
-              <Text style={styles.cropValue}>Flowering</Text>
+              <Text style={styles.cropValue}>{t('dashboard.flowering')}</Text>
             </Animated.View>
 
             <Animated.View 
               style={styles.cropStatusCard}
               entering={SlideInLeft.delay(600).duration(600)}
             >
-              <Text style={styles.cropLabel}>Plant Health</Text>
+              <Text style={styles.cropLabel}>{t('dashboard.plant_health')}</Text>
               <MaterialIcons name="favorite" size={24} color="#4CAF50" style={styles.cropIcon} />
-              <Text style={styles.cropValue}>Healthy</Text>
+              <Text style={styles.cropValue}>{t('dashboard.healthy')}</Text>
             </Animated.View>
 
             <Animated.View 
               style={styles.cropStatusCard}
               entering={SlideInRight.delay(700).duration(600)}
             >
-              <Text style={styles.cropLabel}>Soil Moisture</Text>
+              <Text style={styles.cropLabel}>{t('dashboard.soil_moisture')}</Text>
               <MaterialIcons name="water-drop" size={24} color="#2196F3" style={styles.cropIcon} />
-              <Text style={styles.cropValue}>Optimal</Text>
+              <Text style={styles.cropValue}>{t('dashboard.optimal')}</Text>
             </Animated.View>
           </View>
         </Animated.View>
@@ -156,31 +163,31 @@ export default function Dashboard() {
           entering={FadeInUp.delay(800).duration(800)}
         >
           <View style={styles.fieldHeader}>
-            <Text style={styles.fieldTitle}>Field Overview</Text>
+            <Text style={styles.fieldTitle}>{t('dashboard.field_overview')}</Text>
             <TouchableOpacity onPress={() => router.push('/(app)/data-recording')}>
-              <Text style={styles.viewDetails}>View Details</Text>
+              <Text style={styles.viewDetails}>{t('dashboard.view_details')}</Text>
             </TouchableOpacity>
           </View>
           
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>Example satellite/drone imagery data</Text>
+              <Text style={styles.demoNoticeText}>{t('dashboard.example_satellite_data')}</Text>
             </View>
           )}
           
           <View style={styles.fieldImageContainer}>
             <View style={styles.fieldImage}>
               <MaterialIcons name="satellite" size={40} color="#4CAF50" />
-              <Text style={styles.droneText}>Drone Survey View</Text>
+              <Text style={styles.droneText}>{t('dashboard.drone_survey_view')}</Text>
             </View>
             <View style={styles.fieldLegend}>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
-                <Text style={styles.legendText}>Healthy Areas</Text>
+                <Text style={styles.legendText}>{t('dashboard.healthy_areas')}</Text>
               </View>
               <View style={styles.legendItem}>
                 <View style={[styles.legendDot, { backgroundColor: '#FF9800' }]} />
-                <Text style={styles.legendText}>Stressed Areas</Text>
+                <Text style={styles.legendText}>{t('dashboard.stressed_areas')}</Text>
               </View>
             </View>
           </View>
@@ -192,15 +199,15 @@ export default function Dashboard() {
           entering={SlideInLeft.delay(1000).duration(800)}
         >
           <View style={styles.notificationsHeader}>
-            <Text style={styles.notificationsTitle}>Notifications</Text>
+            <Text style={styles.notificationsTitle}>{t('notifications.title')}</Text>
             <TouchableOpacity onPress={() => router.push('/(app)/notifications')}>
-              <Text style={styles.seeAll}>See All</Text>
+              <Text style={styles.seeAll}>{t('dashboard.see_all')}</Text>
             </TouchableOpacity>
           </View>
 
           {isGuest && (
             <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>Example notifications and alerts</Text>
+              <Text style={styles.demoNoticeText}>{t('dashboard.example_notifications')}</Text>
             </View>
           )}
 
@@ -212,8 +219,8 @@ export default function Dashboard() {
               <MaterialIcons name="cloud" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
-              <Text style={styles.notificationTitle}>Rain Expected</Text>
-              <Text style={styles.notificationText}>80% chance in next 6 hours</Text>
+              <Text style={styles.notificationTitle}>{t('dashboard.rain_expected')}</Text>
+              <Text style={styles.notificationText}>{t('dashboard.rain_expected_desc')}</Text>
             </View>
           </Animated.View>
 
@@ -225,8 +232,8 @@ export default function Dashboard() {
               <MaterialIcons name="battery-alert" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
-              <Text style={styles.notificationTitle}>Sensor Battery Low</Text>
-              <Text style={styles.notificationText}>Sector B3 needs attention</Text>
+              <Text style={styles.notificationTitle}>{t('dashboard.sensor_battery_low')}</Text>
+              <Text style={styles.notificationText}>{t('dashboard.sensor_battery_desc')}</Text>
             </View>
           </Animated.View>
 
@@ -238,8 +245,8 @@ export default function Dashboard() {
               <MaterialIcons name="thermostat" size={18} color="white" />
             </View>
             <View style={styles.notificationContent}>
-              <Text style={styles.notificationTitle}>Temperature Optimal</Text>
-              <Text style={styles.notificationText}>Perfect growing conditions</Text>
+              <Text style={styles.notificationTitle}>{t('dashboard.temperature_optimal')}</Text>
+              <Text style={styles.notificationText}>{t('dashboard.temperature_desc')}</Text>
             </View>
           </Animated.View>
         </Animated.View>
@@ -250,9 +257,9 @@ export default function Dashboard() {
           entering={SlideInRight.delay(1500).duration(800)}
         >
           <View style={styles.marketHeader}>
-            <Text style={styles.marketTitle}>Market Prices</Text>
+            <Text style={styles.marketTitle}>{t('dashboard.market_prices')}</Text>
             <TouchableOpacity onPress={() => router.push('/(app)/marketplace')}>
-              <Text style={styles.marketUpdate}>Today&apos;s Update</Text>
+              <Text style={styles.marketUpdate}>{t('dashboard.todays_update')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -262,7 +269,7 @@ export default function Dashboard() {
           >
             <View style={styles.marketCrop}>
               <MaterialIcons name="grass" size={20} color="#4CAF50" style={styles.marketIcon} />
-              <Text style={styles.marketName}>Wheat</Text>
+              <Text style={styles.marketName}>{t('dashboard.wheat')}</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$7.25/bushel</Text>
@@ -276,7 +283,7 @@ export default function Dashboard() {
           >
             <View style={styles.marketCrop}>
               <MaterialIcons name="grain" size={20} color="#FF9800" style={styles.marketIcon} />
-              <Text style={styles.marketName}>Corn</Text>
+              <Text style={styles.marketName}>{t('dashboard.corn')}</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$4.12/bushel</Text>
@@ -290,7 +297,7 @@ export default function Dashboard() {
           >
             <View style={styles.marketCrop}>
               <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.marketIcon} />
-              <Text style={styles.marketName}>Soybeans</Text>
+              <Text style={styles.marketName}>{t('dashboard.soybeans')}</Text>
             </View>
             <View style={styles.marketPrice}>
               <Text style={styles.priceValue}>$13.87/bushel</Text>
@@ -312,8 +319,8 @@ export default function Dashboard() {
               <MaterialIcons name="mic" size={24} color="white" />
             </View>
             <View style={styles.voiceContent}>
-              <Text style={styles.voiceTitle}>Voice Assistant</Text>
-              <Text style={styles.voiceText}>Ask about crop conditions or market prices</Text>
+              <Text style={styles.voiceTitle}>{t('dashboard.voice_assistant')}</Text>
+              <Text style={styles.voiceText}>{t('dashboard.voice_assistant_desc')}</Text>
             </View>
             <MaterialIcons name="chevron-right" size={20} color="rgba(255, 255, 255, 0.8)" style={styles.voiceArrow} />
           </TouchableOpacity>
@@ -337,7 +344,7 @@ export default function Dashboard() {
             entering={FadeInUp.duration(400)}
           >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Voice Assistant</Text>
+              <Text style={styles.modalTitle}>{t('dashboard.voice_assistant')}</Text>
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowVoiceModal(false)}
@@ -354,22 +361,22 @@ export default function Dashboard() {
                 <TouchableOpacity style={styles.microphoneButton}>
                   <MaterialIcons name="mic" size={32} color="white" />
                 </TouchableOpacity>
-                <Text style={styles.micStatus}>Tap to speak</Text>
+                <Text style={styles.micStatus}>{t('voice_ai.tap_to_speak')}</Text>
               </View>
 
               <View style={styles.suggestionsContainer}>
-                <Text style={styles.suggestionsTitle}>Try asking:</Text>
+                <Text style={styles.suggestionsTitle}>{t('voice_ai.try_asking')}</Text>
                 <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>• &ldquo;How is my wheat crop doing?&rdquo;</Text>
+                  <Text style={styles.suggestionText}>{t('voice_ai.wheat_crop_question')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>• &ldquo;What are today&apos;s market prices?&rdquo;</Text>
+                  <Text style={styles.suggestionText}>{t('voice_ai.market_prices_question')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>• &ldquo;Show me weather forecast&rdquo;</Text>
+                  <Text style={styles.suggestionText}>{t('voice_ai.weather_forecast_question')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>• &ldquo;Any alerts for my farm?&rdquo;</Text>
+                  <Text style={styles.suggestionText}>{t('voice_ai.farm_alerts_question')}</Text>
                 </TouchableOpacity>
               </View>
 
@@ -380,7 +387,7 @@ export default function Dashboard() {
                   router.push('/(app)/voice-ai');
                 }}
               >
-                <Text style={styles.fullVoiceText}>Open Full Voice Assistant</Text>
+                <Text style={styles.fullVoiceText}>{t('voice_ai.open_full_assistant')}</Text>
               </TouchableOpacity>
             </View>
           </Animated.View>
@@ -421,7 +428,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   headerRight: {
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  languageButton: {
+    marginBottom: 5,
+    marginRight: 10,
+  },
+  welcomeContainer: {
+    marginRight: 10,
   },
   welcomeUser: {
     color: 'white',

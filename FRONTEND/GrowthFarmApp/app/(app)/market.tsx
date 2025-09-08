@@ -6,10 +6,12 @@ import Animated, {
   SlideInLeft,
   SlideInRight
 } from 'react-native-reanimated';
+import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Market() {
+  const { t } = useTranslation();
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -19,7 +21,7 @@ export default function Market() {
       >
         <View style={styles.headerLeft}>
           <MaterialIcons name="store" size={20} color="white" style={styles.marketIcon} />
-          <Text style={styles.brandText}>MARKET PRICES</Text>
+          <Text style={styles.brandText}>{t('market.market_prices')}</Text>
         </View>
         <TouchableOpacity style={styles.refreshButton}>
           <MaterialIcons name="refresh" size={18} color="white" style={styles.refreshIcon} />
@@ -33,8 +35,8 @@ export default function Market() {
           entering={FadeInUp.delay(200).duration(800)}
         >
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>Today&apos;s Prices</Text>
-            <Text style={styles.updateTime}>Updated 5 min ago</Text>
+            <Text style={styles.sectionTitle}>{t('market.todays_prices')}</Text>
+            <Text style={styles.updateTime}>{t('market.updated_5_min')}</Text>
           </View>
           
           <Animated.View 
@@ -44,14 +46,14 @@ export default function Market() {
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
                 <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
-                <Text style={styles.cropName}>Wheat</Text>
+                <Text style={styles.cropName}>{t('market.wheat')}</Text>
               </View>
               <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>↗ +2.5%</Text>
+                <Text style={[styles.changeText, styles.positive]}>{t('market.price_up')}</Text>
               </View>
             </View>
-            <Text style={styles.currentPrice}>$7.25/bushel</Text>
-            <Text style={styles.previousPrice}>Yesterday: $7.07</Text>
+            <Text style={styles.currentPrice}>$7.25{t('market.price_per_bushel')}</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday')}: $7.07</Text>
           </Animated.View>
 
           <Animated.View 
@@ -61,14 +63,14 @@ export default function Market() {
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
                 <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
-                <Text style={styles.cropName}>Corn</Text>
+                <Text style={styles.cropName}>{t('market.corn')}</Text>
               </View>
               <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.negative]}>↘ -1.2%</Text>
+                <Text style={[styles.changeText, styles.negative]}>{t('market.price_down')}</Text>
               </View>
             </View>
-            <Text style={styles.currentPrice}>$4.12/bushel</Text>
-            <Text style={styles.previousPrice}>Yesterday: $4.17</Text>
+            <Text style={styles.currentPrice}>$4.12{t('market.price_per_bushel')}</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday')}: $4.17</Text>
           </Animated.View>
 
           <Animated.View 
@@ -78,14 +80,14 @@ export default function Market() {
             <View style={styles.priceHeader}>
               <View style={styles.cropInfo}>
                 <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.cropIcon} />
-                <Text style={styles.cropName}>Soybeans</Text>
+                <Text style={styles.cropName}>{t('market.soybeans')}</Text>
               </View>
               <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>↗ +4.1%</Text>
+                <Text style={[styles.changeText, styles.positive]}>{t('market.soy_price_up')}</Text>
               </View>
             </View>
-            <Text style={styles.currentPrice}>$13.87/bushel</Text>
-            <Text style={styles.previousPrice}>Yesterday: $13.32</Text>
+            <Text style={styles.currentPrice}>$13.87{t('market.price_per_bushel')}</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday')}: $13.32</Text>
           </Animated.View>
         </Animated.View>
 
@@ -94,15 +96,15 @@ export default function Market() {
           style={styles.section}
           entering={FadeInUp.delay(800).duration(800)}
         >
-          <Text style={styles.sectionTitle}>Weekly Trends</Text>
+          <Text style={styles.sectionTitle}>{t('market.weekly_trends')}</Text>
           <Animated.View 
             style={styles.trendCard}
             entering={SlideInLeft.delay(1000).duration(600)}
           >
-            <Text style={styles.trendTitle}>Hot This Week</Text>
-            <Text style={styles.trendDescription}>Soybeans showing strong upward momentum</Text>
+            <Text style={styles.trendTitle}>{t('market.hot_this_week')}</Text>
+            <Text style={styles.trendDescription}>{t('market.strong_upward')}</Text>
             <View style={styles.trendStats}>
-              <Text style={styles.trendStat}>+12.5% this week</Text>
+              <Text style={styles.trendStat}>+12.5% {t('market.this_week')}</Text>
             </View>
           </Animated.View>
           
@@ -110,10 +112,10 @@ export default function Market() {
             style={styles.trendCard}
             entering={SlideInRight.delay(1100).duration(600)}
           >
-            <Text style={styles.trendTitle}>Watch Out</Text>
-            <Text style={styles.trendDescription}>Corn prices declining due to oversupply</Text>
+            <Text style={styles.trendTitle}>{t('market.watch_out')}</Text>
+            <Text style={styles.trendDescription}>{t('market.declining_oversupply')}</Text>
             <View style={styles.trendStats}>
-              <Text style={[styles.trendStat, styles.negative]}>-5.8% this week</Text>
+              <Text style={[styles.trendStat, styles.negative]}>-5.8% {t('market.this_week')}</Text>
             </View>
           </Animated.View>
         </Animated.View>
@@ -123,38 +125,38 @@ export default function Market() {
           style={styles.section}
           entering={FadeInUp.delay(1200).duration(800)}
         >
-          <Text style={styles.sectionTitle}>Market Actions</Text>
+          <Text style={styles.sectionTitle}>{t('market.market_actions')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.actionScrollView}>
             <View style={styles.actionGrid}>
               <Animated.View entering={SlideInLeft.delay(1400).duration(500)}>
                 <TouchableOpacity style={styles.actionCard}>
                   <MaterialIcons name="attach-money" size={28} color="#4CAF50" style={styles.actionIcon} />
-                  <Text style={styles.actionTitle}>Sell Crops</Text>
-                  <Text style={styles.actionSubtitle}>Best prices</Text>
+                  <Text style={styles.actionTitle}>{t('market.sell_crops')}</Text>
+                  <Text style={styles.actionSubtitle}>{t('market.best_prices')}</Text>
                 </TouchableOpacity>
               </Animated.View>
               
               <Animated.View entering={SlideInLeft.delay(1500).duration(500)}>
                 <TouchableOpacity style={styles.actionCard}>
                   <MaterialIcons name="trending-up" size={28} color="#2196F3" style={styles.actionIcon} />
-                  <Text style={styles.actionTitle}>Price Alerts</Text>
-                  <Text style={styles.actionSubtitle}>Notifications</Text>
+                  <Text style={styles.actionTitle}>{t('market.price_alerts')}</Text>
+                  <Text style={styles.actionSubtitle}>{t('market.notifications')}</Text>
                 </TouchableOpacity>
               </Animated.View>
               
               <Animated.View entering={SlideInLeft.delay(1600).duration(500)}>
                 <TouchableOpacity style={styles.actionCard}>
                   <MaterialIcons name="analytics" size={28} color="#FF9800" style={styles.actionIcon} />
-                  <Text style={styles.actionTitle}>Analysis</Text>
-                  <Text style={styles.actionSubtitle}>Reports</Text>
+                                    <Text style={styles.actionTitle}>{t('market.analysis')}</Text>
+                  <Text style={styles.actionSubtitle}>{t('market.market_trends')}</Text>
                 </TouchableOpacity>
               </Animated.View>
               
               <Animated.View entering={SlideInLeft.delay(1700).duration(500)}>
                 <TouchableOpacity style={styles.actionCard}>
                   <MaterialIcons name="handshake" size={28} color="#9C27B0" style={styles.actionIcon} />
-                  <Text style={styles.actionTitle}>Find Buyers</Text>
-                  <Text style={styles.actionSubtitle}>Connect</Text>
+                  <Text style={styles.actionTitle}>{t('market.find_buyers')}</Text>
+                  <Text style={styles.actionSubtitle}>{t('market.connect')}</Text>
                 </TouchableOpacity>
               </Animated.View>
             </View>
@@ -166,16 +168,16 @@ export default function Market() {
           style={styles.section}
           entering={FadeInUp.delay(1800).duration(800)}
         >
-          <Text style={styles.sectionTitle}>Market News</Text>
+          <Text style={styles.sectionTitle}>{t('market.market_news')}</Text>
           <View style={styles.newsList}>
             <Animated.View 
               style={styles.newsItem}
               entering={FadeInUp.delay(2000).duration(500)}
             >
               <View style={styles.newsContent}>
-                <Text style={styles.newsTitle}>Global wheat demand increases</Text>
-                <Text style={styles.newsSubtitle}>Export opportunities rising for local farmers</Text>
-                <Text style={styles.newsTime}>2 hours ago</Text>
+                <Text style={styles.newsTitle}>{t('market.global_wheat_demand')}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.export_opportunities')}</Text>
+                <Text style={styles.newsTime}>{t('market.hours_ago_2')}</Text>
               </View>
             </Animated.View>
             
@@ -184,9 +186,9 @@ export default function Market() {
               entering={FadeInUp.delay(2100).duration(500)}
             >
               <View style={styles.newsContent}>
-                <Text style={styles.newsTitle}>Weather forecast affects corn prices</Text>
-                <Text style={styles.newsSubtitle}>Expected rain may impact harvest schedules</Text>
-                <Text style={styles.newsTime}>5 hours ago</Text>
+                <Text style={styles.newsTitle}>{t('market.weather_forecast_corn')}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.rain_impact_harvest')}</Text>
+                <Text style={styles.newsTime}>{t('market.hours_ago_5')}</Text>
               </View>
             </Animated.View>
             
@@ -195,9 +197,9 @@ export default function Market() {
               entering={FadeInUp.delay(2200).duration(500)}
             >
               <View style={styles.newsContent}>
-                <Text style={styles.newsTitle}>New trade agreement benefits soybean exports</Text>
-                <Text style={styles.newsSubtitle}>Farmers can expect higher demand next quarter</Text>
-                <Text style={styles.newsTime}>1 day ago</Text>
+                <Text style={styles.newsTitle}>{t('market.trade_agreement_soybean')}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.farmers_higher_demand')}</Text>
+                <Text style={styles.newsTime}>{t('market.day_ago_1')}</Text>
               </View>
             </Animated.View>
           </View>
