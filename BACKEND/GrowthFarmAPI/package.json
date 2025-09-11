@@ -13,6 +13,7 @@
     "test-dialect": "node test-dialect-ai.js",
     "test-auth": "node test-auth-thai.js",
     "test-thai": "echo 'Testing Thai API endpoints...' && curl http://localhost:30039/health && curl http://localhost:30039/ai/status",
+    "check-db": "node check-database.js",
     "fix-tags": "node fix-tags-issue.js",
     "cleanup-db": "node cleanup-db.js",
     "reset-db": "node reset-db.js",
