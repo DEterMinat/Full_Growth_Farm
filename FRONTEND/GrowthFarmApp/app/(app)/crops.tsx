@@ -1,11 +1,290 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { 
+  View, 
+  Text, 
+  StyleSheet, 
+  ScrollView, 
+  TouchableOpacity, 
+  Modal, 
+  TextInput, 
+  Alert,
+  ActivityIndicator 
+} from 'react-native';
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { 
+  // cropsService, // จะใช้เมื่อเชื่อมกับ database จริง
+  Crop, 
+  CreateCropRequest 
+} from '@/src/services/cropsService';
 
 export default function Crops() {
   const { t } = useTranslation();
+  const [crops, setCrops] = useState<Crop[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingCrop, setEditingCrop] = useState<Crop | null>(null);
+  
+  const [newCrop, setNewCrop] = useState<CreateCropRequest>({
+    name: '',
+    variety: '',
+    plantingDate: '',
+    expectedHarvestDate: '',
+    area: 0,
+    areaUnit: 'acres',
+    stage: 'Seeding',
+    status: 'healthy',
+    farmId: 1, // Default farm ID, should get from context
+    notes: '',
+  });
+
+  // Load crops on component mount
+  useEffect(() => {
+    loadCrops();
+  }, []);
+
+  const loadCrops = async () => {
+    try {
+      setLoading(true);
+      
+      // จำลองข้อมูลพืชผล (ยังไม่เชื่อม database)
+      const mockCrops: Crop[] = [
+        {
+          id: 1,
+          name: 'Wheat',
+          variety: 'Winter Wheat',
+          plantingDate: '2024-03-15',
+          expectedHarvestDate: '2024-07-20',
+          area: 25.5,
+          areaUnit: 'acres',
+          stage: 'Flowering Stage',
+          status: 'healthy',
+          farmId: 1,
+          notes: 'Growing well, good weather conditions',
+          createdAt: '2024-03-15T08:00:00Z',
+          updatedAt: '2024-03-20T10:30:00Z'
+        },
+        {
+          id: 2,
+          name: 'Corn',
+          variety: 'Sweet Corn',
+          plantingDate: '2024-04-02',
+          expectedHarvestDate: '2024-08-15',
+          area: 18.2,
+          areaUnit: 'acres',
+          stage: 'Vegetative Growth',
+          status: 'monitor',
+          farmId: 1,
+          notes: 'Need to monitor soil moisture levels',
+          createdAt: '2024-04-02T09:15:00Z',
+          updatedAt: '2024-04-10T14:20:00Z'
+        }
+      ];
+
+      // จำลอง delay ของ API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setCrops(mockCrops);
+      
+      // const fetchedCrops = await cropsService.getAllCrops();
+      // setCrops(fetchedCrops);
+    } catch (error) {
+      console.error('Error loading crops:', error);
+      Alert.alert('Error', 'Failed to load crops. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAddCrop = async () => {
+    // Validation
+    if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      // จำลองการเพิ่มข้อมูลใหม่ (ยังไม่เชื่อม database)
+      const newCropData: Crop = {
+        id: Date.now(), // ใช้ timestamp เป็น ID ชั่วคราว
+        ...newCrop,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      // จำลอง delay ของ API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setCrops(prevCrops => [...prevCrops, newCropData]);
+      
+      // const createdCrop = await cropsService.createCrop(newCrop);
+      // setCrops(prevCrops => [...prevCrops, createdCrop]);
+      
+      // Reset form
+      setNewCrop({
+        name: '',
+        variety: '',
+        plantingDate: '',
+        expectedHarvestDate: '',
+        area: 0,
+        areaUnit: 'acres',
+        stage: 'Seeding',
+        status: 'healthy',
+        farmId: 1,
+        notes: '',
+      });
+      
+      setIsAddModalVisible(false);
+      Alert.alert('Success', 'Crop added successfully!');
+    } catch (error) {
+      console.error('Error adding crop:', error);
+      Alert.alert('Error', 'Failed to add crop. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelAdd = () => {
+    setIsAddModalVisible(false);
+    // Reset form
+    setNewCrop({
+      name: '',
+      variety: '',
+      plantingDate: '',
+      expectedHarvestDate: '',
+      area: 0,
+      areaUnit: 'acres',
+      stage: 'Seeding',
+      status: 'healthy',
+      farmId: 1,
+      notes: '',
+    });
+  };
+
+  // Edit Crop Functions
+  const handleEditCrop = (crop: Crop) => {
+    setEditingCrop(crop);
+    setNewCrop({
+      name: crop.name,
+      variety: crop.variety || '',
+      plantingDate: crop.plantingDate,
+      expectedHarvestDate: crop.expectedHarvestDate,
+      area: crop.area,
+      areaUnit: crop.areaUnit,
+      stage: crop.stage,
+      status: crop.status,
+      farmId: crop.farmId,
+      notes: crop.notes || '',
+    });
+    setIsEditModalVisible(true);
+  };
+
+  const handleUpdateCrop = async () => {
+    if (!editingCrop) return;
+    
+    // Validation
+    if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
+      Alert.alert('Error', 'Please fill in all required fields');
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      
+      // จำลองการอัปเดตข้อมูล (ยังไม่เชื่อม database)
+      const updatedCropData: Crop = {
+        ...editingCrop,
+        ...newCrop,
+        updatedAt: new Date().toISOString()
+      };
+
+      // จำลอง delay ของ API call
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setCrops(prevCrops => 
+        prevCrops.map(crop => 
+          crop.id === editingCrop.id ? updatedCropData : crop
+        )
+      );
+      
+      // const updatedCrop = await cropsService.updateCrop(editingCrop.id!, newCrop);
+      // setCrops(prevCrops => 
+      //   prevCrops.map(crop => 
+      //     crop.id === editingCrop.id ? updatedCrop : crop
+      //   )
+      // );
+      
+      setIsEditModalVisible(false);
+      setEditingCrop(null);
+      Alert.alert('Success', 'Crop updated successfully!');
+    } catch (error) {
+      console.error('Error updating crop:', error);
+      Alert.alert('Error', 'Failed to update crop. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditModalVisible(false);
+    setEditingCrop(null);
+    // Reset form
+    setNewCrop({
+      name: '',
+      variety: '',
+      plantingDate: '',
+      expectedHarvestDate: '',
+      area: 0,
+      areaUnit: 'acres',
+      stage: 'Seeding',
+      status: 'healthy',
+      farmId: 1,
+      notes: '',
+    });
+  };
+
+  // Delete Crop Function
+  const handleDeleteCrop = (crop: Crop) => {
+    Alert.alert(
+      'Delete Crop',
+      `Are you sure you want to delete "${crop.name}"? This action cannot be undone.`,
+      [
+        {
+          text: 'Cancel',
+          style: 'cancel',
+        },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // จำลอง delay ของ API call
+              await new Promise(resolve => setTimeout(resolve, 500));
+              
+              setCrops(prevCrops => 
+                prevCrops.filter(c => c.id !== crop.id)
+              );
+              
+              // await cropsService.deleteCrop(crop.id!);
+              // setCrops(prevCrops => 
+              //   prevCrops.filter(c => c.id !== crop.id)
+              // );
+              
+              Alert.alert('Success', 'Crop deleted successfully!');
+            } catch (error) {
+              console.error('Error deleting crop:', error);
+              Alert.alert('Error', 'Failed to delete crop. Please try again.');
+            }
+          },
+        },
+      ]
+    );
+  };
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -24,72 +303,84 @@ export default function Crops() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
           
-          <View style={styles.cropCard}>
-            <View style={styles.cropHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
-                <View>
-                  <Text style={styles.cropName}>{t('crops.wheat')}</Text>
-                  <Text style={styles.cropStage}>{t('crops.flowering_stage')}</Text>
+          {loading ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="large" color="#4CAF50" />
+              <Text style={styles.loadingText}>Loading crops...</Text>
+            </View>
+          ) : crops.length === 0 ? (
+            <View style={styles.emptyCropsContainer}>
+              <MaterialIcons name="grass" size={48} color="#ccc" />
+              <Text style={styles.emptyCropsText}>No crops found</Text>
+              <Text style={styles.emptyCropsSubtext}>Start by adding your first crop</Text>
+            </View>
+          ) : (
+            crops.map((crop) => (
+              <View key={crop.id} style={styles.cropCard}>
+                <View style={styles.cropHeader}>
+                  <View style={styles.cropInfo}>
+                    <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
+                    <View>
+                      <Text style={styles.cropName}>{crop.name}</Text>
+                      <Text style={styles.cropStage}>{crop.stage}</Text>
+                    </View>
+                  </View>
+                  <View style={styles.cropActions}>
+                    <View style={styles.cropStatus}>
+                      <Text style={[
+                        styles.statusBadge,
+                        crop.status === 'monitor' && styles.warningBadge,
+                        crop.status === 'critical' && styles.criticalBadge
+                      ]}>
+                        {crop.status}
+                      </Text>
+                    </View>
+                    <View style={styles.actionButtons}>
+                      <TouchableOpacity
+                        style={styles.editButton}
+                        onPress={() => handleEditCrop(crop)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialIcons name="edit" size={18} color="#2196F3" />
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.deleteButton}
+                        onPress={() => handleDeleteCrop(crop)}
+                        activeOpacity={0.7}
+                      >
+                        <MaterialIcons name="delete" size={18} color="#F44336" />
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                </View>
+                
+                <View style={styles.cropStats}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statLabel}>{t('crops.area')}</Text>
+                    <Text style={styles.statValue}>{crop.area} {crop.areaUnit}</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statLabel}>{t('crops.planted')}</Text>
+                    <Text style={styles.statValue}>{new Date(crop.plantingDate).toLocaleDateString()}</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statLabel}>{t('crops.harvest')}</Text>
+                    <Text style={styles.statValue}>{new Date(crop.expectedHarvestDate).toLocaleDateString()}</Text>
+                  </View>
                 </View>
               </View>
-              <View style={styles.cropStatus}>
-                <Text style={styles.statusBadge}>{t('crops.healthy')}</Text>
-              </View>
-            </View>
-            
-            <View style={styles.cropStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.area')}</Text>
-                <Text style={styles.statValue}>25.5 {t('crops.acres')}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.planted')}</Text>
-                <Text style={styles.statValue}>Mar 15</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.harvest')}</Text>
-                <Text style={styles.statValue}>Jul 20</Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={styles.cropCard}>
-            <View style={styles.cropHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
-                <View>
-                  <Text style={styles.cropName}>{t('crops.corn')}</Text>
-                  <Text style={styles.cropStage}>{t('crops.vegetative_growth')}</Text>
-                </View>
-              </View>
-              <View style={styles.cropStatus}>
-                <Text style={[styles.statusBadge, styles.warningBadge]}>{t('crops.monitor')}</Text>
-              </View>
-            </View>
-            
-            <View style={styles.cropStats}>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.area')}</Text>
-                <Text style={styles.statValue}>18.2 {t('crops.acres')}</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.planted')}</Text>
-                <Text style={styles.statValue}>Apr 02</Text>
-              </View>
-              <View style={styles.statItem}>
-                <Text style={styles.statLabel}>{t('crops.harvest')}</Text>
-                <Text style={styles.statValue}>Aug 15</Text>
-              </View>
-            </View>
-          </View>
+            ))
+          )}
         </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('crops.quick_actions')}</Text>
           <View style={styles.actionGrid}>
-            <TouchableOpacity style={styles.actionCard}>
+            <TouchableOpacity 
+              style={styles.actionCard}
+              onPress={() => setIsAddModalVisible(true)}
+            >
               <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.add_new_crop')}</Text>
             </TouchableOpacity>
@@ -146,6 +437,553 @@ export default function Crops() {
 
       {/* Navigation Bar */}
       <NavBar currentRoute="crops" />
+
+      {/* Add Crop Modal */}
+      <Modal
+        visible={isAddModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleCancelAdd}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Modern Header with Gradient */}
+            <View style={styles.modalHeader}>
+              <View style={styles.headerContent}>
+                <View style={styles.headerIconContainer}>
+                  <MaterialIcons name="grass" size={24} color="#4CAF50" />
+                </View>
+                <View>
+                  <Text style={styles.modalTitle}>Add New Crop</Text>
+                  <Text style={styles.modalSubtitle}>Fill in the details below</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                onPress={handleCancelAdd}
+                style={styles.closeButton}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              {/* Crop Name - Modern Input */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>
+                  Crop Name <Text style={styles.requiredStar}>*</Text>
+                </Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="grass" size={20} color="#4CAF50" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.name}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, name: text }))}
+                    placeholder="e.g., Wheat, Corn, Rice"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              {/* Variety */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Variety</Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="eco" size={20} color="#4CAF50" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.variety}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, variety: text }))}
+                    placeholder="Enter variety (optional)"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              {/* Area & Unit - Modern Row */}
+              <View style={styles.modernFormRow}>
+                <View style={[styles.modernFormGroup, { flex: 2 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Area <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="crop-landscape" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.area.toString()}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, area: parseFloat(text) || 0 }))}
+                      placeholder="e.g., 25.5"
+                      placeholderTextColor="#999"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>Unit</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={[styles.modernFormInput, { paddingLeft: 15 }]}
+                      value={newCrop.areaUnit}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, areaUnit: text }))}
+                      placeholder="acres"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Dates Row */}
+              <View style={styles.modernFormRow}>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Planting Date <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="event" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.plantingDate}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, plantingDate: text }))}
+                      placeholder="2024-03-15"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Harvest Date <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="schedule" size={20} color="#4CAF50" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.expectedHarvestDate}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, expectedHarvestDate: text }))}
+                      placeholder="2024-07-20"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              {/* Growth Stage */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Growth Stage</Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="trending-up" size={20} color="#4CAF50" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.stage}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, stage: text }))}
+                    placeholder="e.g., Flowering Stage, Vegetative Growth"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              {/* Modern Status Selection */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Status</Text>
+                <View style={styles.modernStatusRow}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.healthyOption,
+                      newCrop.status === 'healthy' && styles.modernStatusSelected,
+                      newCrop.status === 'healthy' && styles.healthySelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="check-circle" 
+                      size={20} 
+                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
+                    ]}>
+                      Healthy
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.monitorOption,
+                      newCrop.status === 'monitor' && styles.modernStatusSelected,
+                      newCrop.status === 'monitor' && styles.monitorSelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="warning" 
+                      size={20} 
+                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
+                    ]}>
+                      Monitor
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.criticalOption,
+                      newCrop.status === 'critical' && styles.modernStatusSelected,
+                      newCrop.status === 'critical' && styles.criticalSelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="error" 
+                      size={20} 
+                      color={newCrop.status === 'critical' ? 'white' : '#F44336'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
+                    ]}>
+                      Critical
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              {/* Notes - Modern Text Area */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Notes</Text>
+                <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
+                  <MaterialIcons name="notes" size={20} color="#4CAF50" style={[styles.inputIcon, styles.textAreaIcon]} />
+                  <TextInput
+                    style={[styles.modernFormInput, styles.modernTextArea]}
+                    value={newCrop.notes}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, notes: text }))}
+                    placeholder="Additional notes (optional)"
+                    placeholderTextColor="#999"
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modalFormPadding} />
+            </ScrollView>
+
+            {/* Modern Footer */}
+            <View style={styles.modernModalFooter}>
+              <TouchableOpacity 
+                style={styles.modernCancelButton} 
+                onPress={handleCancelAdd}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modernCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.modernSaveButton,
+                  isSubmitting && styles.disabledButton
+                ]}
+                onPress={handleAddCrop}
+                disabled={isSubmitting}
+                activeOpacity={0.8}
+              >
+                {isSubmitting ? (
+                  <View style={styles.modernLoadingContainer}>
+                    <ActivityIndicator size="small" color="white" />
+                    <Text style={styles.modernSaveButtonText}>Adding...</Text>
+                  </View>
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <MaterialIcons name="add" size={20} color="white" />
+                    <Text style={styles.modernSaveButtonText}>Add Crop</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Edit Crop Modal */}
+      <Modal
+        visible={isEditModalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={handleCancelEdit}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            {/* Modern Header with Gradient */}
+            <View style={styles.modalHeader}>
+              <View style={styles.headerContent}>
+                <View style={styles.headerIconContainer}>
+                  <MaterialIcons name="edit" size={24} color="#2196F3" />
+                </View>
+                <View>
+                  <Text style={styles.modalTitle}>Edit Crop</Text>
+                  <Text style={styles.modalSubtitle}>Update crop information</Text>
+                </View>
+              </View>
+              <TouchableOpacity 
+                onPress={handleCancelEdit}
+                style={styles.closeButton}
+                activeOpacity={0.7}
+              >
+                <MaterialIcons name="close" size={20} color="#666" />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView style={styles.modalContent} showsVerticalScrollIndicator={false}>
+              {/* Same form fields as Add Modal but for editing */}
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>
+                  Crop Name <Text style={styles.requiredStar}>*</Text>
+                </Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="grass" size={20} color="#2196F3" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.name}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, name: text }))}
+                    placeholder="e.g., Wheat, Corn, Rice"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Variety</Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="eco" size={20} color="#2196F3" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.variety}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, variety: text }))}
+                    placeholder="Enter variety (optional)"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modernFormRow}>
+                <View style={[styles.modernFormGroup, { flex: 2 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Area <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="crop-landscape" size={20} color="#2196F3" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.area.toString()}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, area: parseFloat(text) || 0 }))}
+                      placeholder="e.g., 25.5"
+                      placeholderTextColor="#999"
+                      keyboardType="numeric"
+                    />
+                  </View>
+                </View>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>Unit</Text>
+                  <View style={styles.inputWrapper}>
+                    <TextInput
+                      style={[styles.modernFormInput, { paddingLeft: 15 }]}
+                      value={newCrop.areaUnit}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, areaUnit: text }))}
+                      placeholder="acres"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.modernFormRow}>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Planting Date <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="event" size={20} color="#2196F3" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.plantingDate}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, plantingDate: text }))}
+                      placeholder="2024-03-15"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+                <View style={[styles.modernFormGroup, { flex: 1 }]}>
+                  <Text style={styles.modernFormLabel}>
+                    Harvest Date <Text style={styles.requiredStar}>*</Text>
+                  </Text>
+                  <View style={styles.inputWrapper}>
+                    <MaterialIcons name="schedule" size={20} color="#2196F3" style={styles.inputIcon} />
+                    <TextInput
+                      style={styles.modernFormInput}
+                      value={newCrop.expectedHarvestDate}
+                      onChangeText={(text) => setNewCrop(prev => ({ ...prev, expectedHarvestDate: text }))}
+                      placeholder="2024-07-20"
+                      placeholderTextColor="#999"
+                    />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Growth Stage</Text>
+                <View style={styles.inputWrapper}>
+                  <MaterialIcons name="trending-up" size={20} color="#2196F3" style={styles.inputIcon} />
+                  <TextInput
+                    style={styles.modernFormInput}
+                    value={newCrop.stage}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, stage: text }))}
+                    placeholder="e.g., Flowering Stage, Vegetative Growth"
+                    placeholderTextColor="#999"
+                    autoCapitalize="words"
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Status</Text>
+                <View style={styles.modernStatusRow}>
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.healthyOption,
+                      newCrop.status === 'healthy' && styles.modernStatusSelected,
+                      newCrop.status === 'healthy' && styles.healthySelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="check-circle" 
+                      size={20} 
+                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
+                    ]}>
+                      Healthy
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.monitorOption,
+                      newCrop.status === 'monitor' && styles.modernStatusSelected,
+                      newCrop.status === 'monitor' && styles.monitorSelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="warning" 
+                      size={20} 
+                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
+                    ]}>
+                      Monitor
+                    </Text>
+                  </TouchableOpacity>
+                  
+                  <TouchableOpacity 
+                    style={[
+                      styles.modernStatusOption, 
+                      styles.criticalOption,
+                      newCrop.status === 'critical' && styles.modernStatusSelected,
+                      newCrop.status === 'critical' && styles.criticalSelected
+                    ]}
+                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
+                    activeOpacity={0.8}
+                  >
+                    <MaterialIcons 
+                      name="error" 
+                      size={20} 
+                      color={newCrop.status === 'critical' ? 'white' : '#F44336'} 
+                    />
+                    <Text style={[
+                      styles.modernStatusText, 
+                      { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
+                    ]}>
+                      Critical
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+              <View style={styles.modernFormGroup}>
+                <Text style={styles.modernFormLabel}>Notes</Text>
+                <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
+                  <MaterialIcons name="notes" size={20} color="#2196F3" style={[styles.inputIcon, styles.textAreaIcon]} />
+                  <TextInput
+                    style={[styles.modernFormInput, styles.modernTextArea]}
+                    value={newCrop.notes}
+                    onChangeText={(text) => setNewCrop(prev => ({ ...prev, notes: text }))}
+                    placeholder="Additional notes (optional)"
+                    placeholderTextColor="#999"
+                    multiline
+                    numberOfLines={3}
+                  />
+                </View>
+              </View>
+
+              <View style={styles.modalFormPadding} />
+            </ScrollView>
+
+            <View style={styles.modernModalFooter}>
+              <TouchableOpacity 
+                style={styles.modernCancelButton} 
+                onPress={handleCancelEdit}
+                activeOpacity={0.8}
+              >
+                <Text style={styles.modernCancelButtonText}>Cancel</Text>
+              </TouchableOpacity>
+              
+              <TouchableOpacity 
+                style={[
+                  styles.modernUpdateButton,
+                  isSubmitting && styles.disabledButton
+                ]}
+                onPress={handleUpdateCrop}
+                disabled={isSubmitting}
+                activeOpacity={0.8}
+              >
+                {isSubmitting ? (
+                  <View style={styles.modernLoadingContainer}>
+                    <ActivityIndicator size="small" color="white" />
+                    <Text style={styles.modernSaveButtonText}>Updating...</Text>
+                  </View>
+                ) : (
+                  <View style={styles.buttonContent}>
+                    <MaterialIcons name="save" size={20} color="white" />
+                    <Text style={styles.modernSaveButtonText}>Update Crop</Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -321,5 +1159,407 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 120,
+  },
+  // Loading styles
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 16,
+    color: '#666',
+  },
+  // Empty state styles
+  emptyCropsContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyCropsText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#666',
+    marginTop: 10,
+  },
+  emptyCropsSubtext: {
+    fontSize: 14,
+    color: '#999',
+    marginTop: 5,
+  },
+  // Additional badge style
+  criticalBadge: {
+    backgroundColor: '#F44336',
+  },
+  // Modal styles
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '95%',
+    maxWidth: 450,
+    maxHeight: '90%',
+    backgroundColor: 'white',
+    borderRadius: 24,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 20 },
+    shadowOpacity: 0.25,
+    shadowRadius: 25,
+    elevation: 20,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 24,
+    paddingBottom: 20,
+    backgroundColor: '#f8fffe',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e8f5e8',
+  },
+  headerContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerIconContainer: {
+    width: 48,
+    height: 48,
+    backgroundColor: '#e8f5e8',
+    borderRadius: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 16,
+  },
+  modalTitle: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: '#1a5d1a',
+    marginBottom: 4,
+  },
+  modalSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    fontWeight: '500',
+  },
+  closeButton: {
+    width: 36,
+    height: 36,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 18,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    flex: 1,
+    padding: 24,
+    paddingTop: 20,
+  },
+
+  // Modern Form Styles
+  modernFormGroup: {
+    marginBottom: 24,
+  },
+  modernFormRow: {
+    flexDirection: 'row',
+    gap: 16,
+    marginBottom: 24,
+  },
+  modernFormLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#1a5d1a',
+    marginBottom: 12,
+  },
+  requiredStar: {
+    color: '#e53e3e',
+    fontSize: 16,
+  },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f8fffe',
+    borderWidth: 2,
+    borderColor: '#e8f5e8',
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 2,
+    minHeight: 48,
+  },
+  inputIcon: {
+    marginRight: 12,
+  },
+  modernFormInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    paddingVertical: 12,
+    minHeight: 20,
+  },
+  textAreaWrapper: {
+    alignItems: 'flex-start',
+    paddingVertical: 8,
+    minHeight: 88,
+  },
+  textAreaIcon: {
+    alignSelf: 'flex-start',
+    marginTop: 8,
+  },
+  modernTextArea: {
+    minHeight: 68,
+    maxHeight: 120,
+    textAlignVertical: 'top',
+    paddingTop: 8,
+  },
+
+  // Modern Status Selection
+  modernStatusRow: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  modernStatusOption: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    borderWidth: 2,
+    backgroundColor: 'white',
+    gap: 8,
+  },
+  healthyOption: {
+    borderColor: '#c6f6d5',
+    backgroundColor: '#f0fff4',
+  },
+  monitorOption: {
+    borderColor: '#fed7aa',
+    backgroundColor: '#fffbeb',
+  },
+  criticalOption: {
+    borderColor: '#fecaca',
+    backgroundColor: '#fef2f2',
+  },
+  modernStatusSelected: {
+    transform: [{ scale: 1.02 }],
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  // Selected state backgrounds
+  healthySelected: {
+    backgroundColor: '#4CAF50',
+    borderColor: '#4CAF50',
+  },
+  monitorSelected: {
+    backgroundColor: '#FF9800', 
+    borderColor: '#FF9800',
+  },
+  criticalSelected: {
+    backgroundColor: '#F44336',
+    borderColor: '#F44336',
+  },
+  modernStatusText: {
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  modernStatusTextSelected: {
+    color: 'white',
+  },
+  
+  // Modern Footer
+  modernModalFooter: {
+    flexDirection: 'row',
+    padding: 24,
+    paddingTop: 16,
+    backgroundColor: '#f8fffe',
+    borderTopWidth: 1,
+    borderTopColor: '#e8f5e8',
+    gap: 12,
+  },
+  modernCancelButton: {
+    flex: 1,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#f5f5f5',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
+  },
+  modernSaveButton: {
+    flex: 2,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  disabledButton: {
+    opacity: 0.6,
+  },
+  buttonContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modernLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  modernCancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  modernSaveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  // Crop card action styles
+  cropActions: {
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 8,
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  editButton: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#e3f2fd',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#bbdefb',
+  },
+  deleteButton: {
+    width: 32,
+    height: 32,
+    backgroundColor: '#ffebee',
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: '#ffcdd2',
+  },
+  
+  // Modern Update Button (different color from Save)
+  modernUpdateButton: {
+    flex: 2,
+    padding: 16,
+    borderRadius: 16,
+    backgroundColor: '#2196F3',
+    alignItems: 'center',
+    shadowColor: '#2196F3',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  modalFormPadding: {
+    height: 20,
+  },
+
+  // Old Modal styles (keeping for compatibility)
+  formGroup: {
+    marginBottom: 20,
+  },
+  formRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+  },
+  formLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  formInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 16,
+    backgroundColor: '#f9f9f9',
+  },
+  textArea: {
+    height: 80,
+    textAlignVertical: 'top',
+  },
+  modalFooter: {
+    flexDirection: 'row',
+    padding: 20,
+    borderTopWidth: 1,
+    borderTopColor: '#f0f0f0',
+    gap: 10,
+  },
+  modalButton: {
+    flex: 1,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  cancelButton: {
+    backgroundColor: '#f5f5f5',
+  },
+  saveButton: {
+    backgroundColor: '#4CAF50',
+  },
+  cancelButtonText: {
+    color: '#666',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  saveButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  // Status selection styles
+  statusRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  statusOption: {
+    flex: 1,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: '#4CAF50',
+    backgroundColor: 'transparent',
+    alignItems: 'center',
+  },
+  statusSelected: {
+    backgroundColor: '#4CAF50',
+  },
+  statusMonitor: {
+    borderColor: '#FF9800',
+  },
+  statusCritical: {
+    borderColor: '#F44336',
+  },
+  statusText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#4CAF50',
+  },
+  statusTextSelected: {
+    color: 'white',
   },
 });
