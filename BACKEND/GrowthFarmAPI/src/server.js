@@ -16,6 +16,7 @@ const weatherRoutes = require('./routes/weather');
 const geminiRoutes = require('./routes/gemini');
 const healthRoutes = require('./routes/health');
 const tablesRoutes = require('./routes/tables');
+const cropsRoutes = require('./routes/crops');
 
 const app = express();
 const PORT = process.env.API_SERVER_PORT || 30039;
@@ -29,6 +30,7 @@ app.use(morgan('combined'));
 const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').map(origin => origin.trim()) || [
   'http://localhost:30039',
   'http://localhost:19006',
+  'http://localhost:8081',
   `http://localhost:${PORT}`,
   `http://119.59.102.61:${PORT}`
 ];
@@ -67,6 +69,7 @@ app.use('/weather', weatherRoutes);
 app.use('/ai', geminiRoutes);
 app.use('/health', healthRoutes);
 app.use('/api/tables', tablesRoutes);
+app.use('/api/crops', cropsRoutes);
 
 // Root endpoint
 app.get('/', (req, res) => {

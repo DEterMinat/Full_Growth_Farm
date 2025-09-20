@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+/*const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
 const User = require('./User');
 
@@ -157,3 +157,4 @@ MarketplaceProduct.hasMany(OrderItem, { foreignKey: 'productId', as: 'orderItems
 OrderItem.belongsTo(MarketplaceProduct, { foreignKey: 'productId', as: 'product' });
 
 module.exports = { MarketplaceProduct, Order, OrderItem };
+*/

@@ -33,6 +33,16 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(100),
     allowNull: false
   },
+  // --- เพิ่ม full_name เพื่อให้เข้ากับ Marketplace ---
+  full_name: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return `${this.firstName} ${this.lastName}`;
+      },
+      set(value) {
+        throw new Error('Do not try to set the `full_name` value!');
+      }
+  },
   phoneNumber: {
     type: DataTypes.STRING(20),
     allowNull: true
@@ -101,4 +111,6 @@ User.prototype.toJSON = function() {
   return values;
 };
 
-module.exports = User;
+// --- 🔽 จุดที่แก้ไข 🔽 ---
+// เปลี่ยนวิธีการ export ให้อยู่ในรูปแบบ Object
+module.exports = { User };

@@ -234,7 +234,8 @@
     "hours_ago_5": "5 hours ago",
     "trade_agreement_soybean": "New trade agreement benefits soybean exports",
     "farmers_higher_demand": "Farmers can expect higher demand next quarter",
-    "day_ago_1": "1 day ago"
+    "day_ago_1": "1 day ago",
+    "search_placeholder": "Search for products..."
   },
   "profile": {
     "title": "Profile",
@@ -500,5 +501,14 @@
     "type_message_placeholder": "Type a message and press Enter...",
     "error_title": "Connection Error",
     "connection_error": "Unable to connect to AI service. Please check your connection and try again."
-  }
+  },
+  "weather": {
+      "humidity": "Humidity",
+      "wind": "Wind",
+      "sunny": "Sunny",
+      "cloudy": "Cloudy",
+      "rainy": "Rainy",
+      "stormy": "Stormy",
+      "windy": "Windy"
+    }
 }

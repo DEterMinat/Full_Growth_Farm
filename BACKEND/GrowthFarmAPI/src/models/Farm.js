@@ -1,6 +1,6 @@
 const { DataTypes } = require('sequelize');
 const { sequelize } = require('../config/database');
-const User = require('./User');
+const { User } = require('./User');
 
 const Farm = sequelize.define('Farm', {
   id: {
@@ -83,11 +83,6 @@ const FarmZone = sequelize.define('FarmZone', {
   tableName: 'farm_zones_GrowthFarm'
 });
 
-// Associations
-User.hasMany(Farm, { foreignKey: 'userId', as: 'farms' });
-Farm.belongsTo(User, { foreignKey: 'userId', as: 'owner' });
-
-Farm.hasMany(FarmZone, { foreignKey: 'farmId', as: 'zones' });
-FarmZone.belongsTo(Farm, { foreignKey: 'farmId', as: 'farm' });
+// --- 🔽 ส่วนของ Associations ที่ซ้ำซ้อน ถูกลบออกไปจากที่นี่แล้ว 🔽 ---
 
 module.exports = { Farm, FarmZone };

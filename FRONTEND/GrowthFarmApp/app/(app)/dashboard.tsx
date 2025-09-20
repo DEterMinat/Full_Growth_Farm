@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Platform } from 'react-native';
 import { router } from 'expo-router';
-import Animated, { 
+import Animated, {
   FadeIn,
   FadeInUp,
   FadeInDown,
@@ -12,6 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { User } from '@/src/services/authService';
+import { weatherService, WeatherData } from '@/src/services/weatherService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -22,40 +23,87 @@ export default function Dashboard() {
   const [user, setUser] = useState<User | null>(authUser);
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const isGuest = !authUser || authUser.username === 'guest';
+  const [weather, setWeather] = useState<WeatherData | null>(null);
 
   useEffect(() => {
-    console.log('Dashboard useEffect - authUser:', authUser, 'authLoading:', authLoading);
     if (authUser) {
       setUser(authUser);
-      console.log('Dashboard - User set:', authUser);
     }
-    // Remove auto-redirect to prevent loops
   }, [authUser, authLoading]);
+
+  useEffect(() => {
+    const fetchWeather = async () => {
+      try {
+        const data = await weatherService.getCurrentWeather();
+        setWeather(data);
+      } catch (error) {
+        console.error("Failed to load weather on dashboard:", error);
+        setWeather({
+          city: "N/A",
+          temperature: 0,
+          condition: "Cloudy",
+          humidity: 0,
+          windSpeed: 0,
+        });
+      }
+    };
+    fetchWeather();
+  }, []);
+
 
   const handleLogout = async () => {
     try {
-      console.log('Starting logout process...');
-      
-      // Use EmergencyLogout for comprehensive logout
       const logoutSuccess = await EmergencyLogout.logoutWithConfirmation(isGuest);
-      
       if (logoutSuccess) {
         console.log('Logout completed successfully');
       }
-      
     } catch (error: any) {
       console.error('Logout error:', error);
-      
-      // Fallback: Force logout even if there's an error
       await EmergencyLogout.forceLogout(true);
     }
   };
 
-  // Show loading only while AuthContext is loading
-  if (authLoading) {
-    console.log('Dashboard - showing loading state');
+  const WeatherCard = ({ data }: { data: WeatherData }) => {
+    const weatherIcons = {
+      Sunny: 'wb-sunny',
+      Cloudy: 'cloud',
+      Rainy: 'grain',
+      Stormy: 'flash-on',
+      Windy: 'filter-drama'
+    };
+    const currentCondition = data.condition || 'Cloudy';
+    const iconName = weatherIcons[currentCondition] || 'cloud';
+
     return (
-      <Animated.View 
+      <Animated.View style={styles.weatherSection} entering={FadeInUp.duration(800)}>
+        <View style={styles.weatherHeader}>
+          <MaterialIcons name="location-on" size={16} color="#333" />
+          <Text style={styles.weatherCity}>{data.city || 'Unknown City'}</Text>
+        </View>
+        <View style={styles.weatherBody}>
+          <View style={styles.weatherTempContainer}>
+            <MaterialIcons name={iconName as any} size={48} color="#4a90e2" />
+            <Text style={styles.weatherTemp}>{data.temperature || 0}°C</Text>
+            <Text style={styles.weatherCondition}>{t(`weather.${currentCondition.toLowerCase()}`)}</Text>
+          </View>
+          <View style={styles.weatherDetails}>
+            <View style={styles.detailItem}>
+              <MaterialIcons name="opacity" size={16} color="#666" />
+              <Text style={styles.detailText}>{t('weather.humidity')}: {data.humidity || 0}%</Text>
+            </View>
+            <View style={styles.detailItem}>
+              <MaterialIcons name="toys" size={16} color="#666" />
+              <Text style={styles.detailText}>{t('weather.wind')}: {data.windSpeed || 0} km/h</Text>
+            </View>
+          </View>
+        </View>
+      </Animated.View>
+    );
+  };
+
+  if (authLoading) {
+    return (
+      <Animated.View
         style={styles.loadingContainer}
         entering={FadeIn.duration(500)}
       >
@@ -64,18 +112,18 @@ export default function Dashboard() {
     );
   }
 
-  // If no user, show dashboard anyway (for demo purposes)
-  const currentUser = user || { 
-    full_name: isGuest ? 'Guest User' : 'Demo User', 
-    username: isGuest ? 'guest' : 'demo' 
+  const currentUser = user || {
+    full_name: isGuest ? 'Guest User' : 'Demo User',
+    username: isGuest ? 'guest' : 'demo'
   };
 
   return (
     <View style={styles.container}>
+      {/* Navigation Bar ด้านบน */}
       <NavBar currentRoute="dashboard" />
       
       {/* Header */}
-      <Animated.View 
+      <Animated.View
         style={styles.header}
         entering={FadeInDown.duration(600)}
       >
@@ -100,8 +148,12 @@ export default function Dashboard() {
       </Animated.View>
 
       <ScrollView style={styles.content}>
+        
+        {/* Weather Card */}
+        {weather && <WeatherCard data={weather} />}
+
         {/* Current Crop Status */}
-        <Animated.View 
+        <Animated.View
           style={styles.statusSection}
           entering={FadeInUp.delay(200).duration(800)}
         >
@@ -119,7 +171,7 @@ export default function Dashboard() {
           )}
           
           <View style={styles.cropStatusGrid}>
-            <Animated.View 
+            <Animated.View
               style={styles.cropStatusCard}
               entering={SlideInLeft.delay(400).duration(600)}
             >
@@ -128,7 +180,7 @@ export default function Dashboard() {
               <Text style={styles.cropValue}>{t('dashboard.wheat')}</Text>
             </Animated.View>
 
-            <Animated.View 
+            <Animated.View
               style={styles.cropStatusCard}
               entering={SlideInRight.delay(500).duration(600)}
             >
@@ -137,7 +189,7 @@ export default function Dashboard() {
               <Text style={styles.cropValue}>{t('dashboard.flowering')}</Text>
             </Animated.View>
 
-            <Animated.View 
+            <Animated.View
               style={styles.cropStatusCard}
               entering={SlideInLeft.delay(600).duration(600)}
             >
@@ -146,7 +198,7 @@ export default function Dashboard() {
               <Text style={styles.cropValue}>{t('dashboard.healthy')}</Text>
             </Animated.View>
 
-            <Animated.View 
+            <Animated.View
               style={styles.cropStatusCard}
               entering={SlideInRight.delay(700).duration(600)}
             >
@@ -158,7 +210,7 @@ export default function Dashboard() {
         </Animated.View>
 
         {/* Field Overview */}
-        <Animated.View 
+        <Animated.View
           style={styles.fieldSection}
           entering={FadeInUp.delay(800).duration(800)}
         >
@@ -194,7 +246,7 @@ export default function Dashboard() {
         </Animated.View>
 
         {/* Notifications */}
-        <Animated.View 
+        <Animated.View
           style={styles.notificationsSection}
           entering={SlideInLeft.delay(1000).duration(800)}
         >
@@ -211,7 +263,7 @@ export default function Dashboard() {
             </View>
           )}
 
-          <Animated.View 
+          <Animated.View
             style={styles.notificationItem}
             entering={FadeInUp.delay(1200).duration(600)}
           >
@@ -224,7 +276,7 @@ export default function Dashboard() {
             </View>
           </Animated.View>
 
-          <Animated.View 
+          <Animated.View
             style={styles.notificationItem}
             entering={FadeInUp.delay(1300).duration(600)}
           >
@@ -237,7 +289,7 @@ export default function Dashboard() {
             </View>
           </Animated.View>
 
-          <Animated.View 
+          <Animated.View
             style={styles.notificationItem}
             entering={FadeInUp.delay(1400).duration(600)}
           >
@@ -252,7 +304,7 @@ export default function Dashboard() {
         </Animated.View>
 
         {/* Market Prices */}
-        <Animated.View 
+        <Animated.View
           style={styles.marketSection}
           entering={SlideInRight.delay(1500).duration(800)}
         >
@@ -263,7 +315,7 @@ export default function Dashboard() {
             </TouchableOpacity>
           </View>
 
-          <Animated.View 
+          <Animated.View
             style={styles.marketItem}
             entering={FadeInUp.delay(1700).duration(500)}
           >
@@ -277,7 +329,7 @@ export default function Dashboard() {
             </View>
           </Animated.View>
 
-          <Animated.View 
+          <Animated.View
             style={styles.marketItem}
             entering={FadeInUp.delay(1800).duration(500)}
           >
@@ -291,7 +343,7 @@ export default function Dashboard() {
             </View>
           </Animated.View>
 
-          <Animated.View 
+          <Animated.View
             style={styles.marketItem}
             entering={FadeInUp.delay(1900).duration(500)}
           >
@@ -307,10 +359,10 @@ export default function Dashboard() {
         </Animated.View>
 
         {/* Voice Assistant */}
-        <Animated.View 
+        <Animated.View
           entering={FadeInUp.delay(2000).duration(800)}
         >
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.voiceAssistant}
             onPress={() => setShowVoiceModal(true)}
             activeOpacity={0.8}
@@ -335,11 +387,9 @@ export default function Dashboard() {
         transparent={true}
         animationType="fade"
         onRequestClose={() => setShowVoiceModal(false)}
-        accessible={true}
-        accessibilityViewIsModal={true}
       >
         <View style={styles.modalOverlay}>
-          <Animated.View 
+          <Animated.View
             style={styles.modalContent}
             entering={FadeInUp.duration(400)}
           >
@@ -348,9 +398,6 @@ export default function Dashboard() {
               <TouchableOpacity
                 style={styles.closeButton}
                 onPress={() => setShowVoiceModal(false)}
-                accessible={true}
-                accessibilityRole="button"
-                accessibilityLabel="Close voice assistant modal"
               >
                 <MaterialIcons name="close" size={16} color="#666" />
               </TouchableOpacity>
@@ -380,7 +427,7 @@ export default function Dashboard() {
                 </TouchableOpacity>
               </View>
 
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.fullVoiceButton}
                 onPress={() => {
                   setShowVoiceModal(false);
@@ -394,13 +441,76 @@ export default function Dashboard() {
         </View>
       </Modal>
 
-      {/* Navigation Bar */}
+      {/* Navigation Bar ด้านล่าง */}
       <NavBar currentRoute="home" />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Weather Card Styles
+  weatherSection: {
+    backgroundColor: 'white',
+    margin: 10,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  weatherHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    paddingBottom: 10,
+  },
+  weatherCity: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginLeft: 8,
+  },
+  weatherBody: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  weatherTempContainer: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  weatherTemp: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  weatherCondition: {
+    fontSize: 14,
+    color: '#666',
+    textTransform: 'capitalize',
+  },
+  weatherDetails: {
+    flex: 1,
+    paddingLeft: 20,
+    borderLeftWidth: 1,
+    borderLeftColor: '#f0f0f0',
+  },
+  detailItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  detailText: {
+    fontSize: 14,
+    color: '#333',
+    marginLeft: 8,
+  },
+
+  // General Styles
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',

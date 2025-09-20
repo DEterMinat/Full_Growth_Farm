@@ -4,7 +4,8 @@
 export const API_CONFIG = {
   // Development - when running backend locally
   DEVELOPMENT: {
-    BASE_URL: 'http://localhost:8000',
+    // แก้ไข BASE_URL ให้ชี้ไปยัง Server ของคุณ
+    BASE_URL: 'http://localhost:30039', 
     TIMEOUT: 10000,
   },
   

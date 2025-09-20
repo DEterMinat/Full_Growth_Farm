@@ -1,22 +1,24 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  ScrollView, 
-  TouchableOpacity, 
-  Modal, 
-  TextInput, 
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  TouchableOpacity,
+  Modal,
+  TextInput,
   Alert,
-  ActivityIndicator 
+  ActivityIndicator,
+  Platform
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { 
-  // cropsService, // จะใช้เมื่อเชื่อมกับ database จริง
-  Crop, 
-  CreateCropRequest 
+import {
+  cropsService,
+  Crop,
+  CreateCropRequest,
+  UpdateCropRequest
 } from '@/src/services/cropsService';
 
 export default function Crops() {
@@ -27,7 +29,7 @@ export default function Crops() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCrop, setEditingCrop] = useState<Crop | null>(null);
-  
+
   const [newCrop, setNewCrop] = useState<CreateCropRequest>({
     name: '',
     variety: '',
@@ -37,11 +39,10 @@ export default function Crops() {
     areaUnit: 'acres',
     stage: 'Seeding',
     status: 'healthy',
-    farmId: 1, // Default farm ID, should get from context
+    farmId: 1,
     notes: '',
   });
 
-  // Load crops on component mount
   useEffect(() => {
     loadCrops();
   }, []);
@@ -49,48 +50,8 @@ export default function Crops() {
   const loadCrops = async () => {
     try {
       setLoading(true);
-      
-      // จำลองข้อมูลพืชผล (ยังไม่เชื่อม database)
-      const mockCrops: Crop[] = [
-        {
-          id: 1,
-          name: 'Wheat',
-          variety: 'Winter Wheat',
-          plantingDate: '2024-03-15',
-          expectedHarvestDate: '2024-07-20',
-          area: 25.5,
-          areaUnit: 'acres',
-          stage: 'Flowering Stage',
-          status: 'healthy',
-          farmId: 1,
-          notes: 'Growing well, good weather conditions',
-          createdAt: '2024-03-15T08:00:00Z',
-          updatedAt: '2024-03-20T10:30:00Z'
-        },
-        {
-          id: 2,
-          name: 'Corn',
-          variety: 'Sweet Corn',
-          plantingDate: '2024-04-02',
-          expectedHarvestDate: '2024-08-15',
-          area: 18.2,
-          areaUnit: 'acres',
-          stage: 'Vegetative Growth',
-          status: 'monitor',
-          farmId: 1,
-          notes: 'Need to monitor soil moisture levels',
-          createdAt: '2024-04-02T09:15:00Z',
-          updatedAt: '2024-04-10T14:20:00Z'
-        }
-      ];
-
-      // จำลอง delay ของ API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      setCrops(mockCrops);
-      
-      // const fetchedCrops = await cropsService.getAllCrops();
-      // setCrops(fetchedCrops);
+      const fetchedCrops = await cropsService.getAllCrops();
+      setCrops(fetchedCrops);
     } catch (error) {
       console.error('Error loading crops:', error);
       Alert.alert('Error', 'Failed to load crops. Please try again.');
@@ -100,45 +61,14 @@ export default function Crops() {
   };
 
   const handleAddCrop = async () => {
-    // Validation
     if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
-
     try {
       setIsSubmitting(true);
-      
-      // จำลองการเพิ่มข้อมูลใหม่ (ยังไม่เชื่อม database)
-      const newCropData: Crop = {
-        id: Date.now(), // ใช้ timestamp เป็น ID ชั่วคราว
-        ...newCrop,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-
-      // จำลอง delay ของ API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setCrops(prevCrops => [...prevCrops, newCropData]);
-      
-      // const createdCrop = await cropsService.createCrop(newCrop);
-      // setCrops(prevCrops => [...prevCrops, createdCrop]);
-      
-      // Reset form
-      setNewCrop({
-        name: '',
-        variety: '',
-        plantingDate: '',
-        expectedHarvestDate: '',
-        area: 0,
-        areaUnit: 'acres',
-        stage: 'Seeding',
-        status: 'healthy',
-        farmId: 1,
-        notes: '',
-      });
-      
+      await cropsService.createCrop(newCrop);
+      await loadCrops();
       setIsAddModalVisible(false);
       Alert.alert('Success', 'Crop added successfully!');
     } catch (error) {
@@ -146,35 +76,30 @@ export default function Crops() {
       Alert.alert('Error', 'Failed to add crop. Please try again.');
     } finally {
       setIsSubmitting(false);
+      // Reset form only after submission finishes
+      setNewCrop({
+        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
+        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
+      });
     }
   };
-
+  
   const handleCancelAdd = () => {
     setIsAddModalVisible(false);
-    // Reset form
     setNewCrop({
-      name: '',
-      variety: '',
-      plantingDate: '',
-      expectedHarvestDate: '',
-      area: 0,
-      areaUnit: 'acres',
-      stage: 'Seeding',
-      status: 'healthy',
-      farmId: 1,
-      notes: '',
+        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
+        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
     });
   };
 
-  // Edit Crop Functions
   const handleEditCrop = (crop: Crop) => {
     setEditingCrop(crop);
     setNewCrop({
       name: crop.name,
       variety: crop.variety || '',
-      plantingDate: crop.plantingDate,
-      expectedHarvestDate: crop.expectedHarvestDate,
-      area: crop.area,
+      plantingDate: new Date(crop.plantingDate).toISOString().split('T')[0],
+      expectedHarvestDate: new Date(crop.expectedHarvestDate).toISOString().split('T')[0],
+      area: crop.area || 0, // [!] แก้ไข: ป้องกันค่า null ทำให้แอปแครช
       areaUnit: crop.areaUnit,
       stage: crop.stage,
       status: crop.status,
@@ -185,40 +110,20 @@ export default function Crops() {
   };
 
   const handleUpdateCrop = async () => {
-    if (!editingCrop) return;
-    
-    // Validation
+    if (!editingCrop || !editingCrop.id) return;
+
     if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
-
     try {
       setIsSubmitting(true);
-      
-      // จำลองการอัปเดตข้อมูล (ยังไม่เชื่อม database)
-      const updatedCropData: Crop = {
-        ...editingCrop,
+      const updatePayload: UpdateCropRequest = {
         ...newCrop,
-        updatedAt: new Date().toISOString()
+        id: editingCrop.id,
       };
-
-      // จำลอง delay ของ API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setCrops(prevCrops => 
-        prevCrops.map(crop => 
-          crop.id === editingCrop.id ? updatedCropData : crop
-        )
-      );
-      
-      // const updatedCrop = await cropsService.updateCrop(editingCrop.id!, newCrop);
-      // setCrops(prevCrops => 
-      //   prevCrops.map(crop => 
-      //     crop.id === editingCrop.id ? updatedCrop : crop
-      //   )
-      // );
-      
+      await cropsService.updateCrop(editingCrop.id, updatePayload);
+      await loadCrops();
       setIsEditModalVisible(false);
       setEditingCrop(null);
       Alert.alert('Success', 'Crop updated successfully!');
@@ -229,62 +134,66 @@ export default function Crops() {
       setIsSubmitting(false);
     }
   };
-
+  
   const handleCancelEdit = () => {
     setIsEditModalVisible(false);
     setEditingCrop(null);
-    // Reset form
     setNewCrop({
-      name: '',
-      variety: '',
-      plantingDate: '',
-      expectedHarvestDate: '',
-      area: 0,
-      areaUnit: 'acres',
-      stage: 'Seeding',
-      status: 'healthy',
-      farmId: 1,
-      notes: '',
+        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
+        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
     });
   };
 
-  // Delete Crop Function
   const handleDeleteCrop = (crop: Crop) => {
-    Alert.alert(
-      'Delete Crop',
-      `Are you sure you want to delete "${crop.name}"? This action cannot be undone.`,
-      [
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
-        {
-          text: 'Delete',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              // จำลอง delay ของ API call
-              await new Promise(resolve => setTimeout(resolve, 500));
-              
-              setCrops(prevCrops => 
-                prevCrops.filter(c => c.id !== crop.id)
-              );
-              
-              // await cropsService.deleteCrop(crop.id!);
-              // setCrops(prevCrops => 
-              //   prevCrops.filter(c => c.id !== crop.id)
-              // );
-              
-              Alert.alert('Success', 'Crop deleted successfully!');
-            } catch (error) {
-              console.error('Error deleting crop:', error);
-              Alert.alert('Error', 'Failed to delete crop. Please try again.');
-            }
+    // เช็คว่าตอนนี้แอปกำลังรันบนแพลตฟอร์มไหน
+    if (Platform.OS === 'web') {
+      // --- โค้ดสำหรับ Web ---
+      // ใช้ confirm() ของเบราว์เซอร์โดยตรง
+      const userConfirmed = confirm(`Are you sure you want to delete "${crop.name}"?`);
+
+      if (userConfirmed) {
+        if (!crop.id) return;
+        
+        cropsService.deleteCrop(crop.id)
+          .then(() => {
+            loadCrops(); // รีเฟรชข้อมูลเมื่อลบสำเร็จ
+          })
+          .catch(error => {
+            console.error('Error deleting crop on web:', error);
+            alert('Failed to delete crop. Please check the console for more details.');
+          });
+      }
+    } else {
+      // --- โค้ดสำหรับ Mobile (iOS, Android) ---
+      // ใช้ Alert.alert() แบบเดิม
+      Alert.alert(
+        'Delete Crop',
+        `Are you sure you want to delete "${crop.name}"? This action cannot be undone.`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
           },
-        },
-      ]
-    );
+          {
+            text: 'Delete',
+            style: 'destructive',
+            onPress: async () => {
+              if (!crop.id) return;
+              try {
+                await cropsService.deleteCrop(crop.id);
+                await loadCrops();
+              } catch (error) {
+                console.error('Error deleting crop on native:', error);
+                Alert.alert('Error', 'Failed to delete crop. Please try again.');
+              }
+            },
+          },
+        ]
+      );
+    }
   };
+
+  // --- ส่วนของ UI เหมือนเดิม ไม่มีการเปลี่ยนแปลง ---
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -302,7 +211,7 @@ export default function Crops() {
         {/* Current Crops Section */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
-          
+
           {loading ? (
             <View style={styles.loadingContainer}>
               <ActivityIndicator size="large" color="#4CAF50" />
@@ -353,7 +262,7 @@ export default function Crops() {
                     </View>
                   </View>
                 </View>
-                
+
                 <View style={styles.cropStats}>
                   <View style={styles.statItem}>
                     <Text style={styles.statLabel}>{t('crops.area')}</Text>
@@ -377,24 +286,24 @@ export default function Crops() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('crops.quick_actions')}</Text>
           <View style={styles.actionGrid}>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.actionCard}
               onPress={() => setIsAddModalVisible(true)}
             >
               <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.add_new_crop')}</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="analytics" size={24} color="#2196F3" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.view_analytics')}</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="water-drop" size={24} color="#00BCD4" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.irrigation')}</Text>
             </TouchableOpacity>
-            
+
             <TouchableOpacity style={styles.actionCard}>
               <MaterialIcons name="science" size={24} color="#9C27B0" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.soil_test')}</Text>
@@ -413,7 +322,7 @@ export default function Crops() {
                 <Text style={styles.activityTime}>2 {t('crops.hours_ago')}</Text>
               </View>
             </View>
-            
+
             <View style={styles.activityItem}>
               <MaterialIcons name="eco" size={20} color="#4CAF50" style={styles.activityIcon} />
               <View style={styles.activityContent}>
@@ -421,7 +330,7 @@ export default function Crops() {
                 <Text style={styles.activityTime}>5 {t('crops.hours_ago')}</Text>
               </View>
             </View>
-            
+
             <View style={styles.activityItem}>
               <MaterialIcons name="science" size={20} color="#9C27B0" style={styles.activityIcon} />
               <View style={styles.activityContent}>
@@ -458,7 +367,7 @@ export default function Crops() {
                   <Text style={styles.modalSubtitle}>Fill in the details below</Text>
                 </View>
               </View>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={handleCancelAdd}
                 style={styles.closeButton}
                 activeOpacity={0.7}
@@ -546,7 +455,7 @@ export default function Crops() {
                       style={styles.modernFormInput}
                       value={newCrop.plantingDate}
                       onChangeText={(text) => setNewCrop(prev => ({ ...prev, plantingDate: text }))}
-                      placeholder="2024-03-15"
+                      placeholder="YYYY-MM-DD"
                       placeholderTextColor="#999"
                     />
                   </View>
@@ -561,7 +470,7 @@ export default function Crops() {
                       style={styles.modernFormInput}
                       value={newCrop.expectedHarvestDate}
                       onChangeText={(text) => setNewCrop(prev => ({ ...prev, expectedHarvestDate: text }))}
-                      placeholder="2024-07-20"
+                      placeholder="YYYY-MM-DD"
                       placeholderTextColor="#999"
                     />
                   </View>
@@ -588,9 +497,9 @@ export default function Crops() {
               <View style={styles.modernFormGroup}>
                 <Text style={styles.modernFormLabel}>Status</Text>
                 <View style={styles.modernStatusRow}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.healthyOption,
                       newCrop.status === 'healthy' && styles.modernStatusSelected,
                       newCrop.status === 'healthy' && styles.healthySelected
@@ -598,22 +507,22 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="check-circle" 
-                      size={20} 
-                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'} 
+                    <MaterialIcons
+                      name="check-circle"
+                      size={20}
+                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
                     ]}>
                       Healthy
                     </Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.monitorOption,
                       newCrop.status === 'monitor' && styles.modernStatusSelected,
                       newCrop.status === 'monitor' && styles.monitorSelected
@@ -621,22 +530,22 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="warning" 
-                      size={20} 
-                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'} 
+                    <MaterialIcons
+                      name="warning"
+                      size={20}
+                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
                     ]}>
                       Monitor
                     </Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.criticalOption,
                       newCrop.status === 'critical' && styles.modernStatusSelected,
                       newCrop.status === 'critical' && styles.criticalSelected
@@ -644,13 +553,13 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="error" 
-                      size={20} 
-                      color={newCrop.status === 'critical' ? 'white' : '#F44336'} 
+                    <MaterialIcons
+                      name="error"
+                      size={20}
+                      color={newCrop.status === 'critical' ? 'white' : '#F44336'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
                     ]}>
                       Critical
@@ -681,15 +590,15 @@ export default function Crops() {
 
             {/* Modern Footer */}
             <View style={styles.modernModalFooter}>
-              <TouchableOpacity 
-                style={styles.modernCancelButton} 
+              <TouchableOpacity
+                style={styles.modernCancelButton}
                 onPress={handleCancelAdd}
                 activeOpacity={0.8}
               >
                 <Text style={styles.modernCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[
                   styles.modernSaveButton,
                   isSubmitting && styles.disabledButton
@@ -735,7 +644,7 @@ export default function Crops() {
                   <Text style={styles.modalSubtitle}>Update crop information</Text>
                 </View>
               </View>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={handleCancelEdit}
                 style={styles.closeButton}
                 activeOpacity={0.7}
@@ -820,7 +729,7 @@ export default function Crops() {
                       style={styles.modernFormInput}
                       value={newCrop.plantingDate}
                       onChangeText={(text) => setNewCrop(prev => ({ ...prev, plantingDate: text }))}
-                      placeholder="2024-03-15"
+                      placeholder="YYYY-MM-DD"
                       placeholderTextColor="#999"
                     />
                   </View>
@@ -835,7 +744,7 @@ export default function Crops() {
                       style={styles.modernFormInput}
                       value={newCrop.expectedHarvestDate}
                       onChangeText={(text) => setNewCrop(prev => ({ ...prev, expectedHarvestDate: text }))}
-                      placeholder="2024-07-20"
+                      placeholder="YYYY-MM-DD"
                       placeholderTextColor="#999"
                     />
                   </View>
@@ -860,9 +769,9 @@ export default function Crops() {
               <View style={styles.modernFormGroup}>
                 <Text style={styles.modernFormLabel}>Status</Text>
                 <View style={styles.modernStatusRow}>
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.healthyOption,
                       newCrop.status === 'healthy' && styles.modernStatusSelected,
                       newCrop.status === 'healthy' && styles.healthySelected
@@ -870,22 +779,22 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="check-circle" 
-                      size={20} 
-                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'} 
+                    <MaterialIcons
+                      name="check-circle"
+                      size={20}
+                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
                     ]}>
                       Healthy
                     </Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.monitorOption,
                       newCrop.status === 'monitor' && styles.modernStatusSelected,
                       newCrop.status === 'monitor' && styles.monitorSelected
@@ -893,22 +802,22 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="warning" 
-                      size={20} 
-                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'} 
+                    <MaterialIcons
+                      name="warning"
+                      size={20}
+                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
                     ]}>
                       Monitor
                     </Text>
                   </TouchableOpacity>
-                  
-                  <TouchableOpacity 
+
+                  <TouchableOpacity
                     style={[
-                      styles.modernStatusOption, 
+                      styles.modernStatusOption,
                       styles.criticalOption,
                       newCrop.status === 'critical' && styles.modernStatusSelected,
                       newCrop.status === 'critical' && styles.criticalSelected
@@ -916,13 +825,13 @@ export default function Crops() {
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
                     activeOpacity={0.8}
                   >
-                    <MaterialIcons 
-                      name="error" 
-                      size={20} 
-                      color={newCrop.status === 'critical' ? 'white' : '#F44336'} 
+                    <MaterialIcons
+                      name="error"
+                      size={20}
+                      color={newCrop.status === 'critical' ? 'white' : '#F44336'}
                     />
                     <Text style={[
-                      styles.modernStatusText, 
+                      styles.modernStatusText,
                       { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
                     ]}>
                       Critical
@@ -951,15 +860,15 @@ export default function Crops() {
             </ScrollView>
 
             <View style={styles.modernModalFooter}>
-              <TouchableOpacity 
-                style={styles.modernCancelButton} 
+              <TouchableOpacity
+                style={styles.modernCancelButton}
                 onPress={handleCancelEdit}
                 activeOpacity={0.8}
               >
                 <Text style={styles.modernCancelButtonText}>Cancel</Text>
               </TouchableOpacity>
-              
-              <TouchableOpacity 
+
+              <TouchableOpacity
                 style={[
                   styles.modernUpdateButton,
                   isSubmitting && styles.disabledButton
@@ -1358,7 +1267,7 @@ const styles = StyleSheet.create({
     borderColor: '#4CAF50',
   },
   monitorSelected: {
-    backgroundColor: '#FF9800', 
+    backgroundColor: '#FF9800',
     borderColor: '#FF9800',
   },
   criticalSelected: {
@@ -1372,7 +1281,7 @@ const styles = StyleSheet.create({
   modernStatusTextSelected: {
     color: 'white',
   },
-  
+
   // Modern Footer
   modernModalFooter: {
     flexDirection: 'row',
@@ -1457,7 +1366,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#ffcdd2',
   },
-  
+
   // Modern Update Button (different color from Save)
   modernUpdateButton: {
     flex: 2,

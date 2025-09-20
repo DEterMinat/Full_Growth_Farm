@@ -227,7 +227,18 @@
     "thank_you_delivery": "ขอบคุณสำหรับการจัดส่งที่รวดเร็ว!",
     "support_team": "ทีมสนับสนุน",
     "maria_johnson": "มาเรีย จอห์นสัน",
-    "robert_smith": "โรเบิร์ต สมิธ"
+    "robert_smith": "โรเบิร์ต สมิธ",
+    "search_placeholder": "ค้นหาสินค้า...",
+    "view_details": "ดูรายละเอียด",
+    "no_products_found": "ไม่พบสินค้าในตลาด",
+    "add_to_cart_confirm_title": "ยืนยันการเพิ่มสินค้า",
+    "add_to_cart_confirm_message": "คุณต้องการเพิ่มสินค้าชิ้นนี้ลงตะกร้าใช่หรือไม่",
+    "categories": {
+      "all_products": "สินค้าทั้งหมด",
+      "seeds": "เมล็ดพันธุ์",
+      "fertilizers": "ปุ๋ย",
+      "tools": "เครื่องมือ"
+    }
   },
   "profile": {
     "title": "โปรไฟล์",
