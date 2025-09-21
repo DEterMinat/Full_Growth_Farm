@@ -5,6 +5,7 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
@@ -13,6 +14,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 export default function NotificationsScreen() {
   const { t } = useTranslation();
   const [filter, setFilter] = useState('all');
+  const [searchText, setSearchText] = useState('');
 
   const notifications = [
     {
@@ -79,16 +81,30 @@ export default function NotificationsScreen() {
   ];
 
   const filteredNotifications = notifications.filter(notification => {
+    // First filter by category
+    let matchesFilter = true;
     switch (filter) {
       case 'unread':
-        return !notification.read;
+        matchesFilter = !notification.read;
+        break;
       case 'high':
-        return notification.priority === 'high';
+        matchesFilter = notification.priority === 'high';
+        break;
       case 'alerts':
-        return notification.type === 'alert';
+        matchesFilter = notification.type === 'alert';
+        break;
       default:
-        return true;
+        matchesFilter = true;
     }
+
+    // Then filter by search text
+    let matchesSearch = true;
+    if (searchText.trim()) {
+      matchesSearch = notification.title.toLowerCase().includes(searchText.toLowerCase()) ||
+                     notification.message.toLowerCase().includes(searchText.toLowerCase());
+    }
+
+    return matchesFilter && matchesSearch;
   });
 
   const getNotificationIcon = (type: string) => {
@@ -117,6 +133,23 @@ export default function NotificationsScreen() {
           <MaterialIcons name="notifications" size={32} color="#FF9800" style={styles.headerIcon} />
           <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
           <Text style={styles.headerSubtitle}>{t('notifications.stay_updated')}</Text>
+        </View>
+
+        {/* Search Section */}
+        <View style={styles.searchSection}>
+          <Text style={styles.searchTitle}>{t('notifications.search_notifications')}</Text>
+          <View style={styles.searchContainer}>
+            <TextInput 
+              style={styles.searchInput} 
+              placeholder={t('notifications.search_placeholder')} 
+              value={searchText} 
+              onChangeText={setSearchText}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity style={styles.searchButton}>
+              <MaterialIcons name="search" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Summary Cards */}
@@ -176,7 +209,15 @@ export default function NotificationsScreen() {
              filter === 'unread' ? t('notifications.unread_notifications') :
              filter === 'high' ? t('notifications.high_priority') : t('notifications.alert_notifications')}
           </Text>
-          {filteredNotifications.map((notification) => (
+          {filteredNotifications.length === 0 ? (
+            <View style={styles.noResultsContainer}>
+              <MaterialIcons name="search-off" size={48} color="#ccc" />
+              <Text style={styles.noResultsText}>
+                {searchText ? `No notifications found matching "${searchText}"` : 'No notifications found'}
+              </Text>
+            </View>
+          ) : (
+            filteredNotifications.map((notification) => (
             <TouchableOpacity key={notification.id} style={[
               styles.notificationCard,
               !notification.read && styles.unreadCard
@@ -209,7 +250,8 @@ export default function NotificationsScreen() {
               <Text style={styles.notificationMessage}>{notification.message}</Text>
               {!notification.read && <View style={styles.unreadIndicator} />}
             </TouchableOpacity>
-          ))}
+          ))
+        )}
         </View>
 
         {/* Quick Actions */}
@@ -299,6 +341,57 @@ const styles = StyleSheet.create({
   summaryLabel: {
     fontSize: 12,
     color: '#666',
+    textAlign: 'center',
+  },
+  // Search Section Styles
+  searchSection: {
+    backgroundColor: 'white',
+    marginHorizontal: 20,
+    marginBottom: 15,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginRight: 10,
+    color: '#333',
+  },
+  searchButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FF9800',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 10,
     textAlign: 'center',
   },
   section: {

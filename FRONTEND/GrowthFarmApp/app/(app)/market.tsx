@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput } from 'react-native';
 import Animated, { 
   FadeIn,
   FadeInUp,
@@ -12,6 +12,71 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Market() {
   const { t } = useTranslation();
+  const [searchText, setSearchText] = useState('');
+
+  // Mock market price data
+  const allPrices = [
+    {
+      id: 1,
+      name: t('market.wheat'),
+      price: '$7.25',
+      unit: t('market.price_per_bushel'),
+      change: '+2.5%',
+      trend: 'up',
+      icon: 'grass',
+      color: '#FFB74D',
+      yesterday: '$7.07'
+    },
+    {
+      id: 2,
+      name: t('market.corn'),
+      price: '$4.12',
+      unit: t('market.price_per_bushel'),
+      change: '-1.2%',
+      trend: 'down',
+      icon: 'grain',
+      color: '#FFD54F',
+      yesterday: '$4.17'
+    },
+    {
+      id: 3,
+      name: t('market.soybeans'),
+      price: '$13.87',
+      unit: t('market.price_per_bushel'),
+      change: '+4.1%',
+      trend: 'up',
+      icon: 'agriculture',
+      color: '#8BC34A',
+      yesterday: '$13.32'
+    },
+    {
+      id: 4,
+      name: 'Rice',
+      price: '$12.50',
+      unit: '/cwt',
+      change: '+1.8%',
+      trend: 'up',
+      icon: 'grass',
+      color: '#4CAF50',
+      yesterday: '$12.28'
+    },
+    {
+      id: 5,
+      name: 'Cotton',
+      price: '$68.45',
+      unit: '/lb',
+      change: '-0.8%',
+      trend: 'down',
+      icon: 'eco',
+      color: '#81C784',
+      yesterday: '$69.00'
+    }
+  ];
+
+  // Filter prices based on search
+  const filteredPrices = allPrices.filter(item =>
+    item.name.toLowerCase().includes(searchText.toLowerCase())
+  );
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -29,6 +94,23 @@ export default function Market() {
       </Animated.View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Search Section */}
+        <Animated.View style={styles.searchSection} entering={FadeInUp.duration(600)}>
+          <Text style={styles.searchTitle}>{t('market.search_prices')}</Text>
+          <View style={styles.searchContainer}>
+            <TextInput 
+              style={styles.searchInput} 
+              placeholder={t('market.search_crop_placeholder')} 
+              value={searchText} 
+              onChangeText={setSearchText}
+              placeholderTextColor="#999"
+            />
+            <TouchableOpacity style={styles.searchButton}>
+              <MaterialIcons name="search" size={20} color="white" />
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+
         {/* Today's Prices */}
         <Animated.View 
           style={styles.section}
@@ -39,56 +121,41 @@ export default function Market() {
             <Text style={styles.updateTime}>{t('market.updated_5_min')}</Text>
           </View>
           
-          <Animated.View 
-            style={styles.priceCard}
-            entering={SlideInLeft.delay(400).duration(600)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.cropIcon} />
-                <Text style={styles.cropName}>{t('market.wheat')}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>{t('market.price_up')}</Text>
-              </View>
+          {filteredPrices.length === 0 && searchText ? (
+            <View style={styles.noResultsContainer}>
+              <MaterialIcons name="search-off" size={48} color="#ccc" />
+              <Text style={styles.noResultsText}>
+                {t('common.no_results_found')} &quot;{searchText}&quot;
+              </Text>
             </View>
-            <Text style={styles.currentPrice}>$7.25{t('market.price_per_bushel')}</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday')}: $7.07</Text>
-          </Animated.View>
-
-          <Animated.View 
-            style={styles.priceCard}
-            entering={SlideInRight.delay(500).duration(600)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.cropIcon} />
-                <Text style={styles.cropName}>{t('market.corn')}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.negative]}>{t('market.price_down')}</Text>
-              </View>
-            </View>
-            <Text style={styles.currentPrice}>$4.12{t('market.price_per_bushel')}</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday')}: $4.17</Text>
-          </Animated.View>
-
-          <Animated.View 
-            style={styles.priceCard}
-            entering={SlideInLeft.delay(600).duration(600)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.cropIcon} />
-                <Text style={styles.cropName}>{t('market.soybeans')}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>{t('market.soy_price_up')}</Text>
-              </View>
-            </View>
-            <Text style={styles.currentPrice}>$13.87{t('market.price_per_bushel')}</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday')}: $13.32</Text>
-          </Animated.View>
+          ) : (
+            filteredPrices.map((item, index) => (
+              <Animated.View 
+                key={item.id}
+                style={styles.priceCard}
+                entering={SlideInLeft.delay(400 + index * 100).duration(600)}
+              >
+                <View style={styles.priceHeader}>
+                  <View style={styles.cropInfo}>
+                    <MaterialIcons name={item.icon as any} size={20} color={item.color} style={styles.cropIcon} />
+                    <Text style={styles.cropName}>{item.name}</Text>
+                  </View>
+                  <View style={styles.priceChange}>
+                    <Text style={[styles.changeText, item.trend === 'up' ? styles.positive : styles.negative]}>
+                      {item.change}
+                    </Text>
+                    <MaterialIcons 
+                      name={item.trend === 'up' ? 'arrow-upward' : 'arrow-downward'} 
+                      size={16} 
+                      color={item.trend === 'up' ? '#4CAF50' : '#F44336'} 
+                    />
+                  </View>
+                </View>
+                <Text style={styles.currentPrice}>{item.price}{item.unit}</Text>
+                <Text style={styles.previousPrice}>{t('market.yesterday')}: {item.yesterday}</Text>
+              </Animated.View>
+            ))
+          )}
         </Animated.View>
 
         {/* Market Trends */}
@@ -256,6 +323,56 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
+  },
+  // Search Section Styles
+  searchSection: {
+    backgroundColor: 'white',
+    margin: 15,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginRight: 10,
+    color: '#333',
+  },
+  searchButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#FF9800',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  noResultsContainer: {
+    alignItems: 'center',
+    paddingVertical: 40,
+  },
+  noResultsText: {
+    fontSize: 16,
+    color: '#666',
+    marginTop: 10,
+    textAlign: 'center',
   },
   section: {
     backgroundColor: 'white',

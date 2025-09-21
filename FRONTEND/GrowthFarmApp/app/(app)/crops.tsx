@@ -29,6 +29,7 @@ export default function Crops() {
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingCrop, setEditingCrop] = useState<Crop | null>(null);
+  const [searchText, setSearchText] = useState('');
 
   const [newCrop, setNewCrop] = useState<CreateCropRequest>({
     name: '',
@@ -193,6 +194,14 @@ export default function Crops() {
     }
   };
 
+  // Filter crops based on search text
+  const filteredCrops = crops.filter(crop => 
+    crop.name.toLowerCase().includes(searchText.toLowerCase()) ||
+    crop.variety?.toLowerCase().includes(searchText.toLowerCase()) ||
+    crop.stage.toLowerCase().includes(searchText.toLowerCase()) ||
+    crop.status.toLowerCase().includes(searchText.toLowerCase())
+  );
+
   // --- ส่วนของ UI เหมือนเดิม ไม่มีการเปลี่ยนแปลง ---
   return (
     <View style={styles.container}>
@@ -207,6 +216,23 @@ export default function Crops() {
         </TouchableOpacity>
       </View>
 
+      {/* Search Section */}
+      <View style={styles.searchSection}>
+        <Text style={styles.searchTitle}>{t('crops.search_crops')}</Text>
+        <View style={styles.searchContainer}>
+          <TextInput 
+            style={styles.searchInput} 
+            placeholder={t('crops.search_placeholder')} 
+            value={searchText} 
+            onChangeText={setSearchText}
+            placeholderTextColor="#999"
+          />
+          <TouchableOpacity style={styles.searchButton}>
+            <MaterialIcons name="search" size={20} color="white" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Current Crops Section */}
         <View style={styles.section}>
@@ -217,14 +243,18 @@ export default function Crops() {
               <ActivityIndicator size="large" color="#4CAF50" />
               <Text style={styles.loadingText}>Loading crops...</Text>
             </View>
-          ) : crops.length === 0 ? (
+          ) : filteredCrops.length === 0 ? (
             <View style={styles.emptyCropsContainer}>
               <MaterialIcons name="grass" size={48} color="#ccc" />
-              <Text style={styles.emptyCropsText}>No crops found</Text>
-              <Text style={styles.emptyCropsSubtext}>Start by adding your first crop</Text>
+              <Text style={styles.emptyCropsText}>
+                {searchText ? `No crops found matching "${searchText}"` : 'No crops found'}
+              </Text>
+              <Text style={styles.emptyCropsSubtext}>
+                {searchText ? 'Try a different search term' : 'Start by adding your first crop'}
+              </Text>
             </View>
           ) : (
-            crops.map((crop) => (
+            filteredCrops.map((crop) => (
               <View key={crop.id} style={styles.cropCard}>
                 <View style={styles.cropHeader}>
                   <View style={styles.cropInfo}>
@@ -936,6 +966,48 @@ const styles = StyleSheet.create({
   filterIcon: {
     fontSize: 18,
     color: 'white',
+  },
+  // Search Section Styles
+  searchSection: {
+    backgroundColor: 'white',
+    marginHorizontal: 15,
+    marginTop: 10,
+    marginBottom: 5,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  searchTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 12,
+  },
+  searchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  searchInput: {
+    flex: 1,
+    backgroundColor: '#f0f8f0',
+    borderRadius: 25,
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    fontSize: 16,
+    marginRight: 10,
+    color: '#333',
+  },
+  searchButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: '#4CAF50',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   content: {
     flex: 1,
