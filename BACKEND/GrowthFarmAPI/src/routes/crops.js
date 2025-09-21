@@ -1,6 +1,32 @@
 const express = require('express');
-const { Crop } = require('../models/Crop');
 const router = express.Router();
+
+// ลอง import Crop model แบบปลอดภัย
+let Crop;
+try {
+  const cropModel = require('../models/Crop');
+  Crop = cropModel.Crop;
+  if (!Crop) {
+    console.error('❌ Crop model not found in export');
+    throw new Error('Crop model is undefined');
+  }
+  console.log('✅ Crop model loaded successfully');
+} catch (error) {
+  console.error('❌ Failed to load Crop model:', error.message);
+  console.error('Full error:', error);
+}
+
+// Middleware ตรวจสอบว่า Crop model โหลดได้
+router.use((req, res, next) => {
+  if (!Crop) {
+    return res.status(500).json({
+      success: false,
+      message: 'Crop model is not available',
+      error: 'Failed to load Crop model'
+    });
+  }
+  next();
+});
 
 // POST /api/crops - Create a new crop
 router.post('/', async (req, res) => {

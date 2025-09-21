@@ -12,11 +12,41 @@ const localization = require('./middleware/localization');
 const authRoutes = require('./routes/auth');
 const farmRoutes = require('./routes/farms');
 const marketplaceRoutes = require('./routes/marketplace');
-const weatherRoutes = require('./routes/weather');
 const geminiRoutes = require('./routes/gemini');
 const healthRoutes = require('./routes/health');
-const tablesRoutes = require('./routes/tables');
-const cropsRoutes = require('./routes/crops');
+
+// ลอง import tables routes แบบปลอดภัย  
+let tablesRoutes;
+try {
+  tablesRoutes = require('./routes/tables');
+  console.log('✅ Tables routes loaded successfully');
+} catch (error) {
+  console.error('⚠️  Failed to load tables routes:', error.message);
+  console.error('Server will continue without tables routes');
+  tablesRoutes = null;
+}
+
+// ลอง import weather routes แบบปลอดภัย
+let weatherRoutes;
+try {
+  weatherRoutes = require('./routes/weather');
+  console.log('✅ Weather routes loaded successfully');
+} catch (error) {
+  console.error('⚠️  Failed to load weather routes:', error.message);
+  console.error('Server will continue without weather routes');
+  weatherRoutes = null;
+}
+
+// ลอง import crops routes แบบปลอดภัย
+let cropsRoutes;
+try {
+  cropsRoutes = require('./routes/crops');
+  console.log('✅ Crops routes loaded successfully');
+} catch (error) {
+  console.error('⚠️  Failed to load crops routes:', error.message);
+  console.error('Server will continue without crops routes');
+  cropsRoutes = null;
+}
 
 const app = express();
 const PORT = process.env.API_SERVER_PORT || 30039;
@@ -65,11 +95,32 @@ app.use(localization.middleware());
 app.use('/auth', authRoutes);
 app.use('/farms', farmRoutes);
 app.use('/marketplace', marketplaceRoutes);
-app.use('/weather', weatherRoutes);
 app.use('/ai', geminiRoutes);
 app.use('/health', healthRoutes);
-app.use('/api/tables', tablesRoutes);
-app.use('/api/crops', cropsRoutes);
+
+// ใช้ tables routes เฉพาะเมื่อโหลดได้
+if (tablesRoutes) {
+  app.use('/api/tables', tablesRoutes);
+  console.log('✅ Tables routes registered');
+} else {
+  console.log('⚠️  Tables routes skipped');
+}
+
+// ใช้ weather routes เฉพาะเมื่อโหลดได้
+if (weatherRoutes) {
+  app.use('/weather', weatherRoutes);
+  console.log('✅ Weather routes registered');
+} else {
+  console.log('⚠️  Weather routes skipped');
+}
+
+// ใช้ crops routes เฉพาะเมื่อโหลดได้
+if (cropsRoutes) {
+  app.use('/api/crops', cropsRoutes);
+  console.log('✅ Crops routes registered');
+} else {
+  console.log('⚠️  Crops routes skipped');
+}
 
 // Root endpoint
 app.get('/', (req, res) => {
@@ -151,9 +202,9 @@ const startServer = async () => {
     console.log('✅ Database connection established successfully.');
     console.log(`📊 Connected to database: ${process.env.DB_NAME} @ ${process.env.DB_HOST}:${process.env.DB_PORT}`);
     
-    // Sync database models
-    await sequelize.sync({ alter: true });
-    console.log('✅ Database models synchronized.');
+    // ใช้ตารางที่มีอยู่แล้วโดยไม่ต้อง sync (ป้องกัน "Too many keys" error)
+    console.log('✅ Using existing database tables (skip sync to prevent index conflicts).');
+    console.log('💡 If you need to create new tables, use: sequelize.sync({ force: true }) carefully!');
 
     const host = process.env.API_SERVER_HOST || '0.0.0.0';
     const port = PORT;

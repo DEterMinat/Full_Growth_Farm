@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Platform } from 'react-native';
 import { router } from 'expo-router';
 import Animated, {
@@ -24,6 +24,9 @@ export default function Dashboard() {
   const [showVoiceModal, setShowVoiceModal] = useState(false);
   const isGuest = !authUser || authUser.username === 'guest';
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherStatus, setWeatherStatus] = useState<string>('');
+  const weatherIntervalRef = useRef<any>(null);
 
   useEffect(() => {
     if (authUser) {
@@ -31,24 +34,50 @@ export default function Dashboard() {
     }
   }, [authUser, authLoading]);
 
+  // ฟังก์ชันสำหรับดึงข้อมูลสภาพอากาศ
+  const fetchWeather = async (showLoading = true) => {
+    try {
+      if (showLoading) setWeatherLoading(true);
+      const data = await weatherService.getCurrentWeather();
+      setWeather(data);
+      setWeatherStatus(weatherService.getWeatherStatusMessage(data));
+      console.log('Weather updated:', { city: data.city, temp: data.temperature, source: data.source });
+    } catch (error) {
+      console.error("Failed to load weather on dashboard:", error);
+      setWeather({
+        city: "ชลบุรี, ประเทศไทย",
+        temperature: 30,
+        condition: "Cloudy",
+        humidity: 75,
+        windSpeed: 10,
+      });
+      setWeatherStatus('ไม่สามารถดึงข้อมูลได้');
+    } finally {
+      if (showLoading) setWeatherLoading(false);
+    }
+  };
+
+  // เริ่มต้นดึงข้อมูลสภาพอากาศและตั้ง interval สำหรับ auto-refresh
   useEffect(() => {
-    const fetchWeather = async () => {
-      try {
-        const data = await weatherService.getCurrentWeather();
-        setWeather(data);
-      } catch (error) {
-        console.error("Failed to load weather on dashboard:", error);
-        setWeather({
-          city: "N/A",
-          temperature: 0,
-          condition: "Cloudy",
-          humidity: 0,
-          windSpeed: 0,
-        });
+    fetchWeather();
+
+    // ตั้งค่าให้อัปเดตข้อมูลทุก 10 นาที (600,000 ms)
+    weatherIntervalRef.current = setInterval(() => {
+      fetchWeather(false); // ไม่แสดง loading indicator สำหรับการอัปเดตอัตโนมัติ
+    }, 600000);
+
+    // Cleanup interval เมื่อ component ถูก unmount
+    return () => {
+      if (weatherIntervalRef.current) {
+        clearInterval(weatherIntervalRef.current);
       }
     };
-    fetchWeather();
   }, []);
+
+  // ฟังก์ชันสำหรับรีเฟรชข้อมูลสภาพอากาศแบบ manual
+  const refreshWeather = () => {
+    fetchWeather(true);
+  };
 
 
   const handleLogout = async () => {
@@ -77,9 +106,32 @@ export default function Dashboard() {
     return (
       <Animated.View style={styles.weatherSection} entering={FadeInUp.duration(800)}>
         <View style={styles.weatherHeader}>
-          <MaterialIcons name="location-on" size={16} color="#333" />
-          <Text style={styles.weatherCity}>{data.city || 'Unknown City'}</Text>
+          <View style={styles.weatherLocationContainer}>
+            <MaterialIcons name="location-on" size={16} color="#333" />
+            <Text style={styles.weatherCity}>{data.city || 'Unknown City'}</Text>
+          </View>
+          <TouchableOpacity onPress={refreshWeather} style={styles.refreshButton}>
+            <MaterialIcons 
+              name="refresh" 
+              size={20} 
+              color={weatherLoading ? "#999" : "#4CAF50"} 
+            />
+          </TouchableOpacity>
         </View>
+        
+        {/* Weather Status Bar */}
+        <View style={styles.weatherStatusBar}>
+          <Text style={[
+            styles.weatherStatusText,
+            { color: weatherService.isRealTimeData(data) ? '#4CAF50' : '#FF9800' }
+          ]}>
+            {weatherStatus}
+          </Text>
+          {weatherService.isRealTimeData(data) && (
+            <MaterialIcons name="wifi" size={14} color="#4CAF50" />
+          )}
+        </View>
+
         <View style={styles.weatherBody}>
           <View style={styles.weatherTempContainer}>
             <MaterialIcons name={iconName as any} size={48} color="#4a90e2" />
@@ -463,10 +515,36 @@ const styles = StyleSheet.create({
   weatherHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 15,
+    justifyContent: 'space-between',
+    marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
     paddingBottom: 10,
+  },
+  weatherLocationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  refreshButton: {
+    padding: 5,
+    borderRadius: 15,
+    backgroundColor: '#f0f8f0',
+  },
+  weatherStatusBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+  },
+  weatherStatusText: {
+    fontSize: 12,
+    fontWeight: '500',
+    marginRight: 5,
   },
   weatherCity: {
     fontSize: 16,
