@@ -4,13 +4,14 @@ import apiConfig from '../config/apiConfig';
 const API_BASE_URL = apiConfig.BASE_URL;
 
 export interface User {
-  id: number;
+  id: number | string;
   username: string;
   email: string;
-  full_name?: string;
+  fullName?: string;
   phone?: string;
   role: string;
   created_at?: string;
+  is_guest?: boolean;
 }
 
 export interface LoginRequest {
@@ -22,7 +23,7 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-  full_name?: string;
+  fullName?: string;
   phone?: string;
 }
 
@@ -57,8 +58,10 @@ class AuthService {
     const response = await fetch(url, config);
     
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
-      throw new Error(errorData.detail || `HTTP error! status: ${response.status}`);
+      const errorData = await response.json().catch(() => ({
+        error: { message: 'An unexpected network error occurred.' }
+      }));
+      throw new Error(errorData.error?.message || `HTTP error! status: ${response.status}`);
     }
 
     return response.json();
@@ -91,7 +94,7 @@ class AuthService {
       const response = await this.makeRequest('/api/auth/login', {
         method: 'POST',
         body: JSON.stringify({
-          username: credentials.username,
+          login: credentials.username,
           password: credentials.password
         }),
       });
@@ -113,50 +116,17 @@ class AuthService {
 
   async logout(): Promise<void> {
     console.log('🔐 AuthService logout started');
+    
     try {
-      const token = await this.getToken();
-      console.log('🎫 Current token:', token ? 'exists' : 'not found');
-      
-      if (token) {
-        // Try normal logout with token validation
-        try {
-          console.log('📡 Calling /api/auth/logout');
-          await this.makeRequest('/api/auth/logout', {
-            method: 'POST',
-          });
-          console.log('✅ Normal logout successful');
-        } catch (error: any) {
-          console.log('⚠️ Normal logout failed:', error.message);
-          // If token is invalid/expired, use force logout
-          if (error.message.includes('401') || error.message.includes('Unauthorized')) {
-            console.log('📡 Calling /api/auth/logout-force');
-            await fetch(`${API_BASE_URL}/api/auth/logout-force`, {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-            });
-            console.log('✅ Force logout successful');
-          } else {
-            throw error;
-          }
-        }
-      } else {
-        // No token, use force logout
-        console.log('📡 No token, calling /api/auth/logout-force');
-        await fetch(`${API_BASE_URL}/api/auth/logout-force`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log('✅ Force logout successful');
-      }
+      await this.makeRequest('/api/auth/logout', {
+        method: 'POST',
+      });
+      console.log('✅ Server logout endpoint called successfully.');
+    
     } catch (error) {
-      console.error('❌ Logout API error:', error);
-      // Continue with local cleanup even if server logout fails
+      console.error('❌ Server logout failed, but proceeding with local cleanup:', error);
+    
     } finally {
-      // Always clear local storage regardless of API call result
       console.log('🧹 Clearing local storage');
       await AsyncStorage.removeItem('access_token');
       await AsyncStorage.removeItem('user');
@@ -166,7 +136,8 @@ class AuthService {
 
   async getProfile(): Promise<User> {
     try {
-      return await this.makeRequest('/api/auth/me');
+      const response = await this.makeRequest('/api/auth/me');
+      return response.user; // <-- ✨ ดึงข้อมูล user จาก object ที่ซ้อนอยู่
     } catch (error) {
       console.error('Get profile error:', error);
       throw error;

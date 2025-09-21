@@ -7,15 +7,15 @@ import { LanguageToggleButton } from '../LanguageToggleButton';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { useTranslation } from 'react-i18next';
 
-interface NavBarProps {
+/*interface NavBarProps {
   currentRoute?: string;
   onMenuPress?: () => void;
-}
+}*/
 
-export default function NavBar({ currentRoute }: NavBarProps) {
+export default function NavBar() {
   const { t } = useTranslation();
   const pathname = usePathname();
-  const [activeTab, setActiveTab] = useState(currentRoute || pathname);
+  //const [activeTab, setActiveTab] = useState(currentRoute || pathname);
   const [sideMenuVisible, setSideMenuVisible] = useState(false);
   const [voiceModalVisible, setVoiceModalVisible] = useState(false);
 
@@ -35,9 +35,8 @@ export default function NavBar({ currentRoute }: NavBarProps) {
     setVoiceModalVisible(false);
   };
 
-  const handleTabPress = (route: string, routePath: string) => {
-    setActiveTab(route);
-    if (routePath !== pathname) {
+  const handleTabPress = (routePath: string) => {
+    if (routePath) { // เช็คว่า routePath ไม่ใช่ค่าว่าง
       router.push(routePath as any);
     }
   };
@@ -56,28 +55,35 @@ export default function NavBar({ currentRoute }: NavBarProps) {
       label: t('navigation.dashboard') || 'Home',
       icon: 'home',
       route: '/(app)/dashboard',
-      isActive: activeTab === 'home' || activeTab === '/(app)/dashboard'
+      //isActive: activeTab === 'home' || activeTab === '/(app)/dashboard'
     },
     {
       id: 'crops',
       label: t('navigation.crops') || 'Crops',
       icon: 'grass',
       route: '/(app)/crops',
-      isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
+      //isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
     },
     {
       id: 'market',
       label: t('navigation.market') || 'Market',
       icon: 'store',
       route: '/(app)/market',
-      isActive: activeTab === 'market' || activeTab === '/(app)/market'
+      //isActive: activeTab === 'market' || activeTab === '/(app)/market'
+    },
+    {
+      id: 'marketplace',
+      label: t('navigation.marketplace') || 'Marketplace',
+      icon: 'storefront',
+      route: '/(app)/marketplace',
+      //isActive: activeTab === 'marketplace' || activeTab === '/(app)/marketplace'
     },
     {
       id: 'profile',
       label: t('navigation.profile') || 'Profile',
       icon: 'person',
       route: '/(app)/profile',
-      isActive: activeTab === 'profile' || activeTab === '/(app)/profile'
+      //isActive: activeTab === 'profile' || activeTab === '/(app)/profile'
     }
   ];
 
@@ -98,6 +104,7 @@ export default function NavBar({ currentRoute }: NavBarProps) {
       <View style={styles.container}>
         <View style={styles.navBar}>
           {tabs.map((tab) => {
+            const isActive = tab.route ? pathname.startsWith(tab.route) : false;
             if (tab.isMenu) {
               return (
                 <TouchableOpacity
@@ -124,21 +131,21 @@ export default function NavBar({ currentRoute }: NavBarProps) {
                 key={tab.id}
                 style={[
                   styles.tabButton,
-                  tab.isActive && styles.activeTabButton
+                  isActive && styles.activeTabButton
                 ]}
-                onPress={() => handleTabPress(tab.id, tab.route)}
+                onPress={() => handleTabPress(tab.route)}
                 activeOpacity={0.7}
               >
                 <View style={styles.tabContent}>
                   <MaterialIcons 
                     name={tab.icon as any} 
                     size={20} 
-                    color={tab.isActive ? "#4CAF50" : "#666"} 
+                    color={isActive ? "#4CAF50" : "#666"}
                     style={styles.tabIcon}
                   />
                   <Text style={[
                     styles.tabLabel,
-                    tab.isActive && styles.activeTabLabel
+                    isActive && styles.activeTabLabel
                   ]}>
                     {tab.label}
                   </Text>
@@ -166,10 +173,10 @@ export default function NavBar({ currentRoute }: NavBarProps) {
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
+    /*position: 'absolute',
     bottom: 0,
     left: 0,
-    right: 0,
+    right: 0,*/
     backgroundColor: 'transparent',
   },
   navBar: {

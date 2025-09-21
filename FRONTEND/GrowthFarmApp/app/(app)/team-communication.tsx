@@ -178,7 +178,7 @@ export default function TeamCommunicationScreen() {
         <View style={{ height: 120 }} />
       </ScrollView>
 
-      <NavBar currentRoute="team-communication" />
+      <NavBar />
     </View>
   );
 }

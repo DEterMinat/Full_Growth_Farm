@@ -248,6 +248,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+    justifyContent: 'center',
   },
   card: {
     backgroundColor: 'white',
@@ -264,7 +265,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 12,
     elevation: 8,
-    flex: 1,
+    //flex: 1,
     marginBottom: 40,
   },
   logoContainer: {

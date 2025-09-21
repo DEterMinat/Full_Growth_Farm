@@ -165,14 +165,12 @@ export default function Dashboard() {
   }
 
   const currentUser = user || {
-    full_name: isGuest ? 'Guest User' : 'Demo User',
+    fullName: isGuest ? 'Guest User' : 'Demo User',
     username: isGuest ? 'guest' : 'demo'
   };
 
   return (
     <View style={styles.container}>
-      {/* Navigation Bar ด้านบน */}
-      <NavBar currentRoute="dashboard" />
       
       {/* Header */}
       <Animated.View
@@ -190,7 +188,7 @@ export default function Dashboard() {
         </View>
         <View style={styles.headerRight}>
           <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeUser}>{t('dashboard.hi_user')}, {currentUser?.full_name || currentUser?.username}!</Text>
+            <Text style={styles.welcomeUser}>{t('dashboard.hi_user')}, {currentUser?.fullName || currentUser?.username}!</Text>
           </View>
           <LanguageToggleButton size="small" style={styles.languageButton} />
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
@@ -494,7 +492,7 @@ export default function Dashboard() {
       </Modal>
 
       {/* Navigation Bar ด้านล่าง */}
-      <NavBar currentRoute="home" />
+      <NavBar />
     </View>
   );
 }

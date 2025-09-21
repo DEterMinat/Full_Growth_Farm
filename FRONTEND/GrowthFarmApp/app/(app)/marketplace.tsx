@@ -107,8 +107,11 @@ export default function MarketplaceScreen() {
 
   return (
     <View style={styles.container}>
-      <NavBar currentRoute="marketplace" />
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView 
+        style={styles.content} 
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 120 }} // <-- Add this line
+      >
         <Animated.View style={styles.searchSection} entering={FadeInUp.duration(600)}>
           <Text style={styles.marketplaceTitle}>{t('market.title')}</Text>
           <View style={styles.searchContainer}>
@@ -141,6 +144,7 @@ export default function MarketplaceScreen() {
 
         <View style={{ height: 120 }} />
       </ScrollView>
+      <NavBar />
     </View>
   );
 }

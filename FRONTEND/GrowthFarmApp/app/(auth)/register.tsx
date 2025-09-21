@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   ScrollView,
   Animated,
-  Alert 
+  Alert,
+  Modal // <-- 1. เพิ่ม Modal เข้ามา
 } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -24,6 +25,9 @@ export default function Register() {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [farmName, setFarmName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // --- ✨ [จุดที่ 1] เพิ่ม State สำหรับ Modal ---
+  const [isSuccessModalVisible, setIsSuccessModalVisible] = useState(false);
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -64,18 +68,17 @@ export default function Register() {
     setIsLoading(true);
     
     try {
-      // Call real API
       await authService.register({
-        username: email, // ใช้ email เป็น username
+        username: email,
         email: email,
         password: password,
-        full_name: fullName,
+        fullName: fullName,
         phone: phoneNumber
       });
 
-      Alert.alert('Success', 'Account created successfully!', [
-        { text: 'OK', onPress: () => router.push('./profile') }
-      ]);
+      // --- ✨ [จุดที่ 2] เรียกใช้ Modal แทน Alert ---
+      setIsSuccessModalVisible(true);
+
     } catch (error: any) {
       Alert.alert('Registration Failed', error.message || 'An error occurred during registration');
     } finally {
@@ -90,6 +93,12 @@ export default function Register() {
   const handleBackToWelcome = () => {
     router.back();
   };
+  
+  // --- ฟังก์ชันใหม่สำหรับปิด Modal และไปหน้า Login ---
+  const handleSuccessModalClose = () => {
+    setIsSuccessModalVisible(false);
+    router.push('./login');
+  };
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -102,7 +111,8 @@ export default function Register() {
           }
         ]}
       >
-        {/* Header */}
+        {/* ... (โค้ด UI ส่วนอื่นๆ เหมือนเดิมทั้งหมด) ... */}
+
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleBackToWelcome}>
             <Text style={styles.backIcon}>←</Text>
@@ -111,7 +121,6 @@ export default function Register() {
           <View style={styles.placeholder} />
         </View>
 
-        {/* Brand Section */}
         <View style={styles.brandSection}>
           <MaterialIcons name="eco" size={48} color="#4CAF50" style={styles.brandIcon} />
           <Text style={styles.brandText}>GROWTH FARM</Text>
@@ -119,7 +128,6 @@ export default function Register() {
           <Text style={styles.subText}>Create your farm management account</Text>
         </View>
 
-        {/* Register Form */}
         <View style={styles.formContainer}>
           <View style={styles.inputGroup}>
             <Text style={styles.inputLabel}>Full Name *</Text>
@@ -221,7 +229,6 @@ export default function Register() {
           </TouchableOpacity>
         </View>
 
-        {/* Login Link */}
         <View style={styles.loginSection}>
           <Text style={styles.loginText}>Already have an account? </Text>
           <TouchableOpacity onPress={handleLogin}>
@@ -229,7 +236,6 @@ export default function Register() {
           </TouchableOpacity>
         </View>
 
-        {/* Terms and Privacy */}
         <View style={styles.termsSection}>
           <Text style={styles.termsText}>
             By creating an account, you agree to our{' '}
@@ -243,7 +249,6 @@ export default function Register() {
           </TouchableOpacity>
         </View>
 
-        {/* Benefits Section */}
         <View style={styles.benefitsSection}>
           <Text style={styles.benefitsTitle}>Why choose Growth Farm?</Text>
           <View style={styles.benefitsList}>
@@ -275,11 +280,34 @@ export default function Register() {
 
         <View style={styles.bottomSpace} />
       </Animated.View>
+      
+      {/* --- ✨ [จุดที่ 3] โค้ด UI ของ Modal --- */}
+      <Modal
+        visible={isSuccessModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleSuccessModalClose}
+      >
+        <View style={styles.successModalOverlay}>
+          <View style={styles.successModalContainer}>
+            <View style={styles.successIconContainer}>
+              <MaterialIcons name="check-circle" size={60} color="white" />
+            </View>
+            <Text style={styles.successTitle}>Success!</Text>
+            <Text style={styles.successMessage}>Your account has been created successfully.</Text>
+            <TouchableOpacity style={styles.successButton} onPress={handleSuccessModalClose}>
+              <Text style={styles.successButtonText}>Go to Login</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  // ... (Style เดิมทั้งหมด)
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
@@ -510,5 +538,63 @@ const styles = StyleSheet.create({
   },
   bottomSpace: {
     height: 50,
+  },
+  
+  // --- ✨ [จุดที่ 4] Style ใหม่สำหรับ Success Modal ---
+  successModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  successModalContainer: {
+    width: '85%',
+    maxWidth: 350,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  successIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#4CAF50',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  successTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  successMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  successButton: {
+    backgroundColor: '#4CAF50',
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 50,
+    width: '100%',
+    alignItems: 'center',
+  },
+  successButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });
