@@ -49,7 +49,8 @@ try {
 }
 
 const app = express();
-const PORT = process.env.API_SERVER_PORT || 30039;
+// Prefer standard PORT env var (your cloud .env uses PORT=30007)
+const PORT = process.env.PORT || process.env.API_SERVER_PORT || 30039;
 const HOST = process.env.API_SERVER_HOST || '0.0.0.0';
 
 // Middleware
@@ -125,7 +126,8 @@ if (cropsRoutes) {
 // Root endpoint
 app.get('/', (req, res) => {
   const host = process.env.API_SERVER_HOST || 'localhost';
-  const port = process.env.PORT || 8000;
+  // Use the same port variable we use to start the server
+  const port = PORT;
   
   res.json({
     success: true,
@@ -206,10 +208,10 @@ const startServer = async () => {
     console.log('✅ Using existing database tables (skip sync to prevent index conflicts).');
     console.log('💡 If you need to create new tables, use: sequelize.sync({ force: true }) carefully!');
 
-    const host = process.env.API_SERVER_HOST || '0.0.0.0';
-    const port = PORT;
+  const host = process.env.API_SERVER_HOST || '0.0.0.0';
+  const port = PORT;
     
-    app.listen(port, host, () => {
+  app.listen(port, host, () => {
       console.log('🌱 Growth Farm Express.js API Server Started!');
       console.log('='.repeat(50));
       console.log(`🚀 Server running on: http://${host}:${port}`);

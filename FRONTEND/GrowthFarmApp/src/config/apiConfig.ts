@@ -5,7 +5,8 @@ export const API_CONFIG = {
   // Development - when running backend locally
   DEVELOPMENT: {
     // แก้ไข BASE_URL ให้ชี้ไปยัง Server ของคุณ
-    BASE_URL: 'http://localhost:30039', 
+    // ชี้ไปยัง backend ที่ทำงานก่อนหน้านี้ (พอร์ต 30039) เพื่อให้ข้อมูลแสดงออกมาได้
+    BASE_URL: 'http://119.59.102.61:30039', 
     TIMEOUT: 10000,
   },
   
@@ -18,7 +19,7 @@ export const API_CONFIG = {
   // For React Native development on physical device
   // Replace 192.168.1.xxx with your computer's IP address
   DEVICE_DEVELOPMENT: {
-    BASE_URL: 'http://192.168.1.100:8000', // Update this IP to your computer's IP
+    BASE_URL: 'http://119.59.102.61:30039', // Use cloud backend for device testing
     TIMEOUT: 10000,
   }
 };
