@@ -35,6 +35,7 @@ export interface CreateCropRequest {
   stage: string;
   status: 'healthy' | 'monitor' | 'critical';
   farmId: number;
+  zoneId?: number;
   notes?: string;
 }
 

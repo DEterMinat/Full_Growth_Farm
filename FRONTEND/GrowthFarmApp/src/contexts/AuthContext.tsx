@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import authService, { User } from '../services/authService';
 
+// Interface ไม่มีการเปลี่ยนแปลง
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
@@ -9,6 +10,8 @@ interface AuthContextType {
   register: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
+  isGuest: boolean;
+  loginAsGuest: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,98 +31,78 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // --- ✨ [จุดแก้ไขหลัก] ---
+  // 1. ลบการประกาศ state ที่ซ้ำซ้อนออก
+  // 2. ให้ isAuthenticated และ isGuest เป็นค่าที่คำนวณจาก state 'user' โดยตรง
+  const isAuthenticated = !!user;
+  const isGuest = !!user && user.is_guest === true;
 
   useEffect(() => {
     checkAuthStatus();
   }, []);
 
   const checkAuthStatus = async () => {
+    // ไม่ได้ตั้งค่า isLoading ที่นี่แล้ว เพื่อให้ค่าเริ่มต้นเป็น true
     try {
-      setIsLoading(true);
-      const isAuth = await authService.checkAuthStatus();
-      
-      if (isAuth) {
+      const token = await authService.getToken();
+      if (token) {
         const userData = await authService.getProfile();
-        setUser(userData);
-        setIsAuthenticated(true);
+        setUser(userData); // getProfile จะ return user object โดยตรงแล้ว
       } else {
         setUser(null);
-        setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('Auth check failed:', error);
+      console.error('Auth check failed, clearing session:', error);
       setUser(null);
-      setIsAuthenticated(false);
+      await authService.logout(); // เคลียร์ token ที่อาจหมดอายุ
     } finally {
       setIsLoading(false);
     }
   };
 
   const login = async (username: string, password: string) => {
-    try {
-      const response = await authService.login({ username, password });
-      if (response.user) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-      }
-    } catch (error) {
-      console.error('Login failed:', error);
-      throw error;
-    }
+    await authService.login({ username, password });
+    await checkAuthStatus();
   };
 
   const register = async (userData: any) => {
-    try {
-      const response = await authService.register(userData);
-      if (response.user) {
-        setUser(response.user);
-        setIsAuthenticated(true);
-      }
-    } catch (error) {
-      console.error('Registration failed:', error);
-      throw error;
-    }
+    await authService.register(userData);
+    await checkAuthStatus();
   };
 
   const logout = async () => {
-    try {
-      console.log('🚪 Starting logout process...');
-      await authService.logout();
-      console.log('✅ AuthService logout completed');
-      setUser(null);
-      setIsAuthenticated(false);
-      console.log('✅ Auth state cleared. Navigation will be handled by RootLayout.');
-    } catch (error) {
-      console.error('❌ Logout failed:', error);
-      // Force clear state even if API call fails
-      setUser(null);
-      setIsAuthenticated(false);
-      console.log('✅ Auth state cleared despite error. Navigation will be handled by RootLayout.');
-      throw error;
-    }
+    await authService.logout();
+    setUser(null);
+    // การ Redirect จะถูกจัดการโดย _layout.tsx
+  };
+
+  const loginAsGuest = async () => {
+    const guestUser: User = {
+      id: 'guest',
+      username: 'Guest User',
+      email: 'guest@growthfarm.com',
+      fullName: 'Demo User',
+      role: 'GUEST',
+      is_guest: true,
+    };
+    setUser(guestUser);
   };
 
   const refreshUser = async () => {
-    try {
-      const userData = await authService.getProfile();
-      setUser(userData);
-    } catch (error) {
-      console.error('Refresh user failed:', error);
-      // If refresh fails, user might need to login again
-      await logout();
-      throw error;
-    }
+    await checkAuthStatus();
   };
 
   const value: AuthContextType = {
     user,
     isLoading,
     isAuthenticated,
+    isGuest,
     login,
     register,
     logout,
     refreshUser,
+    loginAsGuest,
   };
 
   return (

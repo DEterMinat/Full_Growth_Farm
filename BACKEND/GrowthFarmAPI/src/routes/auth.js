@@ -1,6 +1,7 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');
+const { Op } = require('sequelize');
 const User = require('../models/User');
 const { authenticateToken } = require('../middleware/auth');
 
@@ -25,12 +26,16 @@ router.post('/register', [
       });
     }
 
-    const { email, username, password, firstName, lastName, phoneNumber } = req.body;
+    const { email, username, password, fullName, phoneNumber } = req.body;
+
+    const nameParts = fullName ? fullName.split(' ') : [];
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
 
     // Check if user already exists
     const existingUser = await User.findOne({
       where: {
-        $or: [{ email }, { username }]
+        [Op.or]: [{ email }, { username }]
       }
     });
 
@@ -70,7 +75,8 @@ router.post('/register', [
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
-        phoneNumber: user.phoneNumber
+        phoneNumber: user.phoneNumber,
+        created_at: user.createdAt
       },
       token,
       tokenType: 'Bearer'
@@ -111,7 +117,7 @@ router.post('/login', [
     // Find user by email or username
     const user = await User.findOne({
       where: {
-        $or: [{ email: login }, { username: login }]
+        [Op.or]: [{ email: login }, { username: login }]
       }
     });
 
@@ -151,7 +157,8 @@ router.post('/login', [
         username: user.username,
         firstName: user.firstName,
         lastName: user.lastName,
-        phoneNumber: user.phoneNumber
+        phoneNumber: user.phoneNumber,
+        created_at: user.createdAt
       },
       token,
       tokenType: 'Bearer'
@@ -224,11 +231,11 @@ router.put('/profile', authenticateToken, [
     if (email || username) {
       const existingUser = await User.findOne({
         where: {
-          $or: [
+          [Op.or]: [
             email ? { email } : null,
             username ? { username } : null
           ].filter(Boolean),
-          id: { $ne: req.user.id }
+          id: { [Op.ne]: req.user.id }
         }
       });
 

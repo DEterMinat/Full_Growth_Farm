@@ -7,7 +7,8 @@ import {
   TouchableOpacity, 
   ScrollView,
   Animated,
-  Alert 
+  Alert,
+  Modal // <-- 1. เพิ่ม Modal เข้ามา
 } from 'react-native';
 import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
@@ -28,6 +29,10 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { login } = useAuth();
+
+  // --- ✨ [จุดที่ 1] เพิ่ม State สำหรับ Error Modal ---
+  const [isErrorModalVisible, setIsErrorModalVisible] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -51,22 +56,23 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Please fill in all fields');
+      setErrorMessage('Please fill in all fields');
+      setIsErrorModalVisible(true);
       return;
     }
 
     setIsLoading(true);
     
     try {
-      // Call AuthContext login
       await login(email, password);
-      
       console.log('Login successful, redirecting to dashboard...');
-      // Direct redirect to dashboard
       router.push('/(app)/dashboard');
     } catch (error: any) {
+      // --- ✨ [จุดที่ 2] เรียกใช้ Modal แทน Alert ---
       console.error('Login error:', error);
-      Alert.alert('Login Failed', error.message || 'An error occurred during login');
+      // Backend มักจะส่ง message กลับมา เราจะใช้ message นั้น
+      setErrorMessage(error.message || 'An unknown error occurred. Please try again.');
+      setIsErrorModalVisible(true);
     } finally {
       setIsLoading(false);
     }
@@ -80,8 +86,6 @@ export default function Login() {
     try {
       console.log('🎭 Handling Guest login...');
       setIsLoading(true);
-      
-      // Fallback: Set guest mode directly in AsyncStorage
       await AsyncStorage.setItem('growth_farm_guest_mode', 'true');
       await AsyncStorage.setItem('growth_farm_user', JSON.stringify({
         id: 'guest',
@@ -90,9 +94,7 @@ export default function Login() {
         full_name: 'Demo User',
         is_guest: true
       }));
-      
       console.log('🎭 Guest login successful, redirecting to dashboard...');
-      // Use replace instead of push to prevent going back to login
       router.replace('/(app)/dashboard');
     } catch (error: any) {
       console.error('🎭 Guest login error:', error);
@@ -106,9 +108,15 @@ export default function Login() {
     router.back();
   };
 
+  // --- ฟังก์ชันใหม่สำหรับปิด Error Modal ---
+  const handleErrorModalClose = () => {
+    setIsErrorModalVisible(false);
+  };
+
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* Language Toggle Button */}
+      {/* ... (โค้ด UI ส่วนอื่นๆ เหมือนเดิมทั้งหมด) ... */}
+      
       <View style={styles.languageToggle}>
         <LanguageToggleButton size="small" showText={false} />
       </View>
@@ -122,7 +130,6 @@ export default function Login() {
           }
         ]}
       >
-        {/* Header */}
         <ReAnimated.View 
           style={styles.header}
           entering={FadeInDown.duration(600)}
@@ -133,7 +140,6 @@ export default function Login() {
           <View style={styles.placeholder} />
         </ReAnimated.View>
 
-        {/* Brand Section */}
         <ReAnimated.View 
           style={styles.brandSection}
           entering={FadeInUp.delay(200).duration(800)}
@@ -144,7 +150,6 @@ export default function Login() {
           <Text style={styles.subText}>{t('auth.sign_in_account')}</Text>
         </ReAnimated.View>
 
-        {/* Login Form */}
         <ReAnimated.View 
           style={styles.formContainer}
           entering={SlideInLeft.delay(400).duration(800)}
@@ -200,8 +205,7 @@ export default function Login() {
             <MaterialIcons name="email" size={20} color="#4285F4" />
             <Text style={styles.socialButtonText}>Continue with Google</Text>
           </TouchableOpacity>
-
-          {/* Guest Login Button */}
+          
           <TouchableOpacity 
             style={styles.guestButton} 
             onPress={handleGuestLogin}
@@ -212,7 +216,6 @@ export default function Login() {
           </TouchableOpacity>
         </ReAnimated.View>
 
-        {/* Register Link */}
         <ReAnimated.View 
           style={styles.registerSection}
           entering={FadeIn.delay(600).duration(600)}
@@ -223,11 +226,34 @@ export default function Login() {
           </TouchableOpacity>
         </ReAnimated.View>
       </Animated.View>
+
+      {/* --- ✨ [จุดที่ 3] โค้ด UI ของ Error Modal --- */}
+      <Modal
+        visible={isErrorModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={handleErrorModalClose}
+      >
+        <View style={styles.errorModalOverlay}>
+          <View style={styles.errorModalContainer}>
+            <View style={styles.errorIconContainer}>
+              <MaterialIcons name="error-outline" size={60} color="white" />
+            </View>
+            <Text style={styles.errorTitle}>Login Failed</Text>
+            <Text style={styles.errorMessage}>{errorMessage}</Text>
+            <TouchableOpacity style={styles.errorButton} onPress={handleErrorModalClose}>
+              <Text style={styles.errorButtonText}>Try Again</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
+  // ... (Style เดิมทั้งหมด)
   container: {
     flex: 1,
     backgroundColor: '#f8f9fa',
@@ -427,5 +453,60 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#F57C00',
     fontWeight: '600',
+  },
+
+  // --- ✨ [จุดที่ 4] Style ใหม่สำหรับ Error Modal ---
+  errorModalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorModalContainer: {
+    width: '85%',
+    maxWidth: 350,
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 30,
+    alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  errorIconContainer: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: '#F44336', // Red color for error
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  errorTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 10,
+  },
+  errorMessage: {
+    fontSize: 16,
+    color: '#666',
+    textAlign: 'center',
+    marginBottom: 30,
+  },
+  errorButton: {
+    backgroundColor: '#F44336', // Red color for error
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 50,
+    width: '100%',
+    alignItems: 'center',
+  },
+  errorButtonText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
 });

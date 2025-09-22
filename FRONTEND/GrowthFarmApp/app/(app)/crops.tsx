@@ -41,6 +41,7 @@ export default function Crops() {
     stage: 'Seeding',
     status: 'healthy',
     farmId: 1,
+    zoneId: 1,
     notes: '',
   });
 
@@ -68,6 +69,11 @@ export default function Crops() {
     }
     try {
       setIsSubmitting(true);
+      const payload: CreateCropRequest = {
+        ...newCrop,
+        plantingDate: new Date(newCrop.plantingDate).toISOString(),
+        expectedHarvestDate: new Date(newCrop.expectedHarvestDate).toISOString(),
+      };
       await cropsService.createCrop(newCrop);
       await loadCrops();
       setIsAddModalVisible(false);
@@ -375,7 +381,7 @@ export default function Crops() {
       </ScrollView>
 
       {/* Navigation Bar */}
-      <NavBar currentRoute="crops" />
+      <NavBar />
 
       {/* Add Crop Modal */}
       <Modal

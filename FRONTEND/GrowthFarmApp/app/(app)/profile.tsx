@@ -9,11 +9,11 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function Profile() {
   const { t } = useTranslation();
-  const { user: authUser, refreshUser, isGuest, logout } = useAuth();
-  const [user, setUser] = useState<User | null>(authUser);
-  const [isLoading, setIsLoading] = useState(false);
+  const { user, isLoading, isGuest, logout } = useAuth();
+  //const [user, setUser] = useState<User | null>(authUser);
+  //const [isLoading, setIsLoading] = useState(false);
 
-  const loadUserData = async () => {
+  /*const loadUserData = async () => {
     try {
       setIsLoading(true);
       await refreshUser();
@@ -23,42 +23,28 @@ export default function Profile() {
     } finally {
       setIsLoading(false);
     }
-  };
+  };*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (authUser) {
       setUser(authUser);
     } else {
       loadUserData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [authUser]);
+  }, [authUser]);*/
 
   const handleLogout = async () => {
-    const title = isGuest ? t('profile.exit_demo') : t('profile.sign_out');
-    const message = isGuest 
-      ? t('profile.are_you_sure_exit')
-      : t('profile.are_you_sure_signout');
-
-    Alert.alert(
-      title,
-      message,
-      [
-        { 
-          text: t('profile.cancel'), 
-          style: 'cancel',
-          onPress: () => console.log('User cancelled logout')
-        },
-        {
-          text: isGuest ? t('profile.exit_demo') : t('profile.sign_out'),
-          style: 'destructive',
-          onPress: async () => {
-            console.log('Profile logout - using AuthContext logout');
-            await logout(true);
-          }
-        }
-      ]
-    );
+  console.log('Testing direct logout call (bypassing Alert)...');
+    try {
+      // เรียก logout() โดยตรง ไม่ต้องมี Alert
+      await logout();
+      console.log('Direct logout call successful!');
+    } catch (error) {
+      console.error('Direct logout call failed:', error);
+      // ในกรณีที่เกิด error จริงๆ ให้แสดง Alert แบบเดิม
+      Alert.alert('Error', 'An unexpected error occurred during logout.');
+    }
   };
 
   if (isLoading) {
@@ -71,7 +57,6 @@ export default function Profile() {
 
   return (
     <View style={styles.container}>
-      <NavBar currentRoute="profile" />
       
       {/* Header */}
       <View style={styles.header}>
@@ -97,7 +82,9 @@ export default function Profile() {
               <MaterialIcons name="person" size={40} color="#4CAF50" />
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.userName}>{user?.full_name || user?.username}</Text>
+              <Text style={styles.infoValue}>
+                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+              </Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
               <Text style={styles.userRole}>
                 {t('profile.farm_owner')}
@@ -266,7 +253,7 @@ export default function Profile() {
       </ScrollView>
 
       {/* Navigation Bar */}
-      <NavBar currentRoute="profile" />
+      <NavBar />
     </View>
   );
 }

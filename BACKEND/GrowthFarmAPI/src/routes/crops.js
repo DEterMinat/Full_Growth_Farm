@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
       variety: req.body.variety,
       plantingDate: req.body.plantingDate,
       expectedHarvestDate: req.body.expectedHarvestDate,
-      zoneId: req.body.zoneId || 1, 
+      zoneId: req.body.zoneId, 
       status: 'PLANTED',
       healthStatus: 'GOOD',
       quantity: req.body.area,
