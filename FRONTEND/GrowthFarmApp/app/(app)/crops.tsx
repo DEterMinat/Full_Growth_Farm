@@ -49,6 +49,19 @@ export default function Crops() {
     loadCrops();
   }, []);
 
+  // Debug useEffect to track form state
+  useEffect(() => {
+    console.log('📝 Form state changed:', {
+      name: newCrop.name,
+      isEmpty: !newCrop.name && !newCrop.variety && newCrop.area === 0
+    });
+  }, [newCrop]);
+
+  // Debug useEffect to track modal state
+  useEffect(() => {
+    console.log('🚪 Modal state changed - Add:', isAddModalVisible, 'Edit:', isEditModalVisible);
+  }, [isAddModalVisible, isEditModalVisible]);
+
   const loadCrops = async () => {
     try {
       setLoading(true);
@@ -62,36 +75,49 @@ export default function Crops() {
     }
   };
 
+  const resetForm = () => {
+    console.log('🔄 Resetting crop form');
+    setNewCrop({
+      name: '',
+      variety: '',
+      plantingDate: '',
+      expectedHarvestDate: '',
+      area: 0,
+      areaUnit: 'acres',
+      stage: 'Seeding',
+      status: 'healthy',
+      farmId: 1,
+      zoneId: 1,
+      notes: '',
+    });
+  };
+
   const handleAddCrop = async () => {
     if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
     try {
+      console.log('➕ Adding crop:', newCrop.name);
       setIsSubmitting(true);
       await cropsService.createCrop(newCrop);
       await loadCrops();
+      console.log('✅ Crop added successfully, resetting form');
+      resetForm(); // Reset form before closing modal
       setIsAddModalVisible(false);
       Alert.alert('Success', 'Crop added successfully!');
     } catch (error) {
-      console.error('Error adding crop:', error);
+      console.error('❌ Error adding crop:', error);
       Alert.alert('Error', 'Failed to add crop. Please try again.');
     } finally {
       setIsSubmitting(false);
-      // Reset form only after submission finishes
-      setNewCrop({
-        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
-        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
-      });
     }
   };
   
   const handleCancelAdd = () => {
+    console.log('❌ Cancel add crop');
     setIsAddModalVisible(false);
-    setNewCrop({
-        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
-        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
-    });
+    resetForm();
   };
 
   const handleEditCrop = (crop: Crop) => {
@@ -106,6 +132,7 @@ export default function Crops() {
       stage: crop.stage,
       status: crop.status,
       farmId: crop.farmId,
+      zoneId: 1, // Set default zoneId since Crop interface doesn't include it
       notes: crop.notes || '',
     });
     setIsEditModalVisible(true);
@@ -140,10 +167,7 @@ export default function Crops() {
   const handleCancelEdit = () => {
     setIsEditModalVisible(false);
     setEditingCrop(null);
-    setNewCrop({
-        name: '', variety: '', plantingDate: '', expectedHarvestDate: '',
-        area: 0, areaUnit: 'acres', stage: 'Seeding', status: 'healthy', farmId: 1, notes: '',
-    });
+    resetForm();
   };
 
   const handleDeleteCrop = (crop: Crop) => {
@@ -319,7 +343,11 @@ export default function Crops() {
           <View style={styles.actionGrid}>
             <TouchableOpacity
               style={styles.actionCard}
-              onPress={() => setIsAddModalVisible(true)}
+              onPress={() => {
+                console.log('🚀 Opening Add Crop modal');
+                resetForm(); // Ensure form is clean when opening modal
+                setIsAddModalVisible(true);
+              }}
             >
               <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
               <Text style={styles.actionTitle}>{t('crops.add_new_crop')}</Text>
