@@ -5,7 +5,6 @@ import Animated, { FadeInUp, SlideInLeft } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import { marketplaceService, Product } from '@/src/services/marketplaceService';
-import { useCart } from '@/src/contexts/CartContext';
 
 export default function MarketplaceScreen() {
   const { t, i18n } = useTranslation(); // [แก้ไข] ดึง i18n มาใช้เพื่อเช็คสถานะ
@@ -30,7 +29,21 @@ export default function MarketplaceScreen() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const fetchedProducts = await marketplaceService.getAllProducts();
+        let fetchedProducts: Product[];
+        
+        // ถ้ามีการค้นหา ให้ใช้ search function
+        if (searchText.trim()) {
+          fetchedProducts = await marketplaceService.searchProducts(searchText);
+        } 
+        // ถ้าเลือกหมวดหมู่
+        else if (selectedCategory !== 'All Products') {
+          fetchedProducts = await marketplaceService.getProductsByCategory(selectedCategory);
+        } 
+        // ถ้าไม่มีเงื่อนไขใดๆ ให้ดึงสินค้าทั้งหมด
+        else {
+          fetchedProducts = await marketplaceService.getAllProducts();
+        }
+        
         setProducts(fetchedProducts);
         setError(null);
       } catch (err) {
@@ -40,8 +53,12 @@ export default function MarketplaceScreen() {
         setLoading(false);
       }
     };
-    fetchProducts();
-  }, []);
+    
+    // Debounce search (รอให้ผู้ใช้พิมพ์เสร็จก่อนค้นหา)
+    const searchTimeout = setTimeout(fetchProducts, 300);
+    
+    return () => clearTimeout(searchTimeout);
+  }, [searchText, selectedCategory]);
   
   const categories = ['All Products', 'Seeds', 'Fertilizers', 'Tools'];
 
@@ -57,27 +74,65 @@ export default function MarketplaceScreen() {
     );
   };
 
-  const ProductCard = ({ product }: { product: Product }) => (
-    <View style={styles.productCard}>
-      <View style={styles.productImageContainer}>
-        <MaterialIcons name={"local-florist"} size={40} color="#4CAF50" style={styles.productImage} />
+  const ProductCard = ({ product }: { product: Product }) => {
+    const isOutOfStock = product.status === 'out_of_stock' || product.quantity === 0;
+    
+    return (
+      <View style={[styles.productCard, isOutOfStock && styles.outOfStockCard]}>
+        <View style={[styles.productImageContainer, isOutOfStock && styles.outOfStockImageContainer]}>
+          <MaterialIcons 
+            name={getProductIcon(product.category)} 
+            size={40} 
+            color={isOutOfStock ? "#ccc" : "#4CAF50"} 
+            style={styles.productImage} 
+          />
+          {isOutOfStock && (
+            <View style={styles.outOfStockBadge}>
+              <Text style={styles.outOfStockText}>หมด</Text>
+            </View>
+          )}
+        </View>
+        <View style={styles.productInfo}>
+          <Text style={[styles.productName, isOutOfStock && styles.outOfStockText]} numberOfLines={2}>
+            {product.name}
+          </Text>
+          <Text style={[styles.productPrice, isOutOfStock && styles.outOfStockPrice]}>
+            ฿{parseFloat(product.price).toFixed(2)} / {product.unit}
+          </Text>
+          <Text style={styles.productSeller} numberOfLines={1}>
+            {t('market.seller')}: {product.seller?.full_name || product.seller?.username || 'N/A'}
+          </Text>
+          <Text style={styles.productQuantity}>
+            {t('market.in_stock')}: {product.quantity} {product.unit}
+          </Text>
+          {/* [แก้ไข] เพิ่ม onPress ให้กับปุ่ม */}
+          <TouchableOpacity 
+            style={[styles.addToCartButton, isOutOfStock && styles.outOfStockButton]} 
+            onPress={() => !isOutOfStock && handleAddToCart(product)}
+            disabled={isOutOfStock}
+          >
+            <Text style={[styles.addToCartText, isOutOfStock && styles.outOfStockButtonText]}>
+              {isOutOfStock ? t('market.out_of_stock') : t('market.add_to_cart')}
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-      <View style={styles.productInfo}>
-        <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
-        <Text style={styles.productPrice}>฿{parseFloat(product.price).toFixed(2)}</Text>
-        <Text style={styles.productSeller} numberOfLines={1}>{t('market.seller')}: {product.seller?.full_name || product.seller?.username || 'N/A'}</Text>
-        {/* [แก้ไข] เพิ่ม onPress ให้กับปุ่ม */}
-        <TouchableOpacity style={styles.addToCartButton} onPress={() => handleAddToCart(product)}>
-          <Text style={styles.addToCartText}>{t('market.add_to_cart')}</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  );
+    );
+  };
 
-  // [แก้ไข] เพิ่มการกรองสินค้าตามการค้นหา
-  const filteredProducts = products.filter(product => 
-    product.name.toLowerCase().includes(searchText.toLowerCase())
-  );
+  // Helper function to get appropriate icon for each category
+  const getProductIcon = (category: string) => {
+    switch (category) {
+      case 'Seeds':
+        return 'eco';
+      case 'Fertilizers':
+        return 'scatter-plot';
+      case 'Tools':
+        return 'build';
+      default:
+        return 'local-florist';
+    }
+  };
 
   const renderContent = () => {
     if (loading || !isTranslationsLoaded) { // เพิ่ม !isTranslationsLoaded
@@ -86,12 +141,22 @@ export default function MarketplaceScreen() {
     if (error) {
       return <Text style={styles.errorText}>{error}</Text>;
     }
-    if (filteredProducts.length === 0) {
-      return <Text style={styles.emptyText}>{t('market.no_products_found')}</Text>;
+    if (products.length === 0) {
+      return (
+        <View style={styles.emptyTextContainer}>
+          <MaterialIcons name="shopping-basket" size={64} color="#ccc" />
+          <Text style={styles.emptyText}>{t('market.no_products_found')}</Text>
+          {searchText.trim() && (
+            <Text style={styles.emptyText}>
+              {t('market.try_different_search')} &quot;{searchText}&quot;
+            </Text>
+          )}
+        </View>
+      );
     }
     return (
       <View style={styles.productsGrid}>
-        {filteredProducts.map((product, index) => (
+        {products.map((product, index) => (
           <Animated.View key={product.id} style={{ width: '48%' }} entering={SlideInLeft.delay(100 + index * 100).duration(600)}>
             <ProductCard product={product} />
           </Animated.View>
@@ -138,7 +203,19 @@ export default function MarketplaceScreen() {
         </Animated.View>
 
         <Animated.View style={styles.section} entering={FadeInUp.delay(400).duration(600)}>
-          <Text style={styles.sectionTitle}>{t('market.featured_products')}</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('market.featured_products')}</Text>
+            <View style={styles.productStats}>
+              <Text style={styles.statsText}>
+                {products.length} {t('market.products_found')}
+              </Text>
+              {searchText.trim() && (
+                <Text style={styles.searchResultText}>
+                  {t('market.search_results_for')} &quot;{searchText}&quot;
+                </Text>
+              )}
+            </View>
+          </View>
           {renderContent()}
         </Animated.View>
 
@@ -165,7 +242,16 @@ const styles = StyleSheet.create({
   categoryTabText: { fontSize: 14, color: '#333', fontWeight: '500' },
   selectedCategoryTabText: { color: 'white' },
   section: { minHeight: 200, padding: 20, },
-  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', marginBottom: 20 },
+  sectionHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'flex-end',
+    marginBottom: 20 
+  },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#333' },
+  productStats: { alignItems: 'flex-end' },
+  statsText: { fontSize: 14, color: '#666', fontWeight: '500' },
+  searchResultText: { fontSize: 12, color: '#4CAF50', marginTop: 2 },
   productsGrid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', },
   productCard: {
     backgroundColor: 'white',
@@ -178,10 +264,27 @@ const styles = StyleSheet.create({
     elevation: 2,
     overflow: 'hidden'
   },
+  outOfStockCard: {
+    opacity: 0.7,
+    backgroundColor: '#f9f9f9',
+  },
   productImageContainer: {
     alignItems: 'center',
     paddingVertical: 15,
-    backgroundColor: '#f5f5f5'
+    backgroundColor: '#f5f5f5',
+    position: 'relative'
+  },
+  outOfStockImageContainer: {
+    backgroundColor: '#e0e0e0'
+  },
+  outOfStockBadge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    backgroundColor: '#f44336',
+    borderRadius: 10,
+    paddingHorizontal: 8,
+    paddingVertical: 2
   },
   productImage: { fontSize: 40 },
   productInfo: {
@@ -204,10 +307,19 @@ const styles = StyleSheet.create({
     color: '#4CAF50',
     marginBottom: 8,
   },
+  outOfStockPrice: {
+    color: '#999',
+    textDecorationLine: 'line-through'
+  },
   productSeller: {
     fontSize: 12,
     color: '#666',
     fontStyle: 'italic',
+    marginBottom: 8,
+  },
+  productQuantity: {
+    fontSize: 11,
+    color: '#888',
     marginBottom: 12,
   },
   addToCartButton: {
@@ -218,11 +330,37 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
     alignItems: 'center',
   },
+  outOfStockButton: {
+    backgroundColor: '#ccc',
+  },
   addToCartText: {
     color: 'white',
     fontSize: 12,
     fontWeight: 'bold'
   },
-  emptyText: { textAlign: 'center', width: '100%', paddingVertical: 20, color: '#666' },
-  errorText: { textAlign: 'center', marginTop: 50, color: 'red' },
+  outOfStockButtonText: {
+    color: '#666'
+  },
+  outOfStockText: {
+    color: 'white',
+    fontSize: 10,
+    fontWeight: 'bold'
+  },
+  emptyTextContainer: { 
+    alignItems: 'center', 
+    justifyContent: 'center', 
+    paddingVertical: 50 
+  },
+  emptyText: { 
+    textAlign: 'center', 
+    color: '#666', 
+    fontSize: 16,
+    marginTop: 10 
+  },
+  errorText: { 
+    textAlign: 'center', 
+    marginTop: 50, 
+    color: 'red',
+    fontSize: 16 
+  },
 });
