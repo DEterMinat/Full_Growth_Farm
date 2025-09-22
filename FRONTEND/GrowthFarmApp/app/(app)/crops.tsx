@@ -1182,13 +1182,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 20,
+    paddingHorizontal: 12, // Minimal horizontal padding
+    paddingVertical: 40, // Minimal vertical padding
   },
   modalContainer: {
     width: '100%',
-    maxWidth: 400,
-    maxHeight: '95%',
+    maxWidth: '100%', // Ensure full width
+    height: '85%', // Use fixed height percentage
     backgroundColor: 'white',
     borderRadius: 20,
     overflow: 'hidden',
@@ -1202,8 +1202,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 16,
-    paddingBottom: 12,
+    padding: 20, // Increased from 16 to 20
+    paddingBottom: 16, // Increased from 12 to 16
     backgroundColor: '#f8fffe',
     borderBottomWidth: 1,
     borderBottomColor: '#e8f5e8',
@@ -1214,53 +1214,53 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerIconContainer: {
-    width: 40,
-    height: 40,
+    width: 48, // Increased from 40 to 48
+    height: 48, // Increased from 40 to 48
     backgroundColor: '#e8f5e8',
-    borderRadius: 20,
+    borderRadius: 24, // Adjusted to match new size
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: 16, // Increased from 12 to 16
   },
   modalTitle: {
-    fontSize: 18,
+    fontSize: 20, // Increased from 18 to 20
     fontWeight: 'bold',
     color: '#1a5d1a',
-    marginBottom: 2,
+    marginBottom: 4, // Increased from 2 to 4
   },
   modalSubtitle: {
-    fontSize: 12,
+    fontSize: 14, // Increased from 12 to 14
     color: '#666',
     fontWeight: '500',
   },
   closeButton: {
-    width: 32,
-    height: 32,
+    width: 40, // Increased from 32 to 40
+    height: 40, // Increased from 32 to 40
     backgroundColor: '#f0f0f0',
-    borderRadius: 16,
+    borderRadius: 20, // Adjusted to match new size
     alignItems: 'center',
     justifyContent: 'center',
   },
   modalContent: {
     flex: 1,
-    padding: 16,
-    paddingTop: 12,
+    padding: 20, // Increased padding from 16 to 20
+    paddingTop: 16,
   },
 
   // Modern Form Styles
   modernFormGroup: {
-    marginBottom: 16,
+    marginBottom: 20, // Increased from 16 to 20
   },
   modernFormRow: {
     flexDirection: 'row',
-    gap: 12,
-    marginBottom: 16,
+    gap: 16, // Increased gap from 12 to 16
+    marginBottom: 20, // Increased from 16 to 20
   },
   modernFormLabel: {
-    fontSize: 14,
+    fontSize: 16, // Increased from 14 to 16
     fontWeight: '600',
     color: '#1a5d1a',
-    marginBottom: 8,
+    marginBottom: 10, // Increased from 8 to 10
   },
   requiredStar: {
     color: '#e53e3e',
@@ -1273,34 +1273,34 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     borderColor: '#e8f5e8',
     borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 2,
-    minHeight: 44,
+    paddingHorizontal: 16, // Increased from 12 to 16
+    paddingVertical: 4, // Increased from 2 to 4
+    minHeight: 52, // Increased from 44 to 52
   },
   inputIcon: {
     marginRight: 8,
   },
   modernFormInput: {
     flex: 1,
-    fontSize: 14,
+    fontSize: 16, // Increased from 14 to 16
     color: '#333',
-    paddingVertical: 10,
-    minHeight: 18,
+    paddingVertical: 12, // Increased from 10 to 12
+    minHeight: 20, // Increased from 18 to 20
   },
   textAreaWrapper: {
     alignItems: 'flex-start',
-    paddingVertical: 6,
-    minHeight: 70,
+    paddingVertical: 8, // Increased from 6 to 8
+    minHeight: 80, // Increased from 70 to 80
   },
   textAreaIcon: {
     alignSelf: 'flex-start',
-    marginTop: 6,
+    marginTop: 8, // Increased from 6 to 8
   },
   modernTextArea: {
-    minHeight: 50,
-    maxHeight: 100,
+    minHeight: 60, // Increased from 50 to 60
+    maxHeight: 120, // Increased from 100 to 120
     textAlignVertical: 'top',
-    paddingTop: 6,
+    paddingTop: 8, // Increased from 6 to 8
   },
 
   // Modern Status Selection
@@ -1313,12 +1313,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 8,
+    paddingVertical: 16, // Increased from 12 to 16
+    paddingHorizontal: 12, // Increased from 8 to 12
     borderRadius: 12,
     borderWidth: 1.5,
     backgroundColor: 'white',
-    gap: 6,
+    gap: 8, // Increased from 6 to 8
   },
   healthyOption: {
     borderColor: '#c6f6d5',
@@ -1354,7 +1354,7 @@ const styles = StyleSheet.create({
     borderColor: '#F44336',
   },
   modernStatusText: {
-    fontSize: 12,
+    fontSize: 14, // Increased from 12 to 14
     fontWeight: '600',
   },
   modernStatusTextSelected: {
@@ -1364,16 +1364,16 @@ const styles = StyleSheet.create({
   // Modern Footer
   modernModalFooter: {
     flexDirection: 'row',
-    padding: 16,
-    paddingTop: 12,
+    padding: 20, // Increased from 16 to 20
+    paddingTop: 16, // Increased from 12 to 16
     backgroundColor: '#f8fffe',
     borderTopWidth: 1,
     borderTopColor: '#e8f5e8',
-    gap: 10,
+    gap: 12, // Increased from 10 to 12
   },
   modernCancelButton: {
     flex: 1,
-    padding: 12,
+    padding: 16, // Increased from 12 to 16
     borderRadius: 12,
     backgroundColor: '#f5f5f5',
     alignItems: 'center',
@@ -1382,7 +1382,7 @@ const styles = StyleSheet.create({
   },
   modernSaveButton: {
     flex: 2,
-    padding: 12,
+    padding: 16, // Increased from 12 to 16
     borderRadius: 12,
     backgroundColor: '#4CAF50',
     alignItems: 'center',
@@ -1407,12 +1407,12 @@ const styles = StyleSheet.create({
   },
   modernCancelButtonText: {
     color: '#666',
-    fontSize: 14,
+    fontSize: 16, // Increased from 14 to 16
     fontWeight: '600',
   },
   modernSaveButtonText: {
     color: 'white',
-    fontSize: 14,
+    fontSize: 16, // Increased from 14 to 16
     fontWeight: '700',
   },
   // Crop card action styles
@@ -1449,7 +1449,7 @@ const styles = StyleSheet.create({
   // Modern Update Button (different color from Save)
   modernUpdateButton: {
     flex: 2,
-    padding: 12,
+    padding: 16, // Increased from 12 to 16
     borderRadius: 12,
     backgroundColor: '#2196F3',
     alignItems: 'center',
@@ -1460,7 +1460,7 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   modalFormPadding: {
-    height: 12,
+    height: 16, // Increased from 12 to 16
   },
 
   // Old Modal styles (keeping for compatibility)
