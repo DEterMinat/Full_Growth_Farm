@@ -22,6 +22,13 @@ import {
   UpdateCropRequest
 } from '@/src/services/cropsService';
 
+// PDF generation for web
+declare global {
+  interface Window {
+    jsPDF: any;
+  }
+}
+
 export default function Crops() {
   const { t } = useTranslation();
   const [crops, setCrops] = useState<Crop[]>([]);
@@ -271,32 +278,235 @@ export default function Crops() {
     }
   };
 
+  // Load jsPDF dynamically with better error handling
+  const loadJsPDF = () => {
+    return new Promise((resolve, reject) => {
+      // Check if running on web platform
+      if (Platform.OS !== 'web') {
+        reject(new Error('PDF generation only available on web platform'));
+        return;
+      }
+
+      if (window.jsPDF) {
+        resolve(window.jsPDF);
+        return;
+      }
+      
+      const script = document.createElement('script');
+      script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      script.onload = () => {
+        // Add a small delay to ensure jsPDF is fully loaded
+        setTimeout(() => {
+          if (window.jsPDF) {
+            resolve(window.jsPDF);
+          } else {
+            reject(new Error('jsPDF failed to load properly'));
+          }
+        }, 100);
+      };
+      script.onerror = () => reject(new Error('Failed to load jsPDF library'));
+      document.head.appendChild(script);
+    });
+  };
+
   // Export functionality
-  const generateCSV = (data: Crop[]) => {
-    // Use translation key to detect language more reliably
+  const generatePDF = async (data: Crop[]) => {
+    try {
+      const jsPDFLib = await loadJsPDF() as any;
+      const { jsPDF } = jsPDFLib;
+      const doc = new jsPDF();
+      
+      // Use translation key to detect language more reliably
+      const isEnglish = t('crops.crops_management').includes('Crop') || 
+                        t('crops.current_crops').toLowerCase().includes('current');
+      
+      const currentDate = new Date().toLocaleDateString(isEnglish ? 'en-US' : 'th-TH', {
+        year: 'numeric',
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+
+      const title = isEnglish 
+        ? 'CROP DATA REPORT - Growth Farm Management System'
+        : 'รายงานข้อมูลพืชผล - Growth Farm Management System';
+
+      const labels = isEnglish ? {
+        reportDate: 'Report Date',
+        totalCrops: 'Total Crops',
+        totalArea: 'Total Area',
+        cropDetails: 'CROP DETAILS',
+        variety: 'Variety',
+        area: 'Area',
+        stage: 'Growth Stage', 
+        plantingDate: 'Planting Date',
+        harvestDate: 'Expected Harvest',
+        notes: 'Notes',
+        noVariety: 'Not specified',
+        noNotes: 'No additional notes',
+        contact: 'For more information, please contact technical support',
+        generated: 'This report was automatically generated on'
+      } : {
+        reportDate: 'วันที่สร้างรายงาน',
+        totalCrops: 'จำนวนพืชผลทั้งหมด', 
+        totalArea: 'พื้นที่รวม',
+        cropDetails: 'รายละเอียดพืชผล',
+        variety: 'พันธุ์',
+        area: 'พื้นที่',
+        stage: 'ระยะการเจริญเติบโต',
+        plantingDate: 'วันที่ปลูก',
+        harvestDate: 'วันที่เก็บเกี่ยวคาดการณ์',
+        notes: 'หมายเหตุ', 
+        noVariety: 'ไม่ระบุ',
+        noNotes: 'ไม่มีหมายเหตุเพิ่มเติม',
+        contact: 'สำหรับข้อมูลเพิ่มเติม กรุณาติดต่อฝ่ายเทคนิค',
+        generated: 'รายงานนี้สร้างขึ้นโดยอัตโนมัติเมื่อ'
+      };
+
+      const totalAreaNumber = data.reduce((sum, crop) => sum + (Number(crop.area) || 0), 0);
+      const totalArea = totalAreaNumber.toFixed(1);
+      const areaUnit = data.length > 0 ? data[0].areaUnit : (isEnglish ? 'acres' : 'ไร่');
+
+      // PDF Setup
+      let yPosition = 20;
+      const lineHeight = 7;
+      const pageHeight = 280;
+      const leftMargin = 20;
+      
+      // Title
+      doc.setFontSize(16);
+      doc.setFont(undefined, 'bold');
+      doc.text(title, leftMargin, yPosition);
+      yPosition += lineHeight * 2;
+      
+      // Separator line
+      doc.line(leftMargin, yPosition, 190, yPosition);
+      yPosition += lineHeight;
+      
+      // Summary Info
+      doc.setFontSize(12);
+      doc.setFont(undefined, 'normal');
+      doc.text(`${labels.reportDate}: ${currentDate}`, leftMargin, yPosition);
+      yPosition += lineHeight;
+      doc.text(`${labels.totalCrops}: ${data.length} ${isEnglish ? 'items' : 'รายการ'}`, leftMargin, yPosition);
+      yPosition += lineHeight;
+      doc.text(`${labels.totalArea}: ${totalArea} ${areaUnit}`, leftMargin, yPosition);
+      yPosition += lineHeight * 2;
+      
+      // Section Header
+      doc.line(leftMargin, yPosition, 190, yPosition);
+      yPosition += lineHeight;
+      doc.setFont(undefined, 'bold');
+      doc.text(labels.cropDetails, leftMargin, yPosition);
+      yPosition += lineHeight;
+      doc.line(leftMargin, yPosition, 190, yPosition);
+      yPosition += lineHeight * 1.5;
+      
+      // Crop Details
+      doc.setFont(undefined, 'normal');
+      data.forEach((crop, index) => {
+        // Check if we need a new page
+        if (yPosition > pageHeight) {
+          doc.addPage();
+          yPosition = 20;
+        }
+        
+        const plantingDate = new Date(crop.plantingDate).toLocaleDateString(isEnglish ? 'en-US' : 'th-TH');
+        const harvestDate = new Date(crop.expectedHarvestDate).toLocaleDateString(isEnglish ? 'en-US' : 'th-TH');
+        const daysToHarvest = Math.ceil((new Date(crop.expectedHarvestDate).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
+        
+        // Crop header
+        doc.setFont(undefined, 'bold');
+        doc.text(`${index + 1}. ${crop.name}`, leftMargin, yPosition);
+        yPosition += lineHeight;
+        
+        // Crop details
+        doc.setFont(undefined, 'normal');
+        doc.text(`${labels.variety}: ${crop.variety || labels.noVariety}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        doc.text(`${labels.area}: ${crop.area} ${crop.areaUnit}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        doc.text(`${labels.stage}: ${crop.stage}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        doc.text(`${labels.plantingDate}: ${plantingDate}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        doc.text(`${labels.harvestDate}: ${harvestDate}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        
+        const daysText = daysToHarvest > 0 ? `${daysToHarvest} ${isEnglish ? 'days' : 'วัน'}` : (isEnglish ? 'Ready to harvest' : 'ถึงเวลาเก็บเกี่ยวแล้ว');
+        doc.text(`${isEnglish ? 'Days remaining' : 'คงเหลือ'}: ${daysText}`, leftMargin + 5, yPosition);
+        yPosition += lineHeight;
+        
+        const notes = crop.notes || labels.noNotes;
+        const maxWidth = 170;
+        const splitNotes = doc.splitTextToSize(`${labels.notes}: ${notes}`, maxWidth);
+        doc.text(splitNotes, leftMargin + 5, yPosition);
+        yPosition += lineHeight * splitNotes.length;
+        yPosition += lineHeight; // Extra space between crops
+      });
+      
+      // Footer
+      if (yPosition > pageHeight - 30) {
+        doc.addPage();
+        yPosition = 20;
+      }
+      
+      yPosition += lineHeight;
+      doc.line(leftMargin, yPosition, 190, yPosition);
+      yPosition += lineHeight;
+      doc.setFont(undefined, 'bold');
+      doc.text('Growth Farm Management System', leftMargin, yPosition);
+      yPosition += lineHeight;
+      doc.setFont(undefined, 'normal');
+      doc.text(labels.contact, leftMargin, yPosition);
+      yPosition += lineHeight;
+      doc.text(`${labels.generated} ${currentDate}`, leftMargin, yPosition);
+      
+      return doc;
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
+
+  // Simple fallback export method
+  const exportAsTextFile = (data: Crop[]) => {
     const isEnglish = t('crops.crops_management').includes('Crop') || 
                       t('crops.current_crops').toLowerCase().includes('current');
     
-    const headers = isEnglish
-      ? ['Name', 'Variety', 'Area', 'Unit', 'Stage', 'Planting Date', 'Harvest Date', 'Notes']
-      : ['ชื่อพืชผล', 'พันธุ์', 'พื้นที่', 'หน่วย', 'ระยะการเจริญเติบโต', 'วันที่ปลูก', 'วันที่เก็บเกี่ยว', 'หมายเหตุ'];
+    const currentDate = new Date().toLocaleDateString(isEnglish ? 'en-US' : 'th-TH');
+    const title = isEnglish 
+      ? '🌱 CROP DATA REPORT - Growth Farm Management System'
+      : '🌱 รายงานข้อมูลพืชผล - Growth Farm Management System';
+
+    let report = `${title}\n${'='.repeat(60)}\n\n`;
+    report += `📅 ${isEnglish ? 'Report Date' : 'วันที่'}: ${currentDate}\n`;
+    report += `📊 ${isEnglish ? 'Total Crops' : 'จำนวนพืชผล'}: ${data.length}\n\n`;
     
-    const csvHeaders = headers.join(',');
-    const csvRows = data.map(crop => [
-      `"${crop.name}"`,
-      `"${crop.variety || ''}"`,
-      crop.area,
-      `"${crop.areaUnit}"`,
-      `"${crop.stage}"`,
-      `"${new Date(crop.plantingDate).toLocaleDateString()}"`,
-      `"${new Date(crop.expectedHarvestDate).toLocaleDateString()}"`,
-      `"${crop.notes || ''}"`
-    ].join(','));
-    
-    return [csvHeaders, ...csvRows].join('\n');
+    data.forEach((crop, index) => {
+      report += `${index + 1}. ${crop.name}\n`;
+      report += `   ${isEnglish ? 'Variety' : 'พันธุ์'}: ${crop.variety || 'N/A'}\n`;
+      report += `   ${isEnglish ? 'Area' : 'พื้นที่'}: ${crop.area} ${crop.areaUnit}\n`;
+      report += `   ${isEnglish ? 'Stage' : 'ระยะ'}: ${crop.stage}\n`;
+      report += `   ${isEnglish ? 'Planted' : 'วันปลูก'}: ${new Date(crop.plantingDate).toLocaleDateString()}\n`;
+      report += `   ${isEnglish ? 'Harvest' : 'วันเก็บเกี่ยว'}: ${new Date(crop.expectedHarvestDate).toLocaleDateString()}\n\n`;
+    });
+
+    const blob = new Blob([report], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `Crop_Report_${new Date().toISOString().split('T')[0]}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
-  const handleExportData = () => {
+  const handleExportData = async () => {
+    console.log('🚀 Export button clicked!');
+    
     if (crops.length === 0) {
       Alert.alert(
         t('export.no_data') || 'ไม่มีข้อมูล',
@@ -306,33 +516,78 @@ export default function Crops() {
       return;
     }
 
-    // Use more reliable language detection
     const isEnglish = t('crops.crops_management').includes('Crop') || 
                       t('crops.current_crops').toLowerCase().includes('current');
-    
-    const csvContent = generateCSV(crops);
-    
-    // Create downloadable content
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = isEnglish 
-      ? `crop_data_${new Date().toISOString().split('T')[0]}.csv`
-      : `ข้อมูลพืชผล_${new Date().toISOString().split('T')[0]}.csv`;
-    
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
 
-    Alert.alert(
-      isEnglish ? 'Export Successful' : 'Export สำเร็จ',
-      isEnglish 
-        ? `Crop data exported successfully! (${crops.length} items)`
-        : `ข้อมูลพืชผลถูก Export เรียบร้อยแล้ว! (${crops.length} รายการ)`,
-      [{ text: isEnglish ? 'OK' : 'ตกลง' }]
-    );
+    // For mobile, just show alert with data summary
+    if (Platform.OS !== 'web') {
+      console.log('📱 Mobile platform - showing data summary');
+      const summary = crops.map((crop, i) => `${i+1}. ${crop.name} (${crop.area} ${crop.areaUnit})`).join('\n');
+      
+      Alert.alert(
+        isEnglish ? '📊 Crop Data Summary' : '📊 สรุปข้อมูลพืชผล',
+        `${isEnglish ? 'Total crops' : 'จำนวนพืชผล'}: ${crops.length}\n\n${summary}`,
+        [
+          { text: isEnglish ? 'OK' : 'ตกลง' },
+          { 
+            text: isEnglish ? 'Copy to Clipboard' : 'คัดลอก', 
+            onPress: () => {
+              // For mobile, we could use Clipboard API if available
+              console.log('� Copy to clipboard requested');
+            }
+          }
+        ]
+      );
+      return;
+    }
+
+    try {
+      console.log('💻 Web platform detected');
+      
+      // Try PDF first, fallback to text if PDF fails
+      try {
+        console.log('📄 Attempting PDF generation');
+        const pdfDoc = await generatePDF(crops);
+        
+        const fileName = isEnglish 
+          ? `Crop_Data_Report_${new Date().toISOString().split('T')[0]}.pdf`
+          : `รายงานข้อมูลพืชผล_${new Date().toISOString().split('T')[0]}.pdf`;
+        
+        pdfDoc.save(fileName);
+        console.log('✅ PDF saved successfully');
+
+        Alert.alert(
+          isEnglish ? '🎉 PDF Export Successful!' : '🎉 PDF Export สำเร็จ!',
+          isEnglish 
+            ? `PDF report downloaded: ${fileName}`
+            : `ไฟล์ PDF ถูกดาวน์โหลด: ${fileName}`,
+          [{ text: isEnglish ? 'OK' : 'ตกลง' }]
+        );
+        
+      } catch (pdfError) {
+        console.log('❌ PDF generation failed, using text fallback:', pdfError);
+        exportAsTextFile(crops);
+        
+        Alert.alert(
+          isEnglish ? '📄 Text Export Successful!' : '📄 Export ไฟล์ข้อความสำเร็จ!',
+          isEnglish 
+            ? 'Report exported as text file (PDF generation unavailable)'
+            : 'ส่งออกเป็นไฟล์ข้อความ (ไม่สามารถสร้าง PDF ได้)',
+          [{ text: isEnglish ? 'OK' : 'ตกลง' }]
+        );
+      }
+      
+    } catch (error) {
+      console.error('❌ Export failed completely:', error);
+      
+      Alert.alert(
+        isEnglish ? 'Export Error' : 'เกิดข้อผิดพลาด',
+        isEnglish 
+          ? 'Unable to export data. Please try again.'
+          : 'ไม่สามารถส่งออกข้อมูลได้ กรุณาลองใหม่',
+        [{ text: isEnglish ? 'OK' : 'ตกลง' }]
+      );
+    }
   };
 
   // Filter crops based on search text
