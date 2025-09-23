@@ -1,11 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { router } from 'expo-router';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
-import { User } from '@/src/services/authService';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 
 export default function Profile() {
   const { t } = useTranslation();
@@ -69,9 +68,12 @@ export default function Profile() {
             </View>
           )}
         </View>
-        <TouchableOpacity style={styles.editButton}>
-          <MaterialIcons name="edit" size={18} color="white" />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <LanguageToggleButton size="small" />
+          <TouchableOpacity style={styles.editButton}>
+            <MaterialIcons name="edit" size={18} color="white" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
@@ -275,6 +277,11 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   profileIcon: {
     marginRight: 8,

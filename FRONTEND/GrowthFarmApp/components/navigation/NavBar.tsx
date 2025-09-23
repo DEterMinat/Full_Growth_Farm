@@ -40,32 +40,28 @@ export default function NavBar() {
       isActive: false
     },
     {
-      id: 'home',
-      label: t('navigation.dashboard') || 'Home',
-      icon: 'home',
-      route: '/(app)/dashboard',
-      //isActive: activeTab === 'home' || activeTab === '/(app)/dashboard'
-    },
-    {
       id: 'crops',
       label: t('navigation.crops') || 'Crops',
       icon: 'grass',
-      route: '/(app)/crops',
-      //isActive: activeTab === 'crops' || activeTab === '/(app)/crops'
+      route: '/(app)/crops'
+    },
+    {
+      id: 'home',
+      label: t('navigation.dashboard') || 'Home',
+      icon: 'home',
+      route: '/(app)/dashboard'
     },
     {
       id: 'marketplace',
       label: t('navigation.marketplace') || 'Marketplace',
       icon: 'storefront',
-      route: '/(app)/marketplace',
-      //isActive: activeTab === 'marketplace' || activeTab === '/(app)/marketplace'
+      route: '/(app)/marketplace'
     },
     {
       id: 'profile',
       label: t('navigation.profile') || 'Profile',
       icon: 'person',
-      route: '/(app)/profile',
-      //isActive: activeTab === 'profile' || activeTab === '/(app)/profile'
+      route: '/(app)/profile'
     }
   ];
 
@@ -111,7 +107,7 @@ export default function NavBar() {
                   <MaterialIcons 
                     name={tab.icon as any} 
                     size={20} 
-                    color={isActive ? "#4CAF50" : "#666"}
+                    color={isActive ? "#2E7D32" : "#666"}
                     style={styles.tabIcon}
                   />
                   <Text style={[
@@ -173,7 +169,14 @@ const styles = StyleSheet.create({
     borderRadius: 20,
   },
   activeTabButton: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#E8F5E8',
+    borderWidth: 1,
+    borderColor: '#4CAF50',
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
   },
   tabContent: {
     alignItems: 'center',
@@ -192,8 +195,11 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   activeTabLabel: {
-    color: '#4CAF50',
-    fontWeight: '600',
+    color: '#2E7D32',
+    fontWeight: '700',
+    textShadowColor: 'rgba(76, 175, 80, 0.3)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   menuIcon: {
     marginBottom: 2,

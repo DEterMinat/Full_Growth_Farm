@@ -4,6 +4,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import Animated, { FadeInUp, SlideInLeft } from 'react-native-reanimated';
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { marketplaceService, Product } from '@/src/services/marketplaceService';
 
 export default function MarketplaceScreen() {
@@ -178,7 +179,10 @@ export default function MarketplaceScreen() {
         contentContainerStyle={{ paddingBottom: 120 }} // <-- Add this line
       >
         <Animated.View style={styles.searchSection} entering={FadeInUp.duration(600)}>
-          <Text style={styles.marketplaceTitle}>{t('navigation.marketplace') || 'Marketplace'}</Text>
+          <View style={styles.marketplaceHeader}>
+            <Text style={styles.marketplaceTitle}>{t('navigation.marketplace') || 'Marketplace'}</Text>
+            <LanguageToggleButton size="small" />
+          </View>
         </Animated.View>
 
         {/* Market News & Updates */}
@@ -277,8 +281,13 @@ export default function MarketplaceScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f8f9fa' },
   content: { flex: 1 },
-  searchSection: { backgroundColor: 'white', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
-  marketplaceTitle: { fontSize: 28, fontWeight: 'bold', color: '#333', marginBottom: 15 },
+  searchSection: { backgroundColor: '#4CAF50', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  marketplaceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  marketplaceTitle: { fontSize: 28, fontWeight: 'bold', color: 'white', marginBottom: 0 },
   productsSearchSection: { backgroundColor: 'white', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   searchProductsTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', marginBottom: 15 },
   searchContainer: { flexDirection: 'row', alignItems: 'center' },

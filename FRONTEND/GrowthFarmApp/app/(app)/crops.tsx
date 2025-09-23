@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import {
   cropsService,
   Crop,
@@ -236,9 +237,12 @@ export default function Crops() {
           <MaterialIcons name="grass" size={24} color="#4CAF50" style={styles.leafIcon} />
           <Text style={styles.brandText}>{t('crops.crops_management')}</Text>
         </View>
-        <TouchableOpacity style={styles.filterButton}>
-          <MaterialIcons name="settings" size={20} color="#666" style={styles.filterIcon} />
-        </TouchableOpacity>
+        <View style={styles.headerRight}>
+          <LanguageToggleButton size="small" />
+          <TouchableOpacity style={styles.filterButton}>
+            <MaterialIcons name="settings" size={20} color="#666" style={styles.filterIcon} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Search Section */}
@@ -973,6 +977,11 @@ const styles = StyleSheet.create({
   headerLeft: {
     flexDirection: 'row',
     alignItems: 'center',
+  },
+  headerRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   leafIcon: {
     fontSize: 18,

@@ -48,20 +48,12 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
 
   const menuItems = [
     {
-      id: 'dashboard',
-      title: t('sidemenu.dashboard_title'),
-      subtitle: t('sidemenu.dashboard_subtitle'),
-      icon: 'dashboard',
-      color: '#10B981',
-      route: '/(app)/dashboard'
-    },
-    {
-      id: 'crops',
-      title: t('sidemenu.crop_management_title'),
-      subtitle: t('sidemenu.crop_management_subtitle'),
-      icon: 'grass',
-      color: '#059669',
-      route: '/(app)/crops'
+      id: 'voice-ai',
+      title: t('sidemenu.voice_ai_title'),
+      subtitle: t('sidemenu.voice_ai_subtitle'),
+      icon: 'mic',
+      color: '#8B5CF6',
+      route: '/(app)/voice-ai'
     },
     {
       id: 'iot-control',
@@ -72,14 +64,6 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       route: '/(app)/iot-control'
     },
     {
-      id: 'marketplace',
-      title: t('sidemenu.marketplace_title'),
-      subtitle: t('sidemenu.marketplace_subtitle'),
-      icon: 'shopping-cart',
-      color: '#9C27B0',
-      route: '/(app)/marketplace'
-    },
-    {
       id: 'notifications',
       title: t('sidemenu.notifications_title'),
       subtitle: t('sidemenu.notifications_subtitle'),
@@ -88,20 +72,12 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       route: '/(app)/notifications'
     },
     {
-      id: 'voice-ai',
-      title: t('sidemenu.voice_ai_title'),
-      subtitle: t('sidemenu.voice_ai_subtitle'),
-      icon: 'mic',
-      color: '#8B5CF6',
-      route: '/(app)/voice-ai'
-    },
-    {
-      id: 'profile',
-      title: t('sidemenu.profile_title'),
-      subtitle: t('sidemenu.profile_subtitle'),
-      icon: 'person',
-      color: '#6B7280',
-      route: '/(app)/profile'
+      id: 'export-data',
+      title: t('sidemenu.export_data_title') || 'Export',
+      subtitle: t('sidemenu.export_data_subtitle') || 'ส่งออกข้อมูลการเกษตร',
+      icon: 'file-download',
+      color: '#06B6D4',
+      route: '/(app)/export-data'
     },
   ];
 
@@ -127,8 +103,8 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       console.log('🔄 Starting logout process...');
       
       // Call logout directly - it should handle navigation
-      console.log('🎯 SideMenu calling logout(true)...');
-      await logout(true);
+      console.log('🎯 SideMenu calling logout()...');
+      await logout();
       
     } catch (error) {
       console.error('❌ SideMenu logout error:', error);
