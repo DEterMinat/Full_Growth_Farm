@@ -10,6 +10,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 
 export default function NotificationsScreen() {
   const { t } = useTranslation();
@@ -130,8 +131,15 @@ export default function NotificationsScreen() {
     <View style={styles.container}>
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <MaterialIcons name="notifications" size={32} color="#FF9800" style={styles.headerIcon} />
-          <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
+          <View style={styles.headerContent}>
+            <View style={styles.headerCenter}>
+              <MaterialIcons name="notifications" size={24} color="white" style={styles.headerIcon} />
+              <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
+            </View>
+            <View style={styles.headerRight}>
+              <LanguageToggleButton size="small" />
+            </View>
+          </View>
           <Text style={styles.headerSubtitle}>{t('notifications.stay_updated')}</Text>
         </View>
 
@@ -280,7 +288,7 @@ export default function NotificationsScreen() {
         <View style={{ height: 120 }} />
       </ScrollView>
 
-      <NavBar currentRoute="notifications" />
+      <NavBar />
     </View>
   );
 }
@@ -295,24 +303,55 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   header: {
+    backgroundColor: '#4CAF50',
+    paddingVertical: 20,
+    paddingTop: 50,
+    paddingHorizontal: 0,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  headerContent: {
+    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 40,
-    paddingTop: 60,
+    marginBottom: 8,
+    paddingHorizontal: 20,
+    position: 'relative',
+  },
+  headerCenter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerRight: {
+    position: 'absolute',
+    right: 20,
+    top: 0,
+    bottom: 0,
+    justifyContent: 'center',
   },
   headerIcon: {
-    fontSize: 48,
-    marginBottom: 10,
+    fontSize: 24,
+    marginRight: 8,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
+    color: 'white',
   },
   headerSubtitle: {
-    fontSize: 16,
-    color: '#666',
+    fontSize: 14,
+    color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
+    paddingHorizontal: 20,
   },
   summarySection: {
     flexDirection: 'row',
@@ -346,7 +385,7 @@ const styles = StyleSheet.create({
   // Search Section Styles
   searchSection: {
     backgroundColor: 'white',
-    marginHorizontal: 20,
+    marginHorizontal: 0,
     marginBottom: 15,
     borderRadius: 12,
     padding: 20,

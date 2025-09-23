@@ -13,51 +13,27 @@ export default function ExportDataScreen() {
   const exportOptions = [
     {
       id: 'crop-data',
-      title: t('export.crop_data_title') || 'ข้อมูลการเพาะปลูก',
-      subtitle: t('export.crop_data_subtitle') || 'ประวัติการปลูก, ผลผลิต, การดูแล',
+      title: t('export.crop_data_title') || 'ข้อมูลพืชผลของตัวเอง',
+      subtitle: t('export.crop_data_subtitle') || 'ประวัติการปลูก, ผลผลิต, การดูแลของคุณ',
       icon: 'grass',
       color: '#059669',
       format: t('export.format_csv_excel') || 'CSV, Excel'
     },
     {
-      id: 'iot-data',
-      title: t('export.iot_data_title') || 'ข้อมูล IoT',
-      subtitle: t('export.iot_data_subtitle') || 'ค่าเซ็นเซอร์, อุณหภูมิ, ความชื้น',
-      icon: 'sensors',
-      color: '#3B82F6',
-      format: t('export.format_json_csv') || 'JSON, CSV'
-    },
-    {
-      id: 'weather-data',
-      title: t('export.weather_data_title') || 'ข้อมูลสภาพอากาศ',
-      subtitle: t('export.weather_data_subtitle') || 'ประวัติสภาพอากาศ, พยากรณ์',
-      icon: 'cloud',
-      color: '#06B6D4',
-      format: t('export.format_csv_json') || 'CSV, JSON'
-    },
-    {
       id: 'marketplace-data',
       title: t('export.marketplace_data_title') || 'ข้อมูลตลาด',
-      subtitle: t('export.marketplace_data_subtitle') || 'ราคาสินค้า, ประวัติการซื้อขาย',
+      subtitle: t('export.marketplace_data_subtitle') || 'ราคาสินค้า, ข้อมูลการซื้อขาย',
       icon: 'trending-up',
       color: '#9C27B0',
       format: t('export.format_excel_pdf') || 'Excel, PDF'
     },
     {
-      id: 'financial-data',
-      title: t('export.financial_data_title') || 'ข้อมูลการเงิน',
-      subtitle: t('export.financial_data_subtitle') || 'รายได้, ค่าใช้จ่าย, กำไร-ขาดทุน',
-      icon: 'account-balance',
-      color: '#F59E0B',
-      format: t('export.format_excel_pdf') || 'Excel, PDF'
-    },
-    {
-      id: 'all-data',
-      title: t('export.all_data_title') || 'ข้อมูลทั้งหมด',
-      subtitle: t('export.all_data_subtitle') || 'รวมข้อมูลทุกประเภทในไฟล์เดียว',
-      icon: 'folder-zip',
-      color: '#EF4444',
-      format: t('export.format_zip') || 'ZIP Archive'
+      id: 'weather-data',
+      title: t('export.weather_data_title') || 'ข้อมูลสภาพอากาศ',
+      subtitle: t('export.weather_data_subtitle') || 'ประวัติสภาพอากาศ, พยากรณ์อากาศ',
+      icon: 'cloud',
+      color: '#06B6D4',
+      format: t('export.format_csv_json') || 'CSV, JSON'
     }
   ];
 
@@ -93,15 +69,15 @@ export default function ExportDataScreen() {
           style={styles.header}
         >
           <View style={styles.headerContent}>
-            <MaterialIcons name="file-download" size={32} color="#059669" />
-            <View style={styles.headerText}>
+            <View style={styles.headerLeft}>
+              <MaterialIcons name="file-download" size={24} color="white" />
               <Text style={styles.headerTitle}>{t('export.page_title') || 'Export ข้อมูล'}</Text>
-              <Text style={styles.headerSubtitle}>{t('export.page_subtitle') || 'ส่งออกข้อมูลการเกษตรของคุณ'}</Text>
             </View>
-            <View style={styles.languageButton}>
-              <LanguageToggleButton />
+            <View style={styles.headerRight}>
+              <LanguageToggleButton size="small" />
             </View>
           </View>
+          <Text style={styles.headerSubtitle}>{t('export.page_subtitle') || 'ส่งออกข้อมูลการเกษตรของคุณ'}</Text>
         </Animated.View>
 
         {/* Export Options */}
@@ -131,7 +107,7 @@ export default function ExportDataScreen() {
                   <MaterialIcons name="download" size={20} color="#666" />
                 </View>
                 <View style={styles.optionFooter}>
-                  <Text style={styles.formatText}>รูปแบบ: {option.format}</Text>
+                  <Text style={styles.formatText}>{t('export.format_label') || 'รูปแบบ'}: {option.format}</Text>
                 </View>
               </TouchableOpacity>
             </Animated.View>
@@ -166,10 +142,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    backgroundColor: 'white',
-    margin: 20,
-    borderRadius: 16,
+    backgroundColor: '#4CAF50',
+    marginHorizontal: 0,
+    marginTop: 0,
+    borderRadius: 0,
     padding: 20,
+    paddingTop: 50,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -178,27 +156,36 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
+    marginBottom: 8,
+  },
+  headerLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  headerRight: {
+    marginLeft: 12,
   },
   headerText: {
     marginLeft: 16,
     flex: 1,
   },
-  languageButton: {
-    marginLeft: 12,
-  },
   headerTitle: {
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: 'bold',
-    color: '#1a1a1a',
-    marginBottom: 4,
+    color: 'white',
+    marginLeft: 8,
   },
   headerSubtitle: {
     fontSize: 14,
-    color: '#666',
+    color: 'rgba(255, 255, 255, 0.9)',
+    marginTop: 4,
   },
   optionsContainer: {
     paddingHorizontal: 20,
+    marginTop: 20,
   },
   optionCard: {
     backgroundColor: 'white',
