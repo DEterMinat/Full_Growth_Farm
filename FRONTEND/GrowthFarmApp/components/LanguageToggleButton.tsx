@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { TouchableOpacity, Text, StyleSheet, View, Animated } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useLanguage } from '../src/contexts/LanguageContext';
-import { useThemeColor } from '../hooks/useThemeColor';
 
 interface LanguageToggleButtonProps {
   size?: 'small' | 'medium' | 'large';
@@ -17,9 +16,6 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
 }) => {
   const { t } = useTranslation();
   const { currentLanguage, toggleLanguage } = useLanguage();
-  const backgroundColor = useThemeColor({}, 'background');
-  const textColor = useThemeColor({}, 'text');
-  const tintColor = useThemeColor({}, 'tint');
   
   const [isPressed, setIsPressed] = useState(false);
   const [scaleAnim] = useState(new Animated.Value(1));
@@ -27,15 +23,15 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
   const getSize = () => {
     switch (size) {
       case 'small':
-        return { width: 32, height: 32, iconSize: 16, fontSize: 12 };
+        return { width: 28, height: 28, fontSize: 10, paddingHorizontal: 6 };
       case 'large':
-        return { width: 48, height: 48, iconSize: 28, fontSize: 18 };
+        return { width: 48, height: 48, fontSize: 16, paddingHorizontal: 12 };
       default:
-        return { width: 40, height: 40, iconSize: 24, fontSize: 14 };
+        return { width: 36, height: 36, fontSize: 12, paddingHorizontal: 8 };
     }
   };
 
-  const { width, height, iconSize, fontSize } = getSize();
+  const { width, height, fontSize, paddingHorizontal } = getSize();
 
   const handleToggle = async () => {
     await toggleLanguage();
@@ -57,23 +53,21 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
     }).start();
   };
 
-  // Enhanced color scheme - White theme
+  // Enhanced color scheme - Green theme compatible
   const getButtonColors = () => {
-    const isTheme = currentLanguage === 'th';
-    
     return {
       background: isPressed 
-        ? '#f8f8f8' 
-        : '#ffffff',
+        ? 'rgba(255, 255, 255, 0.9)' 
+        : 'rgba(255, 255, 255, 0.15)',
       border: isPressed 
-        ? '#e0e0e0' 
-        : '#f0f0f0',
+        ? 'rgba(255, 255, 255, 0.8)' 
+        : 'rgba(255, 255, 255, 0.3)',
       shadowColor: isPressed 
-        ? '#d0d0d0' 
-        : '#e8e8e8',
+        ? 'rgba(0, 0, 0, 0.2)' 
+        : 'rgba(0, 0, 0, 0.1)',
       iconColor: isPressed 
-        ? '#666666' 
-        : '#333333',
+        ? '#4CAF50' 
+        : '#ffffff',
     };
   };
 
@@ -90,6 +84,7 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
             backgroundColor: colors.background,
             borderColor: colors.border,
             shadowColor: colors.shadowColor,
+            paddingHorizontal: showText ? paddingHorizontal + 4 : paddingHorizontal,
           },
           styles.enhancedShadow,
           style,
@@ -118,11 +113,10 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: 20,
-    borderWidth: 2,
+    borderRadius: 16,
+    borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 8,
   },
   enhancedShadow: {
     shadowOffset: {

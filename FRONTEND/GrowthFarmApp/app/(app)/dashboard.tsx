@@ -188,7 +188,9 @@ export default function Dashboard() {
         </View>
         <View style={styles.headerRight}>
           <View style={styles.welcomeContainer}>
-            <Text style={styles.welcomeUser}>{t('dashboard.hi_user')}, {currentUser?.fullName || currentUser?.username}!</Text>
+            <Text style={styles.welcomeUser} numberOfLines={1} ellipsizeMode="tail">
+              {t('dashboard.hi_user')}, {currentUser?.fullName || currentUser?.username}!
+            </Text>
           </View>
           <LanguageToggleButton size="small" style={styles.languageButton} />
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
@@ -593,12 +595,13 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: '#4CAF50',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    paddingTop: 60,
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    paddingTop: Platform.OS === 'ios' ? 60 : 55,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    minHeight: Platform.OS === 'ios' ? 100 : 95,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -616,26 +619,34 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
+    maxWidth: '60%',
   },
   languageButton: {
-    marginBottom: 5,
-    marginRight: 10,
+    marginBottom: 0,
+    marginRight: 8,
+    marginLeft: 4,
   },
   welcomeContainer: {
-    marginRight: 10,
+    marginRight: 8,
+    flex: 1,
+    maxWidth: 120,
   },
   welcomeUser: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 11,
     marginBottom: 5,
+    textAlign: 'right',
   },
   profileButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 17.5,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 4,
   },
   content: {
     flex: 1,
