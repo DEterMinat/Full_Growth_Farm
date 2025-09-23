@@ -95,52 +95,7 @@ export default function Crops() {
     try {
       setLoading(true);
       const fetchedCrops = await cropsService.getAllCrops();
-      
-      // เพิ่มข้อมูลตัวอย่างเพื่อทดสอบ status ทั้ง 3 แบบ
-      const testCrops: Crop[] = [
-        {
-          id: 999,
-          name: 'Test Healthy Crop',
-          variety: 'Premium Variety',
-          plantingDate: '2024-01-15',
-          expectedHarvestDate: '2024-06-15',
-          area: 10.5,
-          areaUnit: 'acres',
-          stage: 'Flowering',
-          status: 'healthy',
-          farmId: 1,
-          notes: 'This crop is in excellent condition'
-        },
-        {
-          id: 998,
-          name: 'Test Monitor Crop',
-          variety: 'Standard Variety',
-          plantingDate: '2024-02-01',
-          expectedHarvestDate: '2024-07-01',
-          area: 5.2,
-          areaUnit: 'acres',
-          stage: 'Vegetative',
-          status: 'monitor',
-          farmId: 1,
-          notes: 'Needs attention for pest control'
-        },
-        {
-          id: 997,
-          name: 'Test Critical Crop',
-          variety: 'Emergency Variety',
-          plantingDate: '2024-01-01',
-          expectedHarvestDate: '2024-05-01',
-          area: 2.8,
-          areaUnit: 'acres',
-          stage: 'Stressed',
-          status: 'critical',
-          farmId: 1,
-          notes: 'Urgent intervention required'
-        }
-      ];
-      
-      // รวมข้อมูลจาก API กับข้อมูลทดสอบ
-      setCrops([...testCrops, ...fetchedCrops]);
+      setCrops(fetchedCrops);
     } catch (error) {
       console.error('Error loading crops:', error);
       Alert.alert('Error', 'Failed to load crops. Please try again.');
