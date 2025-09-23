@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import NavBar from '@/components/navigation/NavBar';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { marketplaceService, Product } from '@/src/services/marketplaceService';
-import { newsService, NewsItem } from '@/src/services/newsService';
+import { pricesService, CropPrice } from '@/src/services/pricesService';
 
 export default function MarketplaceScreen() {
   const { t, i18n } = useTranslation(); // [แก้ไข] ดึง i18n มาใช้เพื่อเช็คสถานะ
@@ -19,34 +19,37 @@ export default function MarketplaceScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // News state
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [newsLoading, setNewsLoading] = useState(true);
-  const [newsError, setNewsError] = useState<string | null>(null);
+  // Market prices state
+  const [todayPrices, setTodayPrices] = useState<CropPrice[]>([]);
+  const [pricesLoading, setPricesLoading] = useState(false);
 
-  // Helper functions for news
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'market': '#4CAF50',
-      'crops': '#2196F3',
-      'export': '#FF9800',
-      'government': '#9C27B0',
-      'technology': '#607D8B',
-      'default': '#666666'
+  // Helper functions for prices
+  const getPriceIcon = (cropName: string) => {
+    const iconMap: { [key: string]: any } = {
+      'ข้าวโพด': 'grain',
+      'ข้าวสาลี': 'grass', 
+      'ข้าว': 'eco',
+      'ถั่วเหลือง': 'agriculture',
+      'corn': 'grain',
+      'wheat': 'grass',
+      'rice': 'eco',
+      'soybeans': 'agriculture'
     };
-    return colors[category] || colors['default'];
+    return iconMap[cropName.toLowerCase()] || 'eco';
   };
 
-  const getCategoryIcon = (category: string) => {
-    const icons: Record<string, string> = {
-      'market': 'trending-up',
-      'crops': 'agriculture',
-      'export': 'local-shipping',
-      'government': 'account-balance',
-      'technology': 'science',
-      'default': 'info'
+  const getPriceIconColor = (cropName: string) => {
+    const colorMap: { [key: string]: string } = {
+      'ข้าวโพด': '#FFD54F',
+      'ข้าวสาลี': '#FFB74D',
+      'ข้าว': '#8BC34A',
+      'ถั่วเหลือง': '#66BB6A',
+      'corn': '#FFD54F',
+      'wheat': '#FFB74D',
+      'rice': '#8BC34A',
+      'soybeans': '#66BB6A'
     };
-    return icons[category] || icons['default'];
+    return colorMap[cropName.toLowerCase()] || '#4CAF50';
   };
 
   useEffect(() => {
@@ -57,24 +60,22 @@ export default function MarketplaceScreen() {
     };
   }, [i18n]);
 
-  // ฟังก์ชันดึงข่าวตลาดไทย
-  const fetchNews = async () => {
+  // ฟังก์ชันดึงข้อมูลราคาตลาดไทย
+  const fetchPrices = async (showLoading = true) => {
     try {
-      setNewsLoading(true);
-      const fetchedNews = await newsService.getThaiAgriculturalNews();
-      setNews(fetchedNews);
-      setNewsError(null);
-      console.log('Thai agricultural news loaded:', { count: fetchedNews.length, sources: fetchedNews.map(n => n.source) });
-    } catch (err) {
-      setNewsError('ไม่สามารถโหลดข่าวได้');
-      console.error('Error fetching Thai news:', err);
+      if (showLoading) setPricesLoading(true);
+      const todayData = await pricesService.getTodayPrices();
+      setTodayPrices(todayData);
+      console.log('Prices updated:', { todayCount: todayData.length, source: todayData[0]?.source || 'unknown' });
+    } catch (error) {
+      console.error('Failed to load market prices:', error);
     } finally {
-      setNewsLoading(false);
+      if (showLoading) setPricesLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchNews(); // ดึงข่าวเมื่อ component โหลด
+    fetchPrices(); // ดึงราคาตลาดเมื่อ component โหลด
   }, []);
 
   useEffect(() => {
@@ -236,65 +237,77 @@ export default function MarketplaceScreen() {
           </View>
         </Animated.View>
 
-        {/* Market News & Updates */}
+        {/* Today's Prices */}
         <Animated.View 
-          style={styles.newsSection}
+          style={styles.pricesSection}
           entering={FadeInUp.delay(200).duration(800)}
         >
-          <View style={styles.newsHeader}>
-            <Text style={styles.newsSectionTitle}>{t('market.market_news') || 'Market News & Updates'}</Text>
-            <TouchableOpacity onPress={fetchNews} style={styles.refreshNewsButton}>
+          <View style={styles.pricesHeader}>
+            <Text style={styles.pricesSectionTitle}>{t('market.todays_prices') || "Today's Prices"}</Text>
+            <TouchableOpacity onPress={() => fetchPrices(true)} style={styles.refreshPricesButton}>
               <MaterialIcons 
                 name="refresh" 
                 size={18} 
-                color={newsLoading ? "#999" : "#4CAF50"} 
+                color={pricesLoading ? "#999" : "#4CAF50"} 
               />
             </TouchableOpacity>
           </View>
 
-          {newsLoading ? (
-            <View style={styles.newsLoadingContainer}>
+          {pricesLoading && todayPrices.length === 0 ? (
+            <View style={styles.pricesLoadingContainer}>
               <ActivityIndicator size="small" color="#4CAF50" />
-              <Text style={styles.newsLoadingText}>กำลังโหลดข่าวล่าสุด...</Text>
-            </View>
-          ) : newsError ? (
-            <View style={styles.newsErrorContainer}>
-              <MaterialIcons name="error-outline" size={24} color="#f44336" />
-              <Text style={styles.newsErrorText}>{newsError}</Text>
-              <TouchableOpacity onPress={fetchNews} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>ลองใหม่</Text>
-              </TouchableOpacity>
+              <Text style={styles.pricesLoadingText}>กำลังโหลดราคาล่าสุด...</Text>
             </View>
           ) : (
-            <View style={styles.newsList}>
-              {news.slice(0, 3).map((newsItem, index) => (
+            <View style={styles.pricesList}>
+              {todayPrices.map((price, index) => (
                 <Animated.View 
-                  key={newsItem.id}
-                  style={[styles.newsItem, { borderLeftColor: getCategoryColor(newsItem.category) }]}
+                  key={price.name}
+                  style={styles.priceItem}
                   entering={FadeInUp.delay(300 + index * 100).duration(500)}
                 >
-                  <View style={styles.newsContent}>
-                    <Text style={styles.newsTitle} numberOfLines={2}>{newsItem.title}</Text>
-                    <Text style={styles.newsSubtitle} numberOfLines={2}>{newsItem.subtitle}</Text>
-                    <View style={styles.newsFooter}>
-                      <Text style={styles.newsTime}>{newsItem.timeAgo}</Text>
-                      <Text style={styles.newsSource}>{newsItem.source}</Text>
+                  <View style={styles.priceContent}>
+                    <View style={styles.priceHeader}>
+                      <View style={styles.cropInfo}>
+                        <MaterialIcons 
+                          name={getPriceIcon(price.name)} 
+                          size={20} 
+                          color={getPriceIconColor(price.name)} 
+                          style={styles.marketCropIcon} 
+                        />
+                        <Text style={styles.cropName}>{price.name}</Text>
+                      </View>
+                      <View style={styles.priceChange}>
+                        <Text style={[
+                          styles.changeText, 
+                          price.changePercent >= 0 ? styles.positive : styles.negative
+                        ]}>
+                          {pricesService.formatPercentage(price.changePercent)}
+                        </Text>
+                        <MaterialIcons 
+                          name={price.changePercent >= 0 ? "arrow-upward" : "arrow-downward"} 
+                          size={16} 
+                          color={price.changePercent >= 0 ? "#4CAF50" : "#F44336"} 
+                        />
+                      </View>
                     </View>
-                  </View>
-                  <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(newsItem.category) }]}>
-                    <MaterialIcons 
-                      name={getCategoryIcon(newsItem.category) as any} 
-                      size={14} 
-                      color="white" 
-                    />
+                    <Text style={styles.currentPrice}>
+                      {pricesService.formatPrice(price.price, price.currency)}/{price.unit}
+                    </Text>
+                    <Text style={styles.previousPrice}>
+                      {t('market.yesterday') || 'Yesterday'}: {pricesService.formatPrice(price.previousPrice, price.currency)}
+                    </Text>
+                    {price.source && (
+                      <Text style={styles.priceSource}>Source: {price.source}</Text>
+                    )}
                   </View>
                 </Animated.View>
               ))}
               
-              {news.length === 0 && (
-                <View style={styles.noNewsContainer}>
-                  <MaterialIcons name="article" size={48} color="#ccc" />
-                  <Text style={styles.noNewsText}>ไม่มีข่าวในขณะนี้</Text>
+              {todayPrices.length === 0 && (
+                <View style={styles.noPricesContainer}>
+                  <MaterialIcons name="trending-up" size={48} color="#ccc" />
+                  <Text style={styles.noPricesText}>ไม่มีข้อมูลราคาในขณะนี้</Text>
                 </View>
               )}
             </View>
@@ -495,8 +508,8 @@ const styles = StyleSheet.create({
     color: 'red',
     fontSize: 16 
   },
-  // Market News Styles
-  newsSection: {
+  // Prices Section Styles
+  pricesSection: {
     backgroundColor: 'white',
     margin: 10,
     borderRadius: 12,
@@ -507,112 +520,101 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
-  newsHeader: {
+  pricesHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 15,
   },
-  newsSectionTitle: {
+  pricesSectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: '#333',
   },
-  refreshNewsButton: {
+  refreshPricesButton: {
     padding: 8,
     borderRadius: 20,
     backgroundColor: '#f0f8f0',
   },
-  newsLoadingContainer: {
+  pricesLoadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     paddingVertical: 20,
   },
-  newsLoadingText: {
+  pricesLoadingText: {
     marginLeft: 10,
     fontSize: 14,
     color: '#666',
   },
-  newsErrorContainer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  newsErrorText: {
-    fontSize: 14,
-    color: '#f44336',
-    marginVertical: 10,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 10,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  newsList: {
+  pricesList: {
     gap: 10,
   },
-  newsItem: {
-    backgroundColor: '#f0f8f0',
+  priceItem: {
+    backgroundColor: '#f8f9fa',
     padding: 15,
     borderRadius: 10,
     marginBottom: 10,
     borderLeftWidth: 4,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    position: 'relative',
+    borderLeftColor: '#4CAF50',
   },
-  newsContent: {
+  priceContent: {
     flex: 1,
-    paddingRight: 10,
   },
-  newsTitle: {
+  priceHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  cropInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  marketCropIcon: {
+    marginRight: 10,
+  },
+  cropName: {
     fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  priceChange: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  changeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginRight: 5,
+  },
+  positive: {
+    color: '#4CAF50',
+  },
+  negative: {
+    color: '#F44336',
+  },
+  currentPrice: {
+    fontSize: 20,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 5,
   },
-  newsSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  newsFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  newsTime: {
+  previousPrice: {
     fontSize: 12,
-    color: '#4CAF50',
-    fontWeight: '500',
+    color: '#666',
   },
-  newsSource: {
-    fontSize: 11,
+  priceSource: {
+    fontSize: 10,
     color: '#999',
     fontStyle: 'italic',
+    marginTop: 2,
   },
-  categoryBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
-  noNewsContainer: {
+  noPricesContainer: {
     alignItems: 'center',
     paddingVertical: 30,
   },
-  noNewsText: {
+  noPricesText: {
     fontSize: 16,
     color: '#999',
     marginTop: 10,

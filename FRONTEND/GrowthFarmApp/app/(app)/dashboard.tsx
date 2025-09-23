@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -13,7 +13,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { User } from '@/src/services/authService';
 import { weatherService, WeatherData } from '@/src/services/weatherService';
-import { pricesService, CropPrice, WeeklyTrend } from '@/src/services/pricesService';
+import { newsService, NewsItem } from '@/src/services/newsService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -30,11 +30,10 @@ export default function Dashboard() {
   const [weatherStatus, setWeatherStatus] = useState<string>('');
   const weatherIntervalRef = useRef<any>(null);
 
-  // Market prices state
-  const [todayPrices, setTodayPrices] = useState<CropPrice[]>([]);
-  const [weeklyTrends, setWeeklyTrends] = useState<WeeklyTrend[]>([]);
-  const [pricesLoading, setPricesLoading] = useState(false);
-  const [pricesLastUpdated, setPricesLastUpdated] = useState<string>('');
+  // News state
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(true);
+  const [newsError, setNewsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (authUser) {
@@ -42,30 +41,44 @@ export default function Dashboard() {
     }
   }, [authUser, authLoading]);
 
-  // ฟังก์ชันสำหรับดึงข้อมูลราคาพืชผล
-  const fetchPrices = async (showLoading = true) => {
+  // Helper functions for news
+  const getCategoryColor = (category: string) => {
+    const colors: Record<string, string> = {
+      'market': '#4CAF50',
+      'crops': '#2196F3',
+      'export': '#FF9800',
+      'government': '#9C27B0',
+      'technology': '#607D8B',
+      'default': '#666666'
+    };
+    return colors[category] || colors['default'];
+  };
+
+  const getCategoryIcon = (category: string) => {
+    const icons: Record<string, string> = {
+      'market': 'trending-up',
+      'crops': 'agriculture',
+      'export': 'local-shipping',
+      'government': 'account-balance',
+      'technology': 'science',
+      'default': 'info'
+    };
+    return icons[category] || icons['default'];
+  };
+
+  // ฟังก์ชันดึงข่าวตลาดไทย
+  const fetchNews = async (showLoading = true) => {
     try {
-      if (showLoading) setPricesLoading(true);
-      
-      // ดึงข้อมูลราคาปัจจุบันและแนวโน้มรายสัปดาห์แบบพร้อมกัน
-      const [todayData, trendsData] = await Promise.all([
-        pricesService.getTodayPrices(),
-        pricesService.getWeeklyTrends()
-      ]);
-      
-      setTodayPrices(todayData);
-      setWeeklyTrends(trendsData);
-      setPricesLastUpdated(new Date().toISOString());
-      
-      console.log('Prices updated:', { 
-        todayCount: todayData.length, 
-        trendsCount: trendsData.length,
-        source: todayData[0]?.source || 'unknown'
-      });
-    } catch (error) {
-      console.error("Failed to load market prices:", error);
+      if (showLoading) setNewsLoading(true);
+      const fetchedNews = await newsService.getThaiAgriculturalNews();
+      setNews(fetchedNews);
+      setNewsError(null);
+      console.log('Thai agricultural news loaded:', { count: fetchedNews.length, sources: fetchedNews.map(n => n.source) });
+    } catch (err) {
+      setNewsError('ไม่สามารถโหลดข่าวได้');
+      console.error('Error fetching Thai news:', err);
     } finally {
-      if (showLoading) setPricesLoading(false);
+      if (showLoading) setNewsLoading(false);
     }
   };
 
@@ -92,15 +105,15 @@ export default function Dashboard() {
     }
   };
 
-  // เริ่มต้นดึงข้อมูลสภาพอากาศและราคาตลาด พร้อมตั้ง interval สำหรับ auto-refresh
+  // เริ่มต้นดึงข้อมูลสภาพอากาศและข่าวตลาด พร้อมตั้ง interval สำหรับ auto-refresh
   useEffect(() => {
     fetchWeather();
-    fetchPrices();
+    fetchNews();
 
     // ตั้งค่าให้อัปเดตข้อมูลทุก 10 นาที (600,000 ms)
     weatherIntervalRef.current = setInterval(() => {
       fetchWeather(false); // ไม่แสดง loading indicator สำหรับการอัปเดตอัตโนมัติ
-      fetchPrices(false); // ดึงข้อมูลราคาด้วย
+      fetchNews(false); // ดึงข้อมูลข่าวด้วย
     }, 600000);
 
     // Cleanup interval เมื่อ component ถูก unmount
@@ -111,34 +124,7 @@ export default function Dashboard() {
     };
   }, []);
 
-  // ฟังก์ชันช่วยเหลือสำหรับการแสดงผล
-  const getPriceIcon = (cropName: string) => {
-    const iconMap: { [key: string]: any } = {
-      'ข้าวโพด': 'grain',
-      'ข้าวสาลี': 'grass', 
-      'ข้าว': 'eco',
-      'ถั่วเหลือง': 'agriculture',
-      'corn': 'grain',
-      'wheat': 'grass',
-      'rice': 'eco',
-      'soybeans': 'agriculture'
-    };
-    return iconMap[cropName.toLowerCase()] || 'eco';
-  };
 
-  const getPriceIconColor = (cropName: string) => {
-    const colorMap: { [key: string]: string } = {
-      'ข้าวโพด': '#FFD54F',
-      'ข้าวสาลี': '#FFB74D',
-      'ข้าว': '#8BC34A',
-      'ถั่วเหลือง': '#66BB6A',
-      'corn': '#FFD54F',
-      'wheat': '#FFB74D',
-      'rice': '#8BC34A',
-      'soybeans': '#66BB6A'
-    };
-    return colorMap[cropName.toLowerCase()] || '#4CAF50';
-  };
 
   // ฟังก์ชันสำหรับรีเฟรชข้อมูลสภาพอากาศแบบ manual
   const refreshWeather = () => {
@@ -420,123 +406,70 @@ export default function Dashboard() {
           </Animated.View>
         </Animated.View>
 
-        {/* Today's Prices */}
-        <Animated.View
-          style={styles.marketSection}
+        {/* Market News & Updates */}
+        <Animated.View 
+          style={styles.newsSection}
           entering={SlideInRight.delay(1500).duration(800)}
         >
-          <View style={styles.marketHeader}>
-            <Text style={styles.marketTitle}>{t('market.todays_prices') || "Today's Prices"}</Text>
-            <TouchableOpacity onPress={() => fetchPrices(true)}>
-              <Text style={styles.marketUpdate}>
-                {pricesLoading ? 'Updating...' : 
-                 pricesLastUpdated ? `Updated ${Math.floor((Date.now() - new Date(pricesLastUpdated).getTime()) / 60000)} min ago` :
-                 'Tap to refresh'
-                }
-              </Text>
+          <View style={styles.newsHeader}>
+            <Text style={styles.newsSectionTitle}>{t('market.market_news') || 'Market News & Updates'}</Text>
+            <TouchableOpacity onPress={() => fetchNews(true)} style={styles.refreshNewsButton}>
+              <MaterialIcons 
+                name="refresh" 
+                size={18} 
+                color={newsLoading ? "#999" : "#4CAF50"} 
+              />
             </TouchableOpacity>
           </View>
 
-          {pricesLoading && todayPrices.length === 0 ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading prices...</Text>
+          {newsLoading ? (
+            <View style={styles.newsLoadingContainer}>
+              <ActivityIndicator size="small" color="#4CAF50" />
+              <Text style={styles.newsLoadingText}>กำลังโหลดข่าวล่าสุด...</Text>
+            </View>
+          ) : newsError ? (
+            <View style={styles.newsErrorContainer}>
+              <MaterialIcons name="error-outline" size={24} color="#f44336" />
+              <Text style={styles.newsErrorText}>{newsError}</Text>
+              <TouchableOpacity onPress={() => fetchNews(true)} style={styles.retryButton}>
+                <Text style={styles.retryButtonText}>ลองใหม่</Text>
+              </TouchableOpacity>
             </View>
           ) : (
-            todayPrices.map((price, index) => (
-              <Animated.View
-                key={price.name}
-                style={styles.priceCard}
-                entering={FadeInUp.delay(1700 + index * 100).duration(500)}
-              >
-                <View style={styles.priceHeader}>
-                  <View style={styles.cropInfo}>
-                    <MaterialIcons 
-                      name={getPriceIcon(price.name)} 
-                      size={20} 
-                      color={getPriceIconColor(price.name)} 
-                      style={styles.marketCropIcon} 
-                    />
-                    <Text style={styles.cropName}>{price.name}</Text>
+            <View style={styles.newsList}>
+              {news.slice(0, 3).map((newsItem, index) => (
+                <Animated.View 
+                  key={newsItem.id}
+                  style={[styles.newsItem, { borderLeftColor: getCategoryColor(newsItem.category) }]}
+                  entering={FadeInUp.delay(1700 + index * 100).duration(500)}
+                >
+                  <View style={styles.newsContent}>
+                    <Text style={styles.newsTitle} numberOfLines={2}>{newsItem.title}</Text>
+                    <Text style={styles.newsSubtitle} numberOfLines={2}>{newsItem.subtitle}</Text>
+                    <View style={styles.newsFooter}>
+                      <Text style={styles.newsTime}>{newsItem.timeAgo}</Text>
+                      <Text style={styles.newsSource}>{newsItem.source}</Text>
+                    </View>
                   </View>
-                  <View style={styles.priceChange}>
-                    <Text style={[
-                      styles.changeText, 
-                      price.changePercent >= 0 ? styles.positive : styles.negative
-                    ]}>
-                      {pricesService.formatPercentage(price.changePercent)}
-                    </Text>
+                  <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(newsItem.category) }]}>
                     <MaterialIcons 
-                      name={price.changePercent >= 0 ? "arrow-upward" : "arrow-downward"} 
-                      size={16} 
-                      color={price.changePercent >= 0 ? "#4CAF50" : "#F44336"} 
+                      name={getCategoryIcon(newsItem.category) as any} 
+                      size={14} 
+                      color="white" 
                     />
                   </View>
+                </Animated.View>
+              ))}
+              
+              {news.length === 0 && (
+                <View style={styles.noNewsContainer}>
+                  <MaterialIcons name="article" size={48} color="#ccc" />
+                  <Text style={styles.noNewsText}>ไม่มีข่าวในขณะนี้</Text>
                 </View>
-                <Text style={styles.currentPrice}>
-                  {pricesService.formatPrice(price.price, price.currency)}/{price.unit}
-                </Text>
-                <Text style={styles.previousPrice}>
-                  {t('market.yesterday') || 'Yesterday'}: {pricesService.formatPrice(price.previousPrice, price.currency)}
-                </Text>
-                {price.source && (
-                  <Text style={styles.priceSource}>Source: {price.source}</Text>
-                )}
-              </Animated.View>
-            ))
+              )}
+            </View>
           )}
         </Animated.View>
-
-        {/* Weekly Trends */}
-        <Animated.View
-          style={styles.trendsSection}
-          entering={SlideInLeft.delay(2000).duration(800)}
-        >
-          <Text style={styles.sectionTitle}>{t('market.weekly_trends') || 'Weekly Trends'}</Text>
-          
-          {weeklyTrends.map((trend, index) => (
-            <Animated.View
-              key={trend.name}
-              style={styles.trendCard}
-              entering={FadeInUp.delay(2200 + index * 100).duration(500)}
-            >
-              <View style={styles.trendHeader}>
-                <Text style={styles.trendTitle}>{trend.name}</Text>
-                <View style={styles.trendIndicator}>
-                  <MaterialIcons 
-                    name={trend.trend === 'up' ? 'trending-up' : trend.trend === 'down' ? 'trending-down' : 'trending-flat'} 
-                    size={20} 
-                    color={trend.trend === 'up' ? '#4CAF50' : trend.trend === 'down' ? '#F44336' : '#FF9800'} 
-                  />
-                </View>
-              </View>
-              
-              <Text style={styles.trendDescription}>
-                {trend.trend === 'up' ? 'Strong upward trend' : 
-                 trend.trend === 'down' ? 'Declining trend' : 
-                 'Stable prices'}
-              </Text>
-              
-              <View style={styles.trendStats}>
-                <Text style={[
-                  styles.trendStat,
-                  trend.weeklyChangePercent >= 0 ? styles.positive : styles.negative
-                ]}>
-                  {pricesService.formatPercentage(trend.weeklyChangePercent)} this week
-                </Text>
-              </View>
-              
-              <Text style={styles.trendAverage}>
-                Avg: {pricesService.formatPrice(trend.averagePrice, 'THB')}
-              </Text>
-            </Animated.View>
-          ))}
-          
-          {weeklyTrends.length === 0 && !pricesLoading && (
-            <Text style={styles.noDataText}>No trend data available</Text>
-          )}
-        </Animated.View>
-
-
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -881,154 +814,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#666',
   },
-  marketSection: {
-    backgroundColor: 'white',
-    margin: 10,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  marketHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  marketTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  marketUpdate: {
-    fontSize: 12,
-    color: '#4CAF50',
-  },
-  // New styles for enhanced Today's Prices and Weekly Trends
-  priceCard: {
-    backgroundColor: '#f8f9fa',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderLeftWidth: 4,
-    borderLeftColor: '#4CAF50',
-  },
-  priceHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  cropInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  marketCropIcon: {
-    marginRight: 10,
-  },
-  cropName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  priceChange: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  changeText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    marginRight: 5,
-  },
-  positive: {
-    color: '#4CAF50',
-  },
-  negative: {
-    color: '#F44336',
-  },
-  currentPrice: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  previousPrice: {
-    fontSize: 12,
-    color: '#666',
-  },
-  priceSource: {
-    fontSize: 10,
-    color: '#999',
-    fontStyle: 'italic',
-    marginTop: 2,
-  },
-  trendsSection: {
-    backgroundColor: 'white',
-    margin: 10,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
-  },
-  trendCard: {
-    backgroundColor: '#f0f8f0',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-  },
-  trendHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
-  },
-  trendTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    flex: 1,
-  },
-  trendIndicator: {
-    marginLeft: 10,
-  },
-  trendDescription: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 10,
-  },
-  trendStats: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  trendStat: {
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  trendAverage: {
-    fontSize: 12,
-    color: '#888',
-    marginTop: 5,
-    fontStyle: 'italic',
-  },
-  noDataText: {
-    textAlign: 'center',
-    color: '#999',
-    fontSize: 14,
-    fontStyle: 'italic',
-    padding: 20,
-  },
   bottomSpace: {
     height: 120,
   },
@@ -1056,6 +841,129 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1976D2',
     fontWeight: '500',
+    textAlign: 'center',
+  },
+  // News Section Styles
+  newsSection: {
+    backgroundColor: 'white',
+    margin: 10,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  newsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 15,
+  },
+  newsSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  refreshNewsButton: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#f0f8f0',
+  },
+  newsLoadingContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 20,
+  },
+  newsLoadingText: {
+    marginLeft: 10,
+    fontSize: 14,
+    color: '#666',
+  },
+  newsErrorContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  newsErrorText: {
+    fontSize: 14,
+    color: '#f44336',
+    marginVertical: 10,
+    textAlign: 'center',
+  },
+  retryButton: {
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    marginTop: 10,
+  },
+  retryButtonText: {
+    color: 'white',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  newsList: {
+    gap: 10,
+  },
+  newsItem: {
+    backgroundColor: '#f0f8f0',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    position: 'relative',
+  },
+  newsContent: {
+    flex: 1,
+    paddingRight: 10,
+  },
+  newsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  newsSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+    lineHeight: 20,
+  },
+  newsFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  newsTime: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '500',
+  },
+  newsSource: {
+    fontSize: 11,
+    color: '#999',
+    fontStyle: 'italic',
+  },
+  categoryBadge: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 10,
+  },
+  noNewsContainer: {
+    alignItems: 'center',
+    paddingVertical: 30,
+  },
+  noNewsText: {
+    fontSize: 16,
+    color: '#999',
+    marginTop: 10,
     textAlign: 'center',
   },
 });
