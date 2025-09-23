@@ -71,14 +71,6 @@ export default function SideMenu({ visible, onClose }: SideMenuProps) {
       color: '#F59E0B',
       route: '/(app)/notifications'
     },
-    {
-      id: 'export-data',
-      title: t('sidemenu.export_data_title') || 'Export',
-      subtitle: t('sidemenu.export_data_subtitle') || 'ส่งออกข้อมูลการเกษตร',
-      icon: 'file-download',
-      color: '#06B6D4',
-      route: '/(app)/export-data'
-    },
   ];
 
   const handleMenuItemPress = (route?: string) => {
