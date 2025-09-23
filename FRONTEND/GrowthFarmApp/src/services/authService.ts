@@ -12,6 +12,9 @@ export interface User {
   role: string;
   created_at?: string;
   is_guest?: boolean;
+  firstName?: string;
+  lastName?: string;
+  phoneNumber?: string;
 }
 
 export interface LoginRequest {
@@ -78,8 +81,18 @@ class AuthService {
       if (response.token) {
         await AsyncStorage.setItem('access_token', response.token);
       }
+      
       if (response.user) {
-        await AsyncStorage.setItem('user', JSON.stringify(response.user));
+        // Transform user data before storing
+        const transformedUser = {
+          ...response.user,
+          fullName: response.user.firstName && response.user.lastName 
+            ? `${response.user.firstName} ${response.user.lastName}`.trim()
+            : response.user.firstName || response.user.lastName || '',
+          phone: response.user.phoneNumber || '',
+          role: response.user.role || 'USER'
+        };
+        await AsyncStorage.setItem('user', JSON.stringify(transformedUser));
       }
 
       return response;
@@ -103,8 +116,18 @@ class AuthService {
       if (response.token) {
         await AsyncStorage.setItem('access_token', response.token);
       }
+      
       if (response.user) {
-        await AsyncStorage.setItem('user', JSON.stringify(response.user));
+        // Transform user data before storing
+        const transformedUser = {
+          ...response.user,
+          fullName: response.user.firstName && response.user.lastName 
+            ? `${response.user.firstName} ${response.user.lastName}`.trim()
+            : response.user.firstName || response.user.lastName || '',
+          phone: response.user.phoneNumber || '',
+          role: response.user.role || 'USER'
+        };
+        await AsyncStorage.setItem('user', JSON.stringify(transformedUser));
       }
 
       return response;
@@ -137,7 +160,18 @@ class AuthService {
   async getProfile(): Promise<User> {
     try {
       const response = await this.makeRequest('/api/auth/me');
-      return response.user; // <-- ✨ ดึงข้อมูล user จาก object ที่ซ้อนอยู่
+      const user = response.user;
+      
+      // Transform API response to match our User interface
+      return {
+        ...user,
+        fullName: user.firstName && user.lastName 
+          ? `${user.firstName} ${user.lastName}`.trim()
+          : user.firstName || user.lastName || '',
+        phone: user.phoneNumber || '',
+        role: user.role || 'USER',
+        created_at: user.created_at || user.createdAt
+      };
     } catch (error) {
       console.error('Get profile error:', error);
       throw error;
@@ -166,6 +200,53 @@ class AuthService {
   async isAuthenticated(): Promise<boolean> {
     const token = await this.getToken();
     return !!token;
+  }
+
+  async updateProfile(userData: {
+    username?: string;
+    email?: string;
+    fullName?: string;
+    phone?: string;
+  }): Promise<AuthResponse> {
+    try {
+      // Convert fullName to firstName and lastName
+      const nameParts = userData.fullName?.split(' ') || [];
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
+      const requestData = {
+        username: userData.username,
+        email: userData.email,
+        firstName,
+        lastName,
+        phoneNumber: userData.phone,
+      };
+
+      const response = await this.makeRequest('/api/auth/profile', {
+        method: 'PUT',
+        body: JSON.stringify(requestData),
+      });
+
+      // Update stored user data if successful
+      if (response.success && response.user) {
+        const transformedUser = {
+          ...response.user,
+          fullName: response.user.firstName && response.user.lastName 
+            ? `${response.user.firstName} ${response.user.lastName}`.trim()
+            : response.user.firstName || response.user.lastName || '',
+          phone: response.user.phoneNumber || '',
+          role: response.user.role || 'USER'
+        };
+        await AsyncStorage.setItem('user', JSON.stringify(transformedUser));
+        // Update the response with transformed user
+        response.user = transformedUser;
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Update profile error:', error);
+      throw error;
+    }
   }
 
   async checkAuthStatus(): Promise<boolean> {

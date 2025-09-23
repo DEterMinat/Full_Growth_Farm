@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/src/contexts/AuthContext';
+import { router } from 'expo-router';
 import NavBar from '@/components/navigation/NavBar';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
@@ -70,7 +71,10 @@ export default function Profile() {
         </View>
         <View style={styles.headerRight}>
           <LanguageToggleButton size="small" />
-          <TouchableOpacity style={styles.editButton}>
+          <TouchableOpacity 
+            style={styles.editButton}
+            onPress={() => router.push('/(app)/edit-profile')}
+          >
             <MaterialIcons name="edit" size={18} color="white" />
           </TouchableOpacity>
         </View>
@@ -142,7 +146,10 @@ export default function Profile() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('profile.account_settings')}</Text>
           
-          <TouchableOpacity style={styles.settingItem}>
+          <TouchableOpacity 
+            style={styles.settingItem}
+            onPress={() => router.push('/(app)/edit-profile')}
+          >
             <View style={styles.settingLeft}>
               <MaterialIcons name="edit" size={18} color="#666" style={styles.settingIcon} />
               <Text style={styles.settingText}>{t('profile.edit_profile')}</Text>
