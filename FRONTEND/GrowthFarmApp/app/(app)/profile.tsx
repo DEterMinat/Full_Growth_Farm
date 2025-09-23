@@ -88,8 +88,8 @@ export default function Profile() {
               <MaterialIcons name="person" size={40} color="#4CAF50" />
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.infoValue}>
-                {user?.created_at ? new Date(user.created_at).toLocaleDateString() : 'N/A'}
+              <Text style={styles.userName}>
+                {user?.fullName || user?.username || 'Unknown User'}
               </Text>
               <Text style={styles.userEmail}>{user?.email}</Text>
               <Text style={styles.userRole}>
@@ -119,6 +119,10 @@ export default function Profile() {
           <Text style={styles.sectionTitle}>{t('profile.account_information')}</Text>
           
           <View style={styles.infoCard}>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>{t('profile.full_name') || 'Full Name'}</Text>
+              <Text style={styles.infoValue}>{user?.fullName || user?.username}</Text>
+            </View>
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>{t('profile.username')}</Text>
               <Text style={styles.infoValue}>{user?.username}</Text>

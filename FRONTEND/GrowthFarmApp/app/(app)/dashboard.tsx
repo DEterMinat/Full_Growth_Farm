@@ -13,6 +13,7 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { User } from '@/src/services/authService';
 import { weatherService, WeatherData } from '@/src/services/weatherService';
+import { pricesService, CropPrice, WeeklyTrend } from '@/src/services/pricesService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -22,16 +23,51 @@ export default function Dashboard() {
   const { user: authUser, isLoading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(authUser);
   const isGuest = !authUser || authUser.username === 'guest';
+  
+  // Weather state
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherStatus, setWeatherStatus] = useState<string>('');
   const weatherIntervalRef = useRef<any>(null);
+
+  // Market prices state
+  const [todayPrices, setTodayPrices] = useState<CropPrice[]>([]);
+  const [weeklyTrends, setWeeklyTrends] = useState<WeeklyTrend[]>([]);
+  const [pricesLoading, setPricesLoading] = useState(false);
+  const [pricesLastUpdated, setPricesLastUpdated] = useState<string>('');
 
   useEffect(() => {
     if (authUser) {
       setUser(authUser);
     }
   }, [authUser, authLoading]);
+
+  // ฟังก์ชันสำหรับดึงข้อมูลราคาพืชผล
+  const fetchPrices = async (showLoading = true) => {
+    try {
+      if (showLoading) setPricesLoading(true);
+      
+      // ดึงข้อมูลราคาปัจจุบันและแนวโน้มรายสัปดาห์แบบพร้อมกัน
+      const [todayData, trendsData] = await Promise.all([
+        pricesService.getTodayPrices(),
+        pricesService.getWeeklyTrends()
+      ]);
+      
+      setTodayPrices(todayData);
+      setWeeklyTrends(trendsData);
+      setPricesLastUpdated(new Date().toISOString());
+      
+      console.log('Prices updated:', { 
+        todayCount: todayData.length, 
+        trendsCount: trendsData.length,
+        source: todayData[0]?.source || 'unknown'
+      });
+    } catch (error) {
+      console.error("Failed to load market prices:", error);
+    } finally {
+      if (showLoading) setPricesLoading(false);
+    }
+  };
 
   // ฟังก์ชันสำหรับดึงข้อมูลสภาพอากาศ
   const fetchWeather = async (showLoading = true) => {
@@ -56,13 +92,15 @@ export default function Dashboard() {
     }
   };
 
-  // เริ่มต้นดึงข้อมูลสภาพอากาศและตั้ง interval สำหรับ auto-refresh
+  // เริ่มต้นดึงข้อมูลสภาพอากาศและราคาตลาด พร้อมตั้ง interval สำหรับ auto-refresh
   useEffect(() => {
     fetchWeather();
+    fetchPrices();
 
     // ตั้งค่าให้อัปเดตข้อมูลทุก 10 นาที (600,000 ms)
     weatherIntervalRef.current = setInterval(() => {
       fetchWeather(false); // ไม่แสดง loading indicator สำหรับการอัปเดตอัตโนมัติ
+      fetchPrices(false); // ดึงข้อมูลราคาด้วย
     }, 600000);
 
     // Cleanup interval เมื่อ component ถูก unmount
@@ -73,11 +111,39 @@ export default function Dashboard() {
     };
   }, []);
 
+  // ฟังก์ชันช่วยเหลือสำหรับการแสดงผล
+  const getPriceIcon = (cropName: string) => {
+    const iconMap: { [key: string]: any } = {
+      'ข้าวโพด': 'grain',
+      'ข้าวสาลี': 'grass', 
+      'ข้าว': 'eco',
+      'ถั่วเหลือง': 'agriculture',
+      'corn': 'grain',
+      'wheat': 'grass',
+      'rice': 'eco',
+      'soybeans': 'agriculture'
+    };
+    return iconMap[cropName.toLowerCase()] || 'eco';
+  };
+
+  const getPriceIconColor = (cropName: string) => {
+    const colorMap: { [key: string]: string } = {
+      'ข้าวโพด': '#FFD54F',
+      'ข้าวสาลี': '#FFB74D',
+      'ข้าว': '#8BC34A',
+      'ถั่วเหลือง': '#66BB6A',
+      'corn': '#FFD54F',
+      'wheat': '#FFB74D',
+      'rice': '#8BC34A',
+      'soybeans': '#66BB6A'
+    };
+    return colorMap[cropName.toLowerCase()] || '#4CAF50';
+  };
+
   // ฟังก์ชันสำหรับรีเฟรชข้อมูลสภาพอากาศแบบ manual
   const refreshWeather = () => {
     fetchWeather(true);
   };
-
 
   const handleLogout = async () => {
     try {
@@ -361,64 +427,63 @@ export default function Dashboard() {
         >
           <View style={styles.marketHeader}>
             <Text style={styles.marketTitle}>{t('market.todays_prices') || "Today's Prices"}</Text>
-            <TouchableOpacity onPress={() => router.push('/(app)/marketplace')}>
-              <Text style={styles.marketUpdate}>{t('market.updated_5_min') || 'Updated 5 min ago'}</Text>
+            <TouchableOpacity onPress={() => fetchPrices(true)}>
+              <Text style={styles.marketUpdate}>
+                {pricesLoading ? 'Updating...' : 
+                 pricesLastUpdated ? `Updated ${Math.floor((Date.now() - new Date(pricesLastUpdated).getTime()) / 60000)} min ago` :
+                 'Tap to refresh'
+                }
+              </Text>
             </TouchableOpacity>
           </View>
 
-          <Animated.View
-            style={styles.priceCard}
-            entering={FadeInUp.delay(1700).duration(500)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.marketCropIcon} />
-                <Text style={styles.cropName}>{t('market.wheat') || 'Wheat'}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>+2.5%</Text>
-                <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
-              </View>
+          {pricesLoading && todayPrices.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading prices...</Text>
             </View>
-            <Text style={styles.currentPrice}>$7.25/bushel</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $7.07</Text>
-          </Animated.View>
-
-          <Animated.View
-            style={styles.priceCard}
-            entering={FadeInUp.delay(1800).duration(500)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.marketCropIcon} />
-                <Text style={styles.cropName}>{t('market.corn') || 'Corn'}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.negative]}>-1.2%</Text>
-                <MaterialIcons name="arrow-downward" size={16} color="#F44336" />
-              </View>
-            </View>
-            <Text style={styles.currentPrice}>$4.12/bushel</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $4.17</Text>
-          </Animated.View>
-
-          <Animated.View
-            style={styles.priceCard}
-            entering={FadeInUp.delay(1900).duration(500)}
-          >
-            <View style={styles.priceHeader}>
-              <View style={styles.cropInfo}>
-                <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.marketCropIcon} />
-                <Text style={styles.cropName}>{t('market.soybeans') || 'Soybeans'}</Text>
-              </View>
-              <View style={styles.priceChange}>
-                <Text style={[styles.changeText, styles.positive]}>+4.1%</Text>
-                <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
-              </View>
-            </View>
-            <Text style={styles.currentPrice}>$13.87/bushel</Text>
-            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $13.32</Text>
-          </Animated.View>
+          ) : (
+            todayPrices.map((price, index) => (
+              <Animated.View
+                key={price.name}
+                style={styles.priceCard}
+                entering={FadeInUp.delay(1700 + index * 100).duration(500)}
+              >
+                <View style={styles.priceHeader}>
+                  <View style={styles.cropInfo}>
+                    <MaterialIcons 
+                      name={getPriceIcon(price.name)} 
+                      size={20} 
+                      color={getPriceIconColor(price.name)} 
+                      style={styles.marketCropIcon} 
+                    />
+                    <Text style={styles.cropName}>{price.name}</Text>
+                  </View>
+                  <View style={styles.priceChange}>
+                    <Text style={[
+                      styles.changeText, 
+                      price.changePercent >= 0 ? styles.positive : styles.negative
+                    ]}>
+                      {pricesService.formatPercentage(price.changePercent)}
+                    </Text>
+                    <MaterialIcons 
+                      name={price.changePercent >= 0 ? "arrow-upward" : "arrow-downward"} 
+                      size={16} 
+                      color={price.changePercent >= 0 ? "#4CAF50" : "#F44336"} 
+                    />
+                  </View>
+                </View>
+                <Text style={styles.currentPrice}>
+                  {pricesService.formatPrice(price.price, price.currency)}/{price.unit}
+                </Text>
+                <Text style={styles.previousPrice}>
+                  {t('market.yesterday') || 'Yesterday'}: {pricesService.formatPrice(price.previousPrice, price.currency)}
+                </Text>
+                {price.source && (
+                  <Text style={styles.priceSource}>Source: {price.source}</Text>
+                )}
+              </Animated.View>
+            ))
+          )}
         </Animated.View>
 
         {/* Weekly Trends */}
@@ -428,27 +493,47 @@ export default function Dashboard() {
         >
           <Text style={styles.sectionTitle}>{t('market.weekly_trends') || 'Weekly Trends'}</Text>
           
-          <Animated.View
-            style={styles.trendCard}
-            entering={FadeInUp.delay(2200).duration(500)}
-          >
-            <Text style={styles.trendTitle}>{t('market.hot_this_week') || 'Hot This Week'}</Text>
-            <Text style={styles.trendDescription}>{t('market.strong_upward') || 'Strong upward trend'}</Text>
-            <View style={styles.trendStats}>
-              <Text style={[styles.trendStat, styles.positive]}>+12.5% {t('market.this_week') || 'this week'}</Text>
-            </View>
-          </Animated.View>
+          {weeklyTrends.map((trend, index) => (
+            <Animated.View
+              key={trend.name}
+              style={styles.trendCard}
+              entering={FadeInUp.delay(2200 + index * 100).duration(500)}
+            >
+              <View style={styles.trendHeader}>
+                <Text style={styles.trendTitle}>{trend.name}</Text>
+                <View style={styles.trendIndicator}>
+                  <MaterialIcons 
+                    name={trend.trend === 'up' ? 'trending-up' : trend.trend === 'down' ? 'trending-down' : 'trending-flat'} 
+                    size={20} 
+                    color={trend.trend === 'up' ? '#4CAF50' : trend.trend === 'down' ? '#F44336' : '#FF9800'} 
+                  />
+                </View>
+              </View>
+              
+              <Text style={styles.trendDescription}>
+                {trend.trend === 'up' ? 'Strong upward trend' : 
+                 trend.trend === 'down' ? 'Declining trend' : 
+                 'Stable prices'}
+              </Text>
+              
+              <View style={styles.trendStats}>
+                <Text style={[
+                  styles.trendStat,
+                  trend.weeklyChangePercent >= 0 ? styles.positive : styles.negative
+                ]}>
+                  {pricesService.formatPercentage(trend.weeklyChangePercent)} this week
+                </Text>
+              </View>
+              
+              <Text style={styles.trendAverage}>
+                Avg: {pricesService.formatPrice(trend.averagePrice, 'THB')}
+              </Text>
+            </Animated.View>
+          ))}
           
-          <Animated.View
-            style={styles.trendCard}
-            entering={FadeInUp.delay(2300).duration(500)}
-          >
-            <Text style={styles.trendTitle}>{t('market.watch_out') || 'Watch Out'}</Text>
-            <Text style={styles.trendDescription}>{t('market.declining_oversupply') || 'Declining due to oversupply'}</Text>
-            <View style={styles.trendStats}>
-              <Text style={[styles.trendStat, styles.negative]}>-5.8% {t('market.this_week') || 'this week'}</Text>
-            </View>
-          </Animated.View>
+          {weeklyTrends.length === 0 && !pricesLoading && (
+            <Text style={styles.noDataText}>No trend data available</Text>
+          )}
         </Animated.View>
 
 
@@ -874,6 +959,12 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
+  priceSource: {
+    fontSize: 10,
+    color: '#999',
+    fontStyle: 'italic',
+    marginTop: 2,
+  },
   trendsSection: {
     backgroundColor: 'white',
     margin: 10,
@@ -897,11 +988,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     marginBottom: 10,
   },
+  trendHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 5,
+  },
   trendTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 5,
+    flex: 1,
+  },
+  trendIndicator: {
+    marginLeft: 10,
   },
   trendDescription: {
     fontSize: 14,
@@ -915,6 +1015,19 @@ const styles = StyleSheet.create({
   trendStat: {
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  trendAverage: {
+    fontSize: 12,
+    color: '#888',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
+  noDataText: {
+    textAlign: 'center',
+    color: '#999',
+    fontSize: 14,
+    fontStyle: 'italic',
+    padding: 20,
   },
   bottomSpace: {
     height: 120,
