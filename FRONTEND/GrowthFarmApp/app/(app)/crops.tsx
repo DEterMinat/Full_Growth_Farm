@@ -63,11 +63,84 @@ export default function Crops() {
     console.log('🚪 Modal state changed - Add:', isAddModalVisible, 'Edit:', isEditModalVisible);
   }, [isAddModalVisible, isEditModalVisible]);
 
+  // Helper function to get status color
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return '#4CAF50'; // Green
+      case 'monitor':
+        return '#FF9800'; // Orange
+      case 'critical':
+        return '#F44336'; // Red
+      default:
+        return '#4CAF50'; // Default to healthy green
+    }
+  };
+
+  // Helper function to get status display text
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return 'Healthy';
+      case 'monitor':
+        return 'Monitor';
+      case 'critical':
+        return 'Critical';
+      default:
+        return status;
+    }
+  };
+
   const loadCrops = async () => {
     try {
       setLoading(true);
       const fetchedCrops = await cropsService.getAllCrops();
-      setCrops(fetchedCrops);
+      
+      // เพิ่มข้อมูลตัวอย่างเพื่อทดสอบ status ทั้ง 3 แบบ
+      const testCrops: Crop[] = [
+        {
+          id: 999,
+          name: 'Test Healthy Crop',
+          variety: 'Premium Variety',
+          plantingDate: '2024-01-15',
+          expectedHarvestDate: '2024-06-15',
+          area: 10.5,
+          areaUnit: 'acres',
+          stage: 'Flowering',
+          status: 'healthy',
+          farmId: 1,
+          notes: 'This crop is in excellent condition'
+        },
+        {
+          id: 998,
+          name: 'Test Monitor Crop',
+          variety: 'Standard Variety',
+          plantingDate: '2024-02-01',
+          expectedHarvestDate: '2024-07-01',
+          area: 5.2,
+          areaUnit: 'acres',
+          stage: 'Vegetative',
+          status: 'monitor',
+          farmId: 1,
+          notes: 'Needs attention for pest control'
+        },
+        {
+          id: 997,
+          name: 'Test Critical Crop',
+          variety: 'Emergency Variety',
+          plantingDate: '2024-01-01',
+          expectedHarvestDate: '2024-05-01',
+          area: 2.8,
+          areaUnit: 'acres',
+          stage: 'Stressed',
+          status: 'critical',
+          farmId: 1,
+          notes: 'Urgent intervention required'
+        }
+      ];
+      
+      // รวมข้อมูลจาก API กับข้อมูลทดสอบ
+      setCrops([...testCrops, ...fetchedCrops]);
     } catch (error) {
       console.error('Error loading crops:', error);
       Alert.alert('Error', 'Failed to load crops. Please try again.');
@@ -122,12 +195,24 @@ export default function Crops() {
   };
 
   const handleEditCrop = (crop: Crop) => {
+    console.log('✏️ Starting edit crop:', crop);
+    
     setEditingCrop(crop);
-    setNewCrop({
+    
+    // แปลง date ให้ถูกต้อง
+    const plantingDate = typeof crop.plantingDate === 'string' 
+      ? crop.plantingDate.split('T')[0] 
+      : new Date(crop.plantingDate).toISOString().split('T')[0];
+      
+    const harvestDate = typeof crop.expectedHarvestDate === 'string'
+      ? crop.expectedHarvestDate.split('T')[0]
+      : new Date(crop.expectedHarvestDate).toISOString().split('T')[0];
+    
+    const formData = {
       name: crop.name,
       variety: crop.variety || '',
-      plantingDate: new Date(crop.plantingDate).toISOString().split('T')[0],
-      expectedHarvestDate: new Date(crop.expectedHarvestDate).toISOString().split('T')[0],
+      plantingDate: plantingDate,
+      expectedHarvestDate: harvestDate,
       area: crop.area || 0, // [!] แก้ไข: ป้องกันค่า null ทำให้แอปแครช
       areaUnit: crop.areaUnit,
       stage: crop.stage,
@@ -135,37 +220,78 @@ export default function Crops() {
       farmId: crop.farmId,
       zoneId: 1, // Set default zoneId since Crop interface doesn't include it
       notes: crop.notes || '',
-    });
+    };
+    
+    console.log('📝 Setting form data:', formData);
+    setNewCrop(formData);
     setIsEditModalVisible(true);
   };
 
   const handleUpdateCrop = async () => {
-    if (!editingCrop || !editingCrop.id) return;
+    console.log('🔄 Starting update crop process...');
+    console.log('📝 editingCrop:', editingCrop);
+    console.log('📝 newCrop data:', newCrop);
+    
+    if (!editingCrop || !editingCrop.id) {
+      console.log('❌ No editing crop or missing ID');
+      Alert.alert('Error', 'No crop selected for editing');
+      return;
+    }
 
     if (!newCrop.name || !newCrop.plantingDate || !newCrop.expectedHarvestDate || newCrop.area <= 0) {
+      console.log('❌ Validation failed:', {
+        name: newCrop.name,
+        plantingDate: newCrop.plantingDate,
+        expectedHarvestDate: newCrop.expectedHarvestDate,
+        area: newCrop.area
+      });
       Alert.alert('Error', 'Please fill in all required fields');
       return;
     }
+    
     try {
+      console.log('⏳ Setting submitting to true...');
       setIsSubmitting(true);
+      
       const updatePayload: UpdateCropRequest = {
-        ...newCrop,
         id: editingCrop.id,
+        name: newCrop.name,
+        variety: newCrop.variety,
+        plantingDate: newCrop.plantingDate,
+        expectedHarvestDate: newCrop.expectedHarvestDate,
+        area: newCrop.area,
+        areaUnit: newCrop.areaUnit,
+        stage: newCrop.stage,
+        status: newCrop.status,
+        farmId: newCrop.farmId,
+        notes: newCrop.notes,
       };
-      await cropsService.updateCrop(editingCrop.id, updatePayload);
+      
+      console.log('📤 Sending update request with payload:', updatePayload);
+      const updatedCrop = await cropsService.updateCrop(editingCrop.id, updatePayload);
+      console.log('✅ Update response:', updatedCrop);
+      
+      console.log('✅ Update successful, reloading crops...');
       await loadCrops();
+      
+      console.log('🚪 Closing modal and resetting state...');
       setIsEditModalVisible(false);
       setEditingCrop(null);
+      resetForm();
+      
+      console.log('✅ Update process completed successfully');
       Alert.alert('Success', 'Crop updated successfully!');
     } catch (error) {
-      console.error('Error updating crop:', error);
-      Alert.alert('Error', 'Failed to update crop. Please try again.');
+      console.error('❌ Error updating crop:', error);
+      Alert.alert('Error', `Failed to update crop: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
+      console.log('🔄 Setting submitting to false...');
       setIsSubmitting(false);
     }
   };
   
   const handleCancelEdit = () => {
+    console.log('❌ Cancel edit crop');
     setIsEditModalVisible(false);
     setEditingCrop(null);
     resetForm();
@@ -297,10 +423,9 @@ export default function Crops() {
                     <View style={styles.cropStatus}>
                       <Text style={[
                         styles.statusBadge,
-                        crop.status === 'monitor' && styles.warningBadge,
-                        crop.status === 'critical' && styles.criticalBadge
+                        { backgroundColor: getStatusColor(crop.status) }
                       ]}>
-                        {crop.status}
+                        {getStatusText(crop.status)}
                       </Text>
                     </View>
                     <View style={styles.actionButtons}>
@@ -565,7 +690,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.healthyOption,
                       newCrop.status === 'healthy' && styles.modernStatusSelected,
-                      newCrop.status === 'healthy' && styles.healthySelected
+                      newCrop.status === 'healthy' && { backgroundColor: getStatusColor('healthy') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
                     activeOpacity={0.8}
@@ -573,13 +698,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="check-circle"
                       size={20}
-                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'}
+                      color={newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
+                      { color: newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy') }
                     ]}>
-                      Healthy
+                      {getStatusText('healthy')}
                     </Text>
                   </TouchableOpacity>
 
@@ -588,7 +713,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.monitorOption,
                       newCrop.status === 'monitor' && styles.modernStatusSelected,
-                      newCrop.status === 'monitor' && styles.monitorSelected
+                      newCrop.status === 'monitor' && { backgroundColor: getStatusColor('monitor') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
                     activeOpacity={0.8}
@@ -596,13 +721,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="warning"
                       size={20}
-                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'}
+                      color={newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
+                      { color: newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor') }
                     ]}>
-                      Monitor
+                      {getStatusText('monitor')}
                     </Text>
                   </TouchableOpacity>
 
@@ -611,7 +736,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.criticalOption,
                       newCrop.status === 'critical' && styles.modernStatusSelected,
-                      newCrop.status === 'critical' && styles.criticalSelected
+                      newCrop.status === 'critical' && { backgroundColor: getStatusColor('critical') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
                     activeOpacity={0.8}
@@ -619,13 +744,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="error"
                       size={20}
-                      color={newCrop.status === 'critical' ? 'white' : '#F44336'}
+                      color={newCrop.status === 'critical' ? 'white' : getStatusColor('critical')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
+                      { color: newCrop.status === 'critical' ? 'white' : getStatusColor('critical') }
                     ]}>
-                      Critical
+                      {getStatusText('critical')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -837,7 +962,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.healthyOption,
                       newCrop.status === 'healthy' && styles.modernStatusSelected,
-                      newCrop.status === 'healthy' && styles.healthySelected
+                      newCrop.status === 'healthy' && { backgroundColor: getStatusColor('healthy') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
                     activeOpacity={0.8}
@@ -845,13 +970,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="check-circle"
                       size={20}
-                      color={newCrop.status === 'healthy' ? 'white' : '#4CAF50'}
+                      color={newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'healthy' ? 'white' : '#4CAF50' }
+                      { color: newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy') }
                     ]}>
-                      Healthy
+                      {getStatusText('healthy')}
                     </Text>
                   </TouchableOpacity>
 
@@ -860,7 +985,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.monitorOption,
                       newCrop.status === 'monitor' && styles.modernStatusSelected,
-                      newCrop.status === 'monitor' && styles.monitorSelected
+                      newCrop.status === 'monitor' && { backgroundColor: getStatusColor('monitor') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
                     activeOpacity={0.8}
@@ -868,13 +993,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="warning"
                       size={20}
-                      color={newCrop.status === 'monitor' ? 'white' : '#FF9800'}
+                      color={newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'monitor' ? 'white' : '#FF9800' }
+                      { color: newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor') }
                     ]}>
-                      Monitor
+                      {getStatusText('monitor')}
                     </Text>
                   </TouchableOpacity>
 
@@ -883,7 +1008,7 @@ export default function Crops() {
                       styles.modernStatusOption,
                       styles.criticalOption,
                       newCrop.status === 'critical' && styles.modernStatusSelected,
-                      newCrop.status === 'critical' && styles.criticalSelected
+                      newCrop.status === 'critical' && { backgroundColor: getStatusColor('critical') }
                     ]}
                     onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
                     activeOpacity={0.8}
@@ -891,13 +1016,13 @@ export default function Crops() {
                     <MaterialIcons
                       name="error"
                       size={20}
-                      color={newCrop.status === 'critical' ? 'white' : '#F44336'}
+                      color={newCrop.status === 'critical' ? 'white' : getStatusColor('critical')}
                     />
                     <Text style={[
                       styles.modernStatusText,
-                      { color: newCrop.status === 'critical' ? 'white' : '#F44336' }
+                      { color: newCrop.status === 'critical' ? 'white' : getStatusColor('critical') }
                     ]}>
-                      Critical
+                      {getStatusText('critical')}
                     </Text>
                   </TouchableOpacity>
                 </View>
@@ -936,7 +1061,10 @@ export default function Crops() {
                   styles.modernUpdateButton,
                   isSubmitting && styles.disabledButton
                 ]}
-                onPress={handleUpdateCrop}
+                onPress={() => {
+                  console.log('🔘 Update button pressed!');
+                  handleUpdateCrop();
+                }}
                 disabled={isSubmitting}
                 activeOpacity={0.8}
               >
@@ -1100,16 +1228,13 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   statusBadge: {
-    backgroundColor: '#4CAF50',
     color: 'white',
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
     fontSize: 11,
     fontWeight: 'bold',
-  },
-  warningBadge: {
-    backgroundColor: '#FF9800',
+    textTransform: 'capitalize',
   },
   cropStats: {
     flexDirection: 'row',
@@ -1208,10 +1333,6 @@ const styles = StyleSheet.create({
     color: '#999',
     marginTop: 4,
     textAlign: 'center',
-  },
-  // Additional badge style
-  criticalBadge: {
-    backgroundColor: '#F44336',
   },
   // Modal styles
   modalOverlay: {
@@ -1498,93 +1619,5 @@ const styles = StyleSheet.create({
   },
   modalFormPadding: {
     height: 16, // Increased from 12 to 16
-  },
-
-  // Old Modal styles (keeping for compatibility)
-  formGroup: {
-    marginBottom: 20,
-  },
-  formRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-  },
-  formLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
-  },
-  formInput: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 16,
-    backgroundColor: '#f9f9f9',
-  },
-  textArea: {
-    height: 80,
-    textAlignVertical: 'top',
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    padding: 20,
-    borderTopWidth: 1,
-    borderTopColor: '#f0f0f0',
-    gap: 10,
-  },
-  modalButton: {
-    flex: 1,
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  cancelButton: {
-    backgroundColor: '#f5f5f5',
-  },
-  saveButton: {
-    backgroundColor: '#4CAF50',
-  },
-  cancelButtonText: {
-    color: '#666',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  saveButtonText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  // Status selection styles
-  statusRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  statusOption: {
-    flex: 1,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    borderWidth: 2,
-    borderColor: '#4CAF50',
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-  },
-  statusSelected: {
-    backgroundColor: '#4CAF50',
-  },
-  statusMonitor: {
-    borderColor: '#FF9800',
-  },
-  statusCritical: {
-    borderColor: '#F44336',
-  },
-  statusText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#4CAF50',
-  },
-  statusTextSelected: {
-    color: 'white',
   },
 });
