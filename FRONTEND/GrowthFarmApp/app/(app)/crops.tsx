@@ -40,7 +40,6 @@ export default function Crops() {
     area: 0,
     areaUnit: 'acres',
     stage: 'Seeding',
-    status: 'healthy',
     farmId: 1,
     zoneId: 1,
     notes: '',
@@ -63,33 +62,7 @@ export default function Crops() {
     console.log('🚪 Modal state changed - Add:', isAddModalVisible, 'Edit:', isEditModalVisible);
   }, [isAddModalVisible, isEditModalVisible]);
 
-  // Helper function to get status color
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'healthy':
-        return '#4CAF50'; // Green
-      case 'monitor':
-        return '#FF9800'; // Orange
-      case 'critical':
-        return '#F44336'; // Red
-      default:
-        return '#4CAF50'; // Default to healthy green
-    }
-  };
 
-  // Helper function to get status display text
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'healthy':
-        return 'Healthy';
-      case 'monitor':
-        return 'Monitor';
-      case 'critical':
-        return 'Critical';
-      default:
-        return status;
-    }
-  };
 
   const loadCrops = async () => {
     try {
@@ -114,7 +87,6 @@ export default function Crops() {
       area: 0,
       areaUnit: 'acres',
       stage: 'Seeding',
-      status: 'healthy',
       farmId: 1,
       zoneId: 1,
       notes: '',
@@ -171,7 +143,6 @@ export default function Crops() {
       area: crop.area || 0, // [!] แก้ไข: ป้องกันค่า null ทำให้แอปแครช
       areaUnit: crop.areaUnit,
       stage: crop.stage,
-      status: crop.status,
       farmId: crop.farmId,
       zoneId: 1, // Set default zoneId since Crop interface doesn't include it
       notes: crop.notes || '',
@@ -217,7 +188,6 @@ export default function Crops() {
         area: newCrop.area,
         areaUnit: newCrop.areaUnit,
         stage: newCrop.stage,
-        status: newCrop.status,
         farmId: newCrop.farmId,
         notes: newCrop.notes,
       };
@@ -305,8 +275,7 @@ export default function Crops() {
   const filteredCrops = crops.filter(crop => 
     crop.name.toLowerCase().includes(searchText.toLowerCase()) ||
     crop.variety?.toLowerCase().includes(searchText.toLowerCase()) ||
-    crop.stage.toLowerCase().includes(searchText.toLowerCase()) ||
-    crop.status.toLowerCase().includes(searchText.toLowerCase())
+    crop.stage.toLowerCase().includes(searchText.toLowerCase())
   );
 
   // --- ส่วนของ UI เหมือนเดิม ไม่มีการเปลี่ยนแปลง ---
@@ -346,7 +315,21 @@ export default function Crops() {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         {/* Current Crops Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
+            <TouchableOpacity
+              style={styles.addCropButton}
+              onPress={() => {
+                console.log('🚀 Opening Add Crop modal');
+                resetForm(); // Ensure form is clean when opening modal
+                setIsAddModalVisible(true);
+              }}
+              activeOpacity={0.8}
+            >
+              <MaterialIcons name="add" size={20} color="white" />
+              <Text style={styles.addCropButtonText}>{t('crops.add_new_crop')}</Text>
+            </TouchableOpacity>
+          </View>
 
           {loading ? (
             <View style={styles.loadingContainer}>
@@ -375,14 +358,6 @@ export default function Crops() {
                     </View>
                   </View>
                   <View style={styles.cropActions}>
-                    <View style={styles.cropStatus}>
-                      <Text style={[
-                        styles.statusBadge,
-                        { backgroundColor: getStatusColor(crop.status) }
-                      ]}>
-                        {getStatusText(crop.status)}
-                      </Text>
-                    </View>
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         style={styles.editButton}
@@ -421,68 +396,7 @@ export default function Crops() {
           )}
         </View>
 
-        {/* Quick Actions */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('crops.quick_actions')}</Text>
-          <View style={styles.actionGrid}>
-            <TouchableOpacity
-              style={styles.actionCard}
-              onPress={() => {
-                console.log('🚀 Opening Add Crop modal');
-                resetForm(); // Ensure form is clean when opening modal
-                setIsAddModalVisible(true);
-              }}
-            >
-              <MaterialIcons name="add" size={24} color="#4CAF50" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>{t('crops.add_new_crop')}</Text>
-            </TouchableOpacity>
 
-            <TouchableOpacity style={styles.actionCard}>
-              <MaterialIcons name="analytics" size={24} color="#2196F3" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>{t('crops.view_analytics')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard}>
-              <MaterialIcons name="water-drop" size={24} color="#00BCD4" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>{t('crops.irrigation')}</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionCard}>
-              <MaterialIcons name="science" size={24} color="#9C27B0" style={styles.actionIcon} />
-              <Text style={styles.actionTitle}>{t('crops.soil_test')}</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Recent Activities */}
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{t('crops.recent_activities')}</Text>
-          <View style={styles.activityList}>
-            <View style={styles.activityItem}>
-              <MaterialIcons name="water-drop" size={20} color="#00BCD4" style={styles.activityIcon} />
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>{t('crops.irrigation_completed')}</Text>
-                <Text style={styles.activityTime}>2 {t('crops.hours_ago')}</Text>
-              </View>
-            </View>
-
-            <View style={styles.activityItem}>
-              <MaterialIcons name="eco" size={20} color="#4CAF50" style={styles.activityIcon} />
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>{t('crops.growth_stage_updated')}</Text>
-                <Text style={styles.activityTime}>5 {t('crops.hours_ago')}</Text>
-              </View>
-            </View>
-
-            <View style={styles.activityItem}>
-              <MaterialIcons name="science" size={20} color="#9C27B0" style={styles.activityIcon} />
-              <View style={styles.activityContent}>
-                <Text style={styles.activityTitle}>{t('crops.soil_analysis_report')}</Text>
-                <Text style={styles.activityTime}>1 {t('crops.day_ago')}</Text>
-              </View>
-            </View>
-          </View>
-        </View>
 
         <View style={styles.bottomSpace} />
       </ScrollView>
@@ -636,80 +550,7 @@ export default function Crops() {
                 </View>
               </View>
 
-              {/* Modern Status Selection */}
-              <View style={styles.modernFormGroup}>
-                <Text style={styles.modernFormLabel}>Status</Text>
-                <View style={styles.modernStatusRow}>
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.healthyOption,
-                      newCrop.status === 'healthy' && styles.modernStatusSelected,
-                      newCrop.status === 'healthy' && { backgroundColor: getStatusColor('healthy') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="check-circle"
-                      size={20}
-                      color={newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy') }
-                    ]}>
-                      {getStatusText('healthy')}
-                    </Text>
-                  </TouchableOpacity>
 
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.monitorOption,
-                      newCrop.status === 'monitor' && styles.modernStatusSelected,
-                      newCrop.status === 'monitor' && { backgroundColor: getStatusColor('monitor') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="warning"
-                      size={20}
-                      color={newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor') }
-                    ]}>
-                      {getStatusText('monitor')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.criticalOption,
-                      newCrop.status === 'critical' && styles.modernStatusSelected,
-                      newCrop.status === 'critical' && { backgroundColor: getStatusColor('critical') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="error"
-                      size={20}
-                      color={newCrop.status === 'critical' ? 'white' : getStatusColor('critical')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'critical' ? 'white' : getStatusColor('critical') }
-                    ]}>
-                      {getStatusText('critical')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
 
               {/* Notes - Modern Text Area */}
               <View style={styles.modernFormGroup}>
@@ -910,80 +751,6 @@ export default function Crops() {
               </View>
 
               <View style={styles.modernFormGroup}>
-                <Text style={styles.modernFormLabel}>Status</Text>
-                <View style={styles.modernStatusRow}>
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.healthyOption,
-                      newCrop.status === 'healthy' && styles.modernStatusSelected,
-                      newCrop.status === 'healthy' && { backgroundColor: getStatusColor('healthy') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'healthy' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="check-circle"
-                      size={20}
-                      color={newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'healthy' ? 'white' : getStatusColor('healthy') }
-                    ]}>
-                      {getStatusText('healthy')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.monitorOption,
-                      newCrop.status === 'monitor' && styles.modernStatusSelected,
-                      newCrop.status === 'monitor' && { backgroundColor: getStatusColor('monitor') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'monitor' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="warning"
-                      size={20}
-                      color={newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'monitor' ? 'white' : getStatusColor('monitor') }
-                    ]}>
-                      {getStatusText('monitor')}
-                    </Text>
-                  </TouchableOpacity>
-
-                  <TouchableOpacity
-                    style={[
-                      styles.modernStatusOption,
-                      styles.criticalOption,
-                      newCrop.status === 'critical' && styles.modernStatusSelected,
-                      newCrop.status === 'critical' && { backgroundColor: getStatusColor('critical') }
-                    ]}
-                    onPress={() => setNewCrop(prev => ({ ...prev, status: 'critical' }))}
-                    activeOpacity={0.8}
-                  >
-                    <MaterialIcons
-                      name="error"
-                      size={20}
-                      color={newCrop.status === 'critical' ? 'white' : getStatusColor('critical')}
-                    />
-                    <Text style={[
-                      styles.modernStatusText,
-                      { color: newCrop.status === 'critical' ? 'white' : getStatusColor('critical') }
-                    ]}>
-                      {getStatusText('critical')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              <View style={styles.modernFormGroup}>
                 <Text style={styles.modernFormLabel}>Notes</Text>
                 <View style={[styles.inputWrapper, styles.textAreaWrapper]}>
                   <MaterialIcons name="notes" size={20} color="#2196F3" style={[styles.inputIcon, styles.textAreaIcon]} />
@@ -1144,11 +911,40 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
   },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    flexWrap: 'wrap',
+    gap: 8,
+  },
   sectionTitle: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginBottom: 12,
+    flex: 1,
+    minWidth: 120,
+  },
+  addCropButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#4CAF50',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 6,
+    shadowColor: '#4CAF50',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 120,
+  },
+  addCropButtonText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: '600',
   },
   cropCard: {
     backgroundColor: '#f8f9fa',
@@ -1179,18 +975,6 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#666',
   },
-  cropStatus: {
-    alignItems: 'flex-end',
-  },
-  statusBadge: {
-    color: 'white',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    fontSize: 11,
-    fontWeight: 'bold',
-    textTransform: 'capitalize',
-  },
   cropStats: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -1209,55 +993,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  actionGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    gap: 8,
-  },
-  actionCard: {
-    width: '48%',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    padding: 12,
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  actionIcon: {
-    fontSize: 20,
-    marginBottom: 6,
-  },
-  actionTitle: {
-    fontSize: 12,
-    fontWeight: '500',
-    color: '#333',
-    textAlign: 'center',
-  },
-  activityList: {
-    gap: 8,
-  },
-  activityItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 6,
-  },
-  activityIcon: {
-    fontSize: 16,
-    marginRight: 12,
-  },
-  activityContent: {
-    flex: 1,
-  },
-  activityTitle: {
-    fontSize: 12,
-    color: '#333',
-    fontWeight: '500',
-    marginBottom: 1,
-  },
-  activityTime: {
-    fontSize: 10,
-    color: '#999',
-  },
+
   bottomSpace: {
     height: 120,
   },
@@ -1416,63 +1152,7 @@ const styles = StyleSheet.create({
     paddingTop: 8, // Increased from 6 to 8
   },
 
-  // Modern Status Selection
-  modernStatusRow: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  modernStatusOption: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 16, // Increased from 12 to 16
-    paddingHorizontal: 12, // Increased from 8 to 12
-    borderRadius: 12,
-    borderWidth: 1.5,
-    backgroundColor: 'white',
-    gap: 8, // Increased from 6 to 8
-  },
-  healthyOption: {
-    borderColor: '#c6f6d5',
-    backgroundColor: '#f0fff4',
-  },
-  monitorOption: {
-    borderColor: '#fed7aa',
-    backgroundColor: '#fffbeb',
-  },
-  criticalOption: {
-    borderColor: '#fecaca',
-    backgroundColor: '#fef2f2',
-  },
-  modernStatusSelected: {
-    transform: [{ scale: 1.02 }],
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
-    shadowRadius: 8,
-    elevation: 8,
-  },
-  // Selected state backgrounds
-  healthySelected: {
-    backgroundColor: '#4CAF50',
-    borderColor: '#4CAF50',
-  },
-  monitorSelected: {
-    backgroundColor: '#FF9800',
-    borderColor: '#FF9800',
-  },
-  criticalSelected: {
-    backgroundColor: '#F44336',
-    borderColor: '#F44336',
-  },
-  modernStatusText: {
-    fontSize: 14, // Increased from 12 to 14
-    fontWeight: '600',
-  },
-  modernStatusTextSelected: {
-    color: 'white',
-  },
+
 
   // Modern Footer
   modernModalFooter: {
@@ -1530,8 +1210,8 @@ const styles = StyleSheet.create({
   },
   // Crop card action styles
   cropActions: {
-    flexDirection: 'column',
-    alignItems: 'flex-end',
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 6,
   },
   actionButtons: {

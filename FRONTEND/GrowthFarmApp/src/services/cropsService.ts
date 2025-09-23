@@ -10,7 +10,6 @@ export interface Crop {
   area: number;
   areaUnit: string;
   stage: string;
-  status: 'healthy' | 'monitor' | 'critical';
   farmId: number;
   notes?: string;
   createdAt?: string;
@@ -19,9 +18,6 @@ export interface Crop {
 
 export interface CropStats {
   totalCrops: number;
-  healthyCrops: number;
-  monitorCrops: number;
-  criticalCrops: number;
   totalArea: number;
 }
 
@@ -33,7 +29,6 @@ export interface CreateCropRequest {
   area: number;
   areaUnit: string;
   stage: string;
-  status: 'healthy' | 'monitor' | 'critical';
   farmId: number;
   zoneId?: number;
   notes?: string;
