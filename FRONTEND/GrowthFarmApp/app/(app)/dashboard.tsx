@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal, Platform } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { router } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -21,7 +21,6 @@ export default function Dashboard() {
   const { t } = useTranslation();
   const { user: authUser, isLoading: authLoading } = useAuth();
   const [user, setUser] = useState<User | null>(authUser);
-  const [showVoiceModal, setShowVoiceModal] = useState(false);
   const isGuest = !authUser || authUser.username === 'guest';
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
@@ -355,143 +354,109 @@ export default function Dashboard() {
           </Animated.View>
         </Animated.View>
 
-        {/* Market Prices */}
+        {/* Today's Prices */}
         <Animated.View
           style={styles.marketSection}
           entering={SlideInRight.delay(1500).duration(800)}
         >
           <View style={styles.marketHeader}>
-            <Text style={styles.marketTitle}>{t('dashboard.market_prices')}</Text>
+            <Text style={styles.marketTitle}>{t('market.todays_prices') || "Today's Prices"}</Text>
             <TouchableOpacity onPress={() => router.push('/(app)/marketplace')}>
-              <Text style={styles.marketUpdate}>{t('dashboard.todays_update')}</Text>
+              <Text style={styles.marketUpdate}>{t('market.updated_5_min') || 'Updated 5 min ago'}</Text>
             </TouchableOpacity>
           </View>
 
           <Animated.View
-            style={styles.marketItem}
+            style={styles.priceCard}
             entering={FadeInUp.delay(1700).duration(500)}
           >
-            <View style={styles.marketCrop}>
-              <MaterialIcons name="grass" size={20} color="#4CAF50" style={styles.marketIcon} />
-              <Text style={styles.marketName}>{t('dashboard.wheat')}</Text>
+            <View style={styles.priceHeader}>
+              <View style={styles.cropInfo}>
+                <MaterialIcons name="grass" size={20} color="#FFB74D" style={styles.marketCropIcon} />
+                <Text style={styles.cropName}>{t('market.wheat') || 'Wheat'}</Text>
+              </View>
+              <View style={styles.priceChange}>
+                <Text style={[styles.changeText, styles.positive]}>+2.5%</Text>
+                <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
+              </View>
             </View>
-            <View style={styles.marketPrice}>
-              <Text style={styles.priceValue}>$7.25/bushel</Text>
-              <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
-            </View>
+            <Text style={styles.currentPrice}>$7.25/bushel</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $7.07</Text>
           </Animated.View>
 
           <Animated.View
-            style={styles.marketItem}
+            style={styles.priceCard}
             entering={FadeInUp.delay(1800).duration(500)}
           >
-            <View style={styles.marketCrop}>
-              <MaterialIcons name="grain" size={20} color="#FF9800" style={styles.marketIcon} />
-              <Text style={styles.marketName}>{t('dashboard.corn')}</Text>
+            <View style={styles.priceHeader}>
+              <View style={styles.cropInfo}>
+                <MaterialIcons name="grain" size={20} color="#FFD54F" style={styles.marketCropIcon} />
+                <Text style={styles.cropName}>{t('market.corn') || 'Corn'}</Text>
+              </View>
+              <View style={styles.priceChange}>
+                <Text style={[styles.changeText, styles.negative]}>-1.2%</Text>
+                <MaterialIcons name="arrow-downward" size={16} color="#F44336" />
+              </View>
             </View>
-            <View style={styles.marketPrice}>
-              <Text style={styles.priceValue}>$4.12/bushel</Text>
-              <MaterialIcons name="arrow-downward" size={16} color="#f44336" />
-            </View>
+            <Text style={styles.currentPrice}>$4.12/bushel</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $4.17</Text>
           </Animated.View>
 
           <Animated.View
-            style={styles.marketItem}
+            style={styles.priceCard}
             entering={FadeInUp.delay(1900).duration(500)}
           >
-            <View style={styles.marketCrop}>
-              <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.marketIcon} />
-              <Text style={styles.marketName}>{t('dashboard.soybeans')}</Text>
+            <View style={styles.priceHeader}>
+              <View style={styles.cropInfo}>
+                <MaterialIcons name="agriculture" size={20} color="#8BC34A" style={styles.marketCropIcon} />
+                <Text style={styles.cropName}>{t('market.soybeans') || 'Soybeans'}</Text>
+              </View>
+              <View style={styles.priceChange}>
+                <Text style={[styles.changeText, styles.positive]}>+4.1%</Text>
+                <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
+              </View>
             </View>
-            <View style={styles.marketPrice}>
-              <Text style={styles.priceValue}>$13.87/bushel</Text>
-              <MaterialIcons name="arrow-upward" size={16} color="#4CAF50" />
+            <Text style={styles.currentPrice}>$13.87/bushel</Text>
+            <Text style={styles.previousPrice}>{t('market.yesterday') || 'Yesterday'}: $13.32</Text>
+          </Animated.View>
+        </Animated.View>
+
+        {/* Weekly Trends */}
+        <Animated.View
+          style={styles.trendsSection}
+          entering={SlideInLeft.delay(2000).duration(800)}
+        >
+          <Text style={styles.sectionTitle}>{t('market.weekly_trends') || 'Weekly Trends'}</Text>
+          
+          <Animated.View
+            style={styles.trendCard}
+            entering={FadeInUp.delay(2200).duration(500)}
+          >
+            <Text style={styles.trendTitle}>{t('market.hot_this_week') || 'Hot This Week'}</Text>
+            <Text style={styles.trendDescription}>{t('market.strong_upward') || 'Strong upward trend'}</Text>
+            <View style={styles.trendStats}>
+              <Text style={[styles.trendStat, styles.positive]}>+12.5% {t('market.this_week') || 'this week'}</Text>
+            </View>
+          </Animated.View>
+          
+          <Animated.View
+            style={styles.trendCard}
+            entering={FadeInUp.delay(2300).duration(500)}
+          >
+            <Text style={styles.trendTitle}>{t('market.watch_out') || 'Watch Out'}</Text>
+            <Text style={styles.trendDescription}>{t('market.declining_oversupply') || 'Declining due to oversupply'}</Text>
+            <View style={styles.trendStats}>
+              <Text style={[styles.trendStat, styles.negative]}>-5.8% {t('market.this_week') || 'this week'}</Text>
             </View>
           </Animated.View>
         </Animated.View>
 
-        {/* Voice Assistant */}
-        <Animated.View
-          entering={FadeInUp.delay(2000).duration(800)}
-        >
-          <TouchableOpacity
-            style={styles.voiceAssistant}
-            onPress={() => setShowVoiceModal(true)}
-            activeOpacity={0.8}
-          >
-            <View style={styles.voiceIcon}>
-              <MaterialIcons name="mic" size={24} color="white" />
-            </View>
-            <View style={styles.voiceContent}>
-              <Text style={styles.voiceTitle}>{t('dashboard.voice_assistant')}</Text>
-              <Text style={styles.voiceText}>{t('dashboard.voice_assistant_desc')}</Text>
-            </View>
-            <MaterialIcons name="chevron-right" size={20} color="rgba(255, 255, 255, 0.8)" style={styles.voiceArrow} />
-          </TouchableOpacity>
-        </Animated.View>
+
 
         <View style={styles.bottomSpace} />
       </ScrollView>
 
-      {/* Voice Assistant Modal */}
-      <Modal
-        visible={showVoiceModal}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setShowVoiceModal(false)}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={styles.modalContent}
-            entering={FadeInUp.duration(400)}
-          >
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>{t('dashboard.voice_assistant')}</Text>
-              <TouchableOpacity
-                style={styles.closeButton}
-                onPress={() => setShowVoiceModal(false)}
-              >
-                <MaterialIcons name="close" size={16} color="#666" />
-              </TouchableOpacity>
-            </View>
 
-            <View style={styles.voiceModalBody}>
-              <View style={styles.microphoneContainer}>
-                <TouchableOpacity style={styles.microphoneButton}>
-                  <MaterialIcons name="mic" size={32} color="white" />
-                </TouchableOpacity>
-                <Text style={styles.micStatus}>{t('voice_ai.tap_to_speak')}</Text>
-              </View>
-
-              <View style={styles.suggestionsContainer}>
-                <Text style={styles.suggestionsTitle}>{t('voice_ai.try_asking')}</Text>
-                <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>{t('voice_ai.wheat_crop_question')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>{t('voice_ai.market_prices_question')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>{t('voice_ai.weather_forecast_question')}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.suggestionItem}>
-                  <Text style={styles.suggestionText}>{t('voice_ai.farm_alerts_question')}</Text>
-                </TouchableOpacity>
-              </View>
-
-              <TouchableOpacity
-                style={styles.fullVoiceButton}
-                onPress={() => {
-                  setShowVoiceModal(false);
-                  router.push('/(app)/voice-ai');
-                }}
-              >
-                <Text style={styles.fullVoiceText}>{t('voice_ai.open_full_assistant')}</Text>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
 
       {/* Navigation Bar ด้านล่าง */}
       <NavBar />
@@ -857,168 +822,102 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#4CAF50',
   },
-  marketItem: {
+  // New styles for enhanced Today's Prices and Weekly Trends
+  priceCard: {
+    backgroundColor: '#f8f9fa',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  priceHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
+    marginBottom: 10,
   },
-  marketCrop: {
+  cropInfo: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-  marketIcon: {
+  marketCropIcon: {
     marginRight: 10,
   },
-  marketName: {
-    fontSize: 16,
-    color: '#333',
-  },
-  marketPrice: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  priceValue: {
+  cropName: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
+  },
+  priceChange: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  changeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
     marginRight: 5,
   },
-  voiceAssistant: {
-    backgroundColor: '#4CAF50',
+  positive: {
+    color: '#4CAF50',
+  },
+  negative: {
+    color: '#F44336',
+  },
+  currentPrice: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  previousPrice: {
+    fontSize: 12,
+    color: '#666',
+  },
+  trendsSection: {
+    backgroundColor: 'white',
     margin: 10,
     borderRadius: 12,
     padding: 20,
-    flexDirection: 'row',
-    alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
     elevation: 3,
   },
-  voiceIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  voiceContent: {
-    flex: 1,
-  },
-  voiceTitle: {
+  sectionTitle: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
-  },
-  voiceText: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.9)',
-  },
-  voiceArrow: {
-    marginLeft: 10,
-  },
-  bottomSpace: {
-    height: 120,
-  },
-  // Modal styles
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderRadius: 20,
-    width: '100%',
-    maxWidth: 400,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  closeButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    backgroundColor: '#f0f0f0',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  voiceModalBody: {
-    padding: 20,
-  },
-  microphoneContainer: {
-    alignItems: 'center',
-    marginBottom: 30,
-  },
-  microphoneButton: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
-  },
-  micStatus: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-  },
-  suggestionsContainer: {
-    marginBottom: 20,
-  },
-  suggestionsTitle: {
-    fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
     marginBottom: 15,
   },
-  suggestionItem: {
-    paddingVertical: 10,
-    paddingHorizontal: 15,
-    backgroundColor: '#f8f9fa',
-    borderRadius: 8,
-    marginBottom: 8,
-  },
-  suggestionText: {
-    fontSize: 14,
-    color: '#555',
-  },
-  fullVoiceButton: {
-    backgroundColor: '#4CAF50',
+  trendCard: {
+    backgroundColor: '#f0f8f0',
     padding: 15,
     borderRadius: 10,
-    alignItems: 'center',
+    marginBottom: 10,
   },
-  fullVoiceText: {
-    color: 'white',
+  trendTitle: {
     fontSize: 16,
     fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  trendDescription: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 10,
+  },
+  trendStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  trendStat: {
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+  bottomSpace: {
+    height: 120,
   },
   guestBadge: {
     backgroundColor: '#FFE4B5',

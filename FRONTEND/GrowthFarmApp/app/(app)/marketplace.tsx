@@ -178,7 +178,54 @@ export default function MarketplaceScreen() {
         contentContainerStyle={{ paddingBottom: 120 }} // <-- Add this line
       >
         <Animated.View style={styles.searchSection} entering={FadeInUp.duration(600)}>
-          <Text style={styles.marketplaceTitle}>{t('market.title')}</Text>
+          <Text style={styles.marketplaceTitle}>{t('navigation.marketplace') || 'Marketplace'}</Text>
+        </Animated.View>
+
+        {/* Market News & Updates */}
+        <Animated.View 
+          style={styles.newsSection}
+          entering={FadeInUp.delay(200).duration(800)}
+        >
+          <Text style={styles.newsSectionTitle}>{t('market.market_news') || 'Market News & Updates'}</Text>
+          <View style={styles.newsList}>
+            <Animated.View 
+              style={styles.newsItem}
+              entering={FadeInUp.delay(300).duration(500)}
+            >
+              <View style={styles.newsContent}>
+                <Text style={styles.newsTitle}>{t('market.global_wheat_demand') || 'Global Wheat Demand Rises'}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.export_opportunities') || 'New export opportunities for local farmers'}</Text>
+                <Text style={styles.newsTime}>{t('market.hours_ago_2') || '2 hours ago'}</Text>
+              </View>
+            </Animated.View>
+            
+            <Animated.View 
+              style={styles.newsItem}
+              entering={FadeInUp.delay(400).duration(500)}
+            >
+              <View style={styles.newsContent}>
+                <Text style={styles.newsTitle}>{t('market.weather_forecast_corn') || 'Weather Forecast Affects Corn Prices'}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.rain_impact_harvest') || 'Expected rain may impact harvest timing'}</Text>
+                <Text style={styles.newsTime}>{t('market.hours_ago_5') || '5 hours ago'}</Text>
+              </View>
+            </Animated.View>
+            
+            <Animated.View 
+              style={styles.newsItem}
+              entering={FadeInUp.delay(500).duration(500)}
+            >
+              <View style={styles.newsContent}>
+                <Text style={styles.newsTitle}>{t('market.trade_agreement_soybean') || 'New Trade Agreement Boosts Soybean Demand'}</Text>
+                <Text style={styles.newsSubtitle}>{t('market.farmers_higher_demand') || 'Farmers can expect higher demand and better prices'}</Text>
+                <Text style={styles.newsTime}>{t('market.day_ago_1') || '1 day ago'}</Text>
+              </View>
+            </Animated.View>
+          </View>
+        </Animated.View>
+
+        {/* Search Products Section */}
+        <Animated.View style={styles.productsSearchSection} entering={FadeInUp.delay(600).duration(600)}>
+          <Text style={styles.searchProductsTitle}>{t('market.search_products') || 'Search Products'}</Text>
           <View style={styles.searchContainer}>
              <TextInput 
                 style={styles.searchInput} 
@@ -192,7 +239,7 @@ export default function MarketplaceScreen() {
           </View>
         </Animated.View>
 
-        <Animated.View entering={FadeInUp.delay(200).duration(600)}>
+        <Animated.View entering={FadeInUp.delay(700).duration(600)}>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryTabs}>
             {categories.map((category) => (
               <TouchableOpacity key={category} style={[styles.categoryTab, selectedCategory === category && styles.selectedCategoryTab]} onPress={() => setSelectedCategory(category)}>
@@ -202,7 +249,7 @@ export default function MarketplaceScreen() {
           </ScrollView>
         </Animated.View>
 
-        <Animated.View style={styles.section} entering={FadeInUp.delay(400).duration(600)}>
+        <Animated.View style={styles.section} entering={FadeInUp.delay(800).duration(600)}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t('market.featured_products')}</Text>
             <View style={styles.productStats}>
@@ -232,6 +279,8 @@ const styles = StyleSheet.create({
   content: { flex: 1 },
   searchSection: { backgroundColor: 'white', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
   marketplaceTitle: { fontSize: 28, fontWeight: 'bold', color: '#333', marginBottom: 15 },
+  productsSearchSection: { backgroundColor: 'white', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },
+  searchProductsTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', marginBottom: 15 },
   searchContainer: { flexDirection: 'row', alignItems: 'center' },
   searchInput: { flex: 1, backgroundColor: '#f0f0f0', borderRadius: 25, paddingHorizontal: 20, paddingVertical: 12, fontSize: 16, marginRight: 10 },
   filterButton: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#4CAF50', alignItems: 'center', justifyContent: 'center' },
@@ -362,5 +411,53 @@ const styles = StyleSheet.create({
     marginTop: 50, 
     color: 'red',
     fontSize: 16 
+  },
+  // Market News Styles
+  newsSection: {
+    backgroundColor: 'white',
+    margin: 10,
+    borderRadius: 12,
+    padding: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  newsSectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 15,
+  },
+  newsList: {
+    gap: 10,
+  },
+  newsItem: {
+    backgroundColor: '#f0f8f0',
+    padding: 15,
+    borderRadius: 10,
+    marginBottom: 10,
+    borderLeftWidth: 4,
+    borderLeftColor: '#4CAF50',
+  },
+  newsContent: {
+    flex: 1,
+  },
+  newsTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+    marginBottom: 5,
+  },
+  newsSubtitle: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 8,
+  },
+  newsTime: {
+    fontSize: 12,
+    color: '#4CAF50',
+    fontWeight: '500',
   },
 });
