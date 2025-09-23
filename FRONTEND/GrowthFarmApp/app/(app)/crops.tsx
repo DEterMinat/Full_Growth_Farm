@@ -271,6 +271,70 @@ export default function Crops() {
     }
   };
 
+  // Export functionality
+  const generateCSV = (data: Crop[]) => {
+    // Use translation key to detect language more reliably
+    const isEnglish = t('crops.crops_management').includes('Crop') || 
+                      t('crops.current_crops').toLowerCase().includes('current');
+    
+    const headers = isEnglish
+      ? ['Name', 'Variety', 'Area', 'Unit', 'Stage', 'Planting Date', 'Harvest Date', 'Notes']
+      : ['ชื่อพืชผล', 'พันธุ์', 'พื้นที่', 'หน่วย', 'ระยะการเจริญเติบโต', 'วันที่ปลูก', 'วันที่เก็บเกี่ยว', 'หมายเหตุ'];
+    
+    const csvHeaders = headers.join(',');
+    const csvRows = data.map(crop => [
+      `"${crop.name}"`,
+      `"${crop.variety || ''}"`,
+      crop.area,
+      `"${crop.areaUnit}"`,
+      `"${crop.stage}"`,
+      `"${new Date(crop.plantingDate).toLocaleDateString()}"`,
+      `"${new Date(crop.expectedHarvestDate).toLocaleDateString()}"`,
+      `"${crop.notes || ''}"`
+    ].join(','));
+    
+    return [csvHeaders, ...csvRows].join('\n');
+  };
+
+  const handleExportData = () => {
+    if (crops.length === 0) {
+      Alert.alert(
+        t('export.no_data') || 'ไม่มีข้อมูล',
+        t('export.no_crops_message') || 'ไม่พบข้อมูลพืชผลในระบบ กรุณาเพิ่มข้อมูลพืชผลก่อน Export',
+        [{ text: t('common.ok') || 'ตกลง' }]
+      );
+      return;
+    }
+
+    // Use more reliable language detection
+    const isEnglish = t('crops.crops_management').includes('Crop') || 
+                      t('crops.current_crops').toLowerCase().includes('current');
+    
+    const csvContent = generateCSV(crops);
+    
+    // Create downloadable content
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = isEnglish 
+      ? `crop_data_${new Date().toISOString().split('T')[0]}.csv`
+      : `ข้อมูลพืชผล_${new Date().toISOString().split('T')[0]}.csv`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    Alert.alert(
+      isEnglish ? 'Export Successful' : 'Export สำเร็จ',
+      isEnglish 
+        ? `Crop data exported successfully! (${crops.length} items)`
+        : `ข้อมูลพืชผลถูก Export เรียบร้อยแล้ว! (${crops.length} รายการ)`,
+      [{ text: isEnglish ? 'OK' : 'ตกลง' }]
+    );
+  };
+
   // Filter crops based on search text
   const filteredCrops = crops.filter(crop => 
     crop.name.toLowerCase().includes(searchText.toLowerCase()) ||
@@ -278,7 +342,7 @@ export default function Crops() {
     crop.stage.toLowerCase().includes(searchText.toLowerCase())
   );
 
-  // --- ส่วนของ UI เหมือนเดิม ไม่มีการเปลี่ยนแปลง ---
+  // --- UI ---
   return (
     <View style={styles.container}>
       {/* Header */}
@@ -317,18 +381,30 @@ export default function Crops() {
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t('crops.current_crops')}</Text>
-            <TouchableOpacity
-              style={styles.addCropButton}
-              onPress={() => {
-                console.log('🚀 Opening Add Crop modal');
-                resetForm(); // Ensure form is clean when opening modal
-                setIsAddModalVisible(true);
-              }}
-              activeOpacity={0.8}
-            >
-              <MaterialIcons name="add" size={20} color="white" />
-              <Text style={styles.addCropButtonText}>{t('crops.add_new_crop')}</Text>
-            </TouchableOpacity>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                style={styles.exportButton}
+                onPress={handleExportData}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="file-download" size={18} color="white" />
+                <Text style={styles.exportButtonText}>
+                  Export
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addCropButton}
+                onPress={() => {
+                  console.log('🚀 Opening Add Crop modal');
+                  resetForm(); // Ensure form is clean when opening modal
+                  setIsAddModalVisible(true);
+                }}
+                activeOpacity={0.8}
+              >
+                <MaterialIcons name="add" size={20} color="white" />
+                <Text style={styles.addCropButtonText}>{t('crops.add_new_crop')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           {loading ? (
@@ -925,6 +1001,32 @@ const styles = StyleSheet.create({
     color: '#333',
     flex: 1,
     minWidth: 120,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+    alignItems: 'center',
+  },
+  exportButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FF9800',
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderRadius: 20,
+    gap: 4,
+    shadowColor: '#FF9800',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+    minWidth: 80,
+  },
+  exportButtonText: {
+    color: 'white',
+    fontSize: 11,
+    fontWeight: '600',
   },
   addCropButton: {
     flexDirection: 'row',
