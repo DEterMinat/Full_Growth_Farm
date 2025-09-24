@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Platform } from 'react-native';
 import { router } from 'expo-router';
 import Animated, {
   FadeIn,
@@ -13,7 +13,6 @@ import { useAuth } from '@/src/contexts/AuthContext';
 import { LanguageToggleButton } from '@/components/LanguageToggleButton';
 import { User } from '@/src/services/authService';
 import { weatherService, WeatherData } from '@/src/services/weatherService';
-import { newsService, NewsItem } from '@/src/services/newsService';
 import NavBar from '@/components/navigation/NavBar';
 import EmergencyLogout from '@/src/utils/EmergencyLogout';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -30,57 +29,11 @@ export default function Dashboard() {
   const [weatherStatus, setWeatherStatus] = useState<string>('');
   const weatherIntervalRef = useRef<any>(null);
 
-  // News state
-  const [news, setNews] = useState<NewsItem[]>([]);
-  const [newsLoading, setNewsLoading] = useState(true);
-  const [newsError, setNewsError] = useState<string | null>(null);
-
   useEffect(() => {
     if (authUser) {
       setUser(authUser);
     }
   }, [authUser, authLoading]);
-
-  // Helper functions for news
-  const getCategoryColor = (category: string) => {
-    const colors: Record<string, string> = {
-      'market': '#4CAF50',
-      'crops': '#2196F3',
-      'export': '#FF9800',
-      'government': '#9C27B0',
-      'technology': '#607D8B',
-      'default': '#666666'
-    };
-    return colors[category] || colors['default'];
-  };
-
-  const getCategoryIcon = (category: string) => {
-    const icons: Record<string, string> = {
-      'market': 'trending-up',
-      'crops': 'agriculture',
-      'export': 'local-shipping',
-      'government': 'account-balance',
-      'technology': 'science',
-      'default': 'info'
-    };
-    return icons[category] || icons['default'];
-  };
-
-  // ฟังก์ชันดึงข่าวตลาดไทย
-  const fetchNews = async (showLoading = true) => {
-    try {
-      if (showLoading) setNewsLoading(true);
-      const fetchedNews = await newsService.getThaiAgriculturalNews();
-      setNews(fetchedNews);
-      setNewsError(null);
-      console.log('Thai agricultural news loaded:', { count: fetchedNews.length, sources: fetchedNews.map(n => n.source) });
-    } catch (err) {
-      setNewsError('ไม่สามารถโหลดข่าวได้');
-      console.error('Error fetching Thai news:', err);
-    } finally {
-      if (showLoading) setNewsLoading(false);
-    }
-  };
 
   // ฟังก์ชันสำหรับดึงข้อมูลสภาพอากาศ
   const fetchWeather = async (showLoading = true) => {
@@ -105,15 +58,13 @@ export default function Dashboard() {
     }
   };
 
-  // เริ่มต้นดึงข้อมูลสภาพอากาศและข่าวตลาด พร้อมตั้ง interval สำหรับ auto-refresh
+  // เริ่มต้นดึงข้อมูลสภาพอากาศ พร้อมตั้ง interval สำหรับ auto-refresh
   useEffect(() => {
     fetchWeather();
-    fetchNews();
 
     // ตั้งค่าให้อัปเดตข้อมูลทุก 10 นาที (600,000 ms)
     weatherIntervalRef.current = setInterval(() => {
       fetchWeather(false); // ไม่แสดง loading indicator สำหรับการอัปเดตอัตโนมัติ
-      fetchNews(false); // ดึงข้อมูลข่าวด้วย
     }, 600000);
 
     // Cleanup interval เมื่อ component ถูก unmount
@@ -312,42 +263,6 @@ export default function Dashboard() {
           </View>
         </Animated.View>
 
-        {/* Field Overview */}
-        <Animated.View
-          style={styles.fieldSection}
-          entering={FadeInUp.delay(800).duration(800)}
-        >
-          <View style={styles.fieldHeader}>
-            <Text style={styles.fieldTitle}>{t('dashboard.field_overview')}</Text>
-            <TouchableOpacity onPress={() => router.push('/(app)/data-recording')}>
-              <Text style={styles.viewDetails}>{t('dashboard.view_details')}</Text>
-            </TouchableOpacity>
-          </View>
-          
-          {isGuest && (
-            <View style={styles.demoNotice}>
-              <Text style={styles.demoNoticeText}>{t('dashboard.example_satellite_data')}</Text>
-            </View>
-          )}
-          
-          <View style={styles.fieldImageContainer}>
-            <View style={styles.fieldImage}>
-              <MaterialIcons name="satellite" size={40} color="#4CAF50" />
-              <Text style={styles.droneText}>{t('dashboard.drone_survey_view')}</Text>
-            </View>
-            <View style={styles.fieldLegend}>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#4CAF50' }]} />
-                <Text style={styles.legendText}>{t('dashboard.healthy_areas')}</Text>
-              </View>
-              <View style={styles.legendItem}>
-                <View style={[styles.legendDot, { backgroundColor: '#FF9800' }]} />
-                <Text style={styles.legendText}>{t('dashboard.stressed_areas')}</Text>
-              </View>
-            </View>
-          </View>
-        </Animated.View>
-
         {/* Notifications */}
         <Animated.View
           style={styles.notificationsSection}
@@ -404,71 +319,6 @@ export default function Dashboard() {
               <Text style={styles.notificationText}>{t('dashboard.temperature_desc')}</Text>
             </View>
           </Animated.View>
-        </Animated.View>
-
-        {/* Market News & Updates */}
-        <Animated.View 
-          style={styles.newsSection}
-          entering={SlideInRight.delay(1500).duration(800)}
-        >
-          <View style={styles.newsHeader}>
-            <Text style={styles.newsSectionTitle}>{t('market.market_news') || 'Market News & Updates'}</Text>
-            <TouchableOpacity onPress={() => fetchNews(true)} style={styles.refreshNewsButton}>
-              <MaterialIcons 
-                name="refresh" 
-                size={18} 
-                color={newsLoading ? "#999" : "#4CAF50"} 
-              />
-            </TouchableOpacity>
-          </View>
-
-          {newsLoading ? (
-            <View style={styles.newsLoadingContainer}>
-              <ActivityIndicator size="small" color="#4CAF50" />
-              <Text style={styles.newsLoadingText}>กำลังโหลดข่าวล่าสุด...</Text>
-            </View>
-          ) : newsError ? (
-            <View style={styles.newsErrorContainer}>
-              <MaterialIcons name="error-outline" size={24} color="#f44336" />
-              <Text style={styles.newsErrorText}>{newsError}</Text>
-              <TouchableOpacity onPress={() => fetchNews(true)} style={styles.retryButton}>
-                <Text style={styles.retryButtonText}>ลองใหม่</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.newsList}>
-              {news.slice(0, 3).map((newsItem, index) => (
-                <Animated.View 
-                  key={newsItem.id}
-                  style={[styles.newsItem, { borderLeftColor: getCategoryColor(newsItem.category) }]}
-                  entering={FadeInUp.delay(1700 + index * 100).duration(500)}
-                >
-                  <View style={styles.newsContent}>
-                    <Text style={styles.newsTitle} numberOfLines={2}>{newsItem.title}</Text>
-                    <Text style={styles.newsSubtitle} numberOfLines={2}>{newsItem.subtitle}</Text>
-                    <View style={styles.newsFooter}>
-                      <Text style={styles.newsTime}>{newsItem.timeAgo}</Text>
-                      <Text style={styles.newsSource}>{newsItem.source}</Text>
-                    </View>
-                  </View>
-                  <View style={[styles.categoryBadge, { backgroundColor: getCategoryColor(newsItem.category) }]}>
-                    <MaterialIcons 
-                      name={getCategoryIcon(newsItem.category) as any} 
-                      size={14} 
-                      color="white" 
-                    />
-                  </View>
-                </Animated.View>
-              ))}
-              
-              {news.length === 0 && (
-                <View style={styles.noNewsContainer}>
-                  <MaterialIcons name="article" size={48} color="#ccc" />
-                  <Text style={styles.noNewsText}>ไม่มีข่าวในขณะนี้</Text>
-                </View>
-              )}
-            </View>
-          )}
         </Animated.View>
 
         <View style={styles.bottomSpace} />
@@ -698,68 +548,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#333',
   },
-  fieldSection: {
-    backgroundColor: 'white',
-    margin: 10,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  fieldHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  fieldTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  viewDetails: {
-    fontSize: 14,
-    color: '#4CAF50',
-    fontWeight: '500',
-  },
-  fieldImageContainer: {
-    alignItems: 'center',
-  },
-  fieldImage: {
-    width: '100%',
-    height: 150,
-    backgroundColor: '#e8f5e8',
-    borderRadius: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  droneText: {
-    fontSize: 14,
-    color: '#666',
-  },
-  fieldLegend: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-  },
-  legendItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  legendDot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    marginRight: 8,
-  },
-  legendText: {
-    fontSize: 14,
-    color: '#666',
-  },
   notificationsSection: {
     backgroundColor: 'white',
     margin: 10,
@@ -843,129 +631,6 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#1976D2',
     fontWeight: '500',
-    textAlign: 'center',
-  },
-  // News Section Styles
-  newsSection: {
-    backgroundColor: 'white',
-    margin: 10,
-    borderRadius: 12,
-    padding: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
-  },
-  newsHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 15,
-  },
-  newsSectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  refreshNewsButton: {
-    padding: 8,
-    borderRadius: 20,
-    backgroundColor: '#f0f8f0',
-  },
-  newsLoadingContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 20,
-  },
-  newsLoadingText: {
-    marginLeft: 10,
-    fontSize: 14,
-    color: '#666',
-  },
-  newsErrorContainer: {
-    alignItems: 'center',
-    paddingVertical: 20,
-  },
-  newsErrorText: {
-    fontSize: 14,
-    color: '#f44336',
-    marginVertical: 10,
-    textAlign: 'center',
-  },
-  retryButton: {
-    backgroundColor: '#4CAF50',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 10,
-  },
-  retryButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  newsList: {
-    gap: 10,
-  },
-  newsItem: {
-    backgroundColor: '#f0f8f0',
-    padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderLeftWidth: 4,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    position: 'relative',
-  },
-  newsContent: {
-    flex: 1,
-    paddingRight: 10,
-  },
-  newsTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 5,
-  },
-  newsSubtitle: {
-    fontSize: 14,
-    color: '#666',
-    marginBottom: 8,
-    lineHeight: 20,
-  },
-  newsFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  newsTime: {
-    fontSize: 12,
-    color: '#4CAF50',
-    fontWeight: '500',
-  },
-  newsSource: {
-    fontSize: 11,
-    color: '#999',
-    fontStyle: 'italic',
-  },
-  categoryBadge: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 10,
-  },
-  noNewsContainer: {
-    alignItems: 'center',
-    paddingVertical: 30,
-  },
-  noNewsText: {
-    fontSize: 16,
-    color: '#999',
-    marginTop: 10,
     textAlign: 'center',
   },
 });
