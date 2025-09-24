@@ -70,7 +70,7 @@ export default function Profile() {
           )}
         </View>
         <View style={styles.headerRight}>
-          <LanguageToggleButton size="small" />
+          <LanguageToggleButton size="medium" />
           <TouchableOpacity 
             style={styles.editButton}
             onPress={() => router.push('/(app)/edit-profile')}
@@ -293,6 +293,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    minWidth: 80,
   },
   profileIcon: {
     marginRight: 8,

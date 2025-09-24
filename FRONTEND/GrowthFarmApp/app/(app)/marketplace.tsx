@@ -233,7 +233,7 @@ export default function MarketplaceScreen() {
         <Animated.View style={styles.searchSection} entering={FadeInUp.duration(600)}>
           <View style={styles.marketplaceHeader}>
             <Text style={styles.marketplaceTitle}>{t('navigation.marketplace') || 'Marketplace'}</Text>
-            <LanguageToggleButton size="small" />
+            <LanguageToggleButton size="medium" />
           </View>
         </Animated.View>
 
@@ -373,6 +373,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    minHeight: 32,
   },
   marketplaceTitle: { fontSize: 28, fontWeight: 'bold', color: 'white', marginBottom: 0 },
   productsSearchSection: { backgroundColor: 'white', padding: 20, borderBottomWidth: 1, borderBottomColor: '#f0f0f0' },

@@ -243,7 +243,7 @@ export default function Dashboard() {
               {t('dashboard.hi_user')}, {currentUser?.fullName || currentUser?.username}!
             </Text>
           </View>
-          <LanguageToggleButton size="small" style={styles.languageButton} />
+          <LanguageToggleButton size="medium" style={styles.languageButton} />
           <TouchableOpacity style={styles.profileButton} onPress={handleLogout}>
             <MaterialIcons name="person" size={18} color="white" />
           </TouchableOpacity>
@@ -604,23 +604,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flex: 1,
     justifyContent: 'flex-end',
-    maxWidth: '60%',
+    minWidth: 120,
   },
   languageButton: {
     marginBottom: 0,
-    marginRight: 8,
-    marginLeft: 4,
+    marginRight: 6,
+    marginLeft: 6,
+    flexShrink: 0,
   },
   welcomeContainer: {
     marginRight: 8,
     flex: 1,
-    maxWidth: 120,
+    minWidth: 60,
   },
   welcomeUser: {
     color: 'white',
-    fontSize: 11,
-    marginBottom: 5,
+    fontSize: 12,
+    marginBottom: 4,
     textAlign: 'right',
+    flexShrink: 1,
   },
   profileButton: {
     width: 32,

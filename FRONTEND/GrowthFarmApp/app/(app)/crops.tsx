@@ -607,7 +607,7 @@ export default function Crops() {
           <Text style={styles.brandText}>{t('crops.crops_management')}</Text>
         </View>
         <View style={styles.headerRight}>
-          <LanguageToggleButton size="small" />
+          <LanguageToggleButton size="medium" />
           <TouchableOpacity style={styles.filterButton}>
             <MaterialIcons name="settings" size={20} color="#666" style={styles.filterIcon} />
           </TouchableOpacity>

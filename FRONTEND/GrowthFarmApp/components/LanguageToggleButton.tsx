@@ -23,15 +23,15 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
   const getSize = () => {
     switch (size) {
       case 'small':
-        return { width: 28, height: 28, fontSize: 10, paddingHorizontal: 6 };
+        return { width: 38, height: 24, fontSize: 9, paddingHorizontal: 6, minWidth: 38 };
       case 'large':
-        return { width: 48, height: 48, fontSize: 16, paddingHorizontal: 12 };
+        return { width: 56, height: 36, fontSize: 12, paddingHorizontal: 8, minWidth: 56 };
       default:
-        return { width: 36, height: 36, fontSize: 12, paddingHorizontal: 8 };
+        return { width: 46, height: 28, fontSize: 10, paddingHorizontal: 6, minWidth: 46 };
     }
   };
 
-  const { width, height, fontSize, paddingHorizontal } = getSize();
+  const { width, height, fontSize, paddingHorizontal, minWidth } = getSize();
 
   const handleToggle = async () => {
     await toggleLanguage();
@@ -80,6 +80,7 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
           styles.container,
           {
             width: showText ? 'auto' : width,
+            minWidth: showText ? minWidth + 8 : minWidth,
             height,
             backgroundColor: colors.background,
             borderColor: colors.border,
@@ -101,7 +102,16 @@ export const LanguageToggleButton: React.FC<LanguageToggleButtonProps> = ({
             </Text>
           )}
           {!showText && (
-            <Text style={[styles.languageCode, { color: colors.iconColor, fontSize: fontSize + 2 }]}>
+            <Text 
+              numberOfLines={1}
+              adjustsFontSizeToFit={true}
+              minimumFontScale={0.8}
+              style={[styles.languageCode, { 
+                color: colors.iconColor, 
+                fontSize: fontSize,
+                lineHeight: fontSize * 1.1
+              }]}
+            >
               {currentLanguage.toUpperCase()}
             </Text>
           )}
@@ -117,6 +127,8 @@ const styles = StyleSheet.create({
     borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
+    flexShrink: 0,
+    overflow: 'hidden',
   },
   enhancedShadow: {
     shadowOffset: {
@@ -131,17 +143,26 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1,
+    width: '100%',
+    height: '100%',
   },
   iconWithText: {
     marginRight: 6,
   },
   text: {
     fontWeight: '700',
-    letterSpacing: 0.5,
+    letterSpacing: 0.3,
+    flexShrink: 0,
+    textAlign: 'center',
   },
   languageCode: {
     fontWeight: 'bold',
-    letterSpacing: 0.5,
+    letterSpacing: 0.2,
     textAlign: 'center',
+    flexShrink: 0,
+    textAlignVertical: 'center',
+    includeFontPadding: false,
+    lineHeight: undefined,
   },
 });

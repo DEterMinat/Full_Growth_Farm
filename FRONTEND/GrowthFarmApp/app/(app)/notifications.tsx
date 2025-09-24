@@ -137,14 +137,14 @@ export default function NotificationsScreen() {
               <Text style={styles.headerTitle}>{t('notifications.title')}</Text>
             </View>
             <View style={styles.headerRight}>
-              <LanguageToggleButton size="small" />
+              <LanguageToggleButton size="medium" />
             </View>
           </View>
           <Text style={styles.headerSubtitle}>{t('notifications.stay_updated')}</Text>
         </View>
 
         {/* Search Section */}
-        <View style={styles.searchSection}>
+        <View style={[styles.searchSection, { marginHorizontal: 20 }]}>
           <Text style={styles.searchTitle}>{t('notifications.search_notifications')}</Text>
           <View style={styles.searchContainer}>
             <TextInput 
@@ -161,7 +161,7 @@ export default function NotificationsScreen() {
         </View>
 
         {/* Summary Cards */}
-        <View style={styles.summarySection}>
+        <View style={[styles.summarySection, { marginHorizontal: 20 }]}>
           <View style={styles.summaryCard}>
             <Text style={styles.summaryNumber}>{notifications.filter(n => !n.read).length}</Text>
             <Text style={styles.summaryLabel}>{t('notifications.unread')}</Text>
@@ -181,7 +181,7 @@ export default function NotificationsScreen() {
         </View>
 
         {/* Filter Options */}
-        <View style={styles.section}>
+        <View style={[styles.section, { marginHorizontal: 20 }]}>
           <Text style={styles.sectionTitle}>{t('notifications.filter_notifications')}</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterContainer}>
             {filterOptions.map((option) => (
@@ -211,7 +211,7 @@ export default function NotificationsScreen() {
         </View>
 
         {/* Notifications List */}
-        <View style={styles.section}>
+        <View style={[styles.section, { marginHorizontal: 20 }]}>
           <Text style={styles.sectionTitle}>
             {filter === 'all' ? t('notifications.all_notifications') : 
              filter === 'unread' ? t('notifications.unread_notifications') :
@@ -263,7 +263,7 @@ export default function NotificationsScreen() {
         </View>
 
         {/* Quick Actions */}
-        <View style={styles.section}>
+        <View style={[styles.section, { marginHorizontal: 20 }]}>
           <Text style={styles.sectionTitle}>{t('notifications.quick_actions')}</Text>
           <View style={styles.actionsGrid}>
             <TouchableOpacity style={styles.actionButton}>
@@ -300,13 +300,13 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    paddingHorizontal: 20,
   },
   header: {
     backgroundColor: '#4CAF50',
     paddingVertical: 20,
     paddingTop: 50,
     paddingHorizontal: 0,
+    marginHorizontal: -20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
@@ -315,16 +315,17 @@ const styles = StyleSheet.create({
   },
   headerContent: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: 8,
     paddingHorizontal: 20,
-    position: 'relative',
+    minHeight: 32,
   },
   headerCenter: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    flex: 1,
   },
   headerLeft: {
     flexDirection: 'row',
@@ -332,11 +333,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerRight: {
-    position: 'absolute',
-    right: 20,
-    top: 0,
-    bottom: 0,
     justifyContent: 'center',
+    alignItems: 'center',
+    minWidth: 36,
+    marginRight: 10,
   },
   headerIcon: {
     fontSize: 24,
@@ -357,6 +357,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     marginBottom: 25,
+    paddingHorizontal: 0,
   },
   summaryCard: {
     flex: 1,
@@ -385,7 +386,6 @@ const styles = StyleSheet.create({
   // Search Section Styles
   searchSection: {
     backgroundColor: 'white',
-    marginHorizontal: 0,
     marginBottom: 15,
     borderRadius: 12,
     padding: 20,

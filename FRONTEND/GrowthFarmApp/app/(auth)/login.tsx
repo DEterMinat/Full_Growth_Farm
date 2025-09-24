@@ -118,7 +118,7 @@ export default function Login() {
       {/* ... (โค้ด UI ส่วนอื่นๆ เหมือนเดิมทั้งหมด) ... */}
       
       <View style={styles.languageToggle}>
-        <LanguageToggleButton size="small" showText={false} />
+        <LanguageToggleButton size="medium" showText={false} />
       </View>
       
       <Animated.View 

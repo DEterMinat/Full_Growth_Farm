@@ -86,7 +86,7 @@ export default function IotControlScreen() {
             <Text style={styles.addButtonText}>ADD+</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.profileButton}>
-            <LanguageToggleButton size="small" />
+            <LanguageToggleButton size="medium" />
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -409,6 +409,7 @@ const styles = StyleSheet.create({
   headerRight: {
     flexDirection: 'row',
     alignItems: 'center',
+    minWidth: 100,
   },
   addButton: {
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
