@@ -107,21 +107,22 @@ export default function Dashboard() {
 
     return (
       <Animated.View style={styles.weatherSection} entering={FadeInUp.duration(800)}>
+        {/* Header with location and refresh */}
         <View style={styles.weatherHeader}>
           <View style={styles.weatherLocationContainer}>
-            <MaterialIcons name="location-on" size={16} color="#333" />
+            <MaterialIcons name="location-on" size={14} color="#666" />
             <Text style={styles.weatherCity}>{data.city || 'Unknown City'}</Text>
           </View>
           <TouchableOpacity onPress={refreshWeather} style={styles.refreshButton}>
             <MaterialIcons 
               name="refresh" 
-              size={20} 
+              size={18} 
               color={weatherLoading ? "#999" : "#4CAF50"} 
             />
           </TouchableOpacity>
         </View>
         
-        {/* Weather Status Bar */}
+        {/* Status Bar */}
         <View style={styles.weatherStatusBar}>
           <Text style={[
             styles.weatherStatusText,
@@ -130,24 +131,31 @@ export default function Dashboard() {
             {weatherStatus}
           </Text>
           {weatherService.isRealTimeData(data) && (
-            <MaterialIcons name="wifi" size={14} color="#4CAF50" />
+            <MaterialIcons name="wifi" size={12} color="#4CAF50" />
           )}
         </View>
 
-        <View style={styles.weatherBody}>
-          <View style={styles.weatherTempContainer}>
-            <MaterialIcons name={iconName as any} size={48} color="#4a90e2" />
-            <Text style={styles.weatherTemp}>{data.temperature || 0}°C</Text>
-            <Text style={styles.weatherCondition}>{t(`weather.${currentCondition.toLowerCase()}`)}</Text>
-          </View>
-          <View style={styles.weatherDetails}>
-            <View style={styles.detailItem}>
-              <MaterialIcons name="opacity" size={16} color="#666" />
-              <Text style={styles.detailText}>{t('weather.humidity')}: {data.humidity || 0}%</Text>
+        {/* Main weather display */}
+        <View style={styles.weatherMainContent}>
+          <View style={styles.weatherIconTempContainer}>
+            <MaterialIcons name={iconName as any} size={56} color="#4a90e2" />
+            <View style={styles.tempContainer}>
+              <Text style={styles.weatherTemp}>{data.temperature || 0}°</Text>
+              <Text style={styles.weatherCondition}>{t(`weather.${currentCondition.toLowerCase()}`)}</Text>
             </View>
-            <View style={styles.detailItem}>
-              <MaterialIcons name="toys" size={16} color="#666" />
-              <Text style={styles.detailText}>{t('weather.wind')}: {data.windSpeed || 0} km/h</Text>
+          </View>
+          
+          {/* Weather details grid */}
+          <View style={styles.weatherDetailsGrid}>
+            <View style={styles.detailCard}>
+              <MaterialIcons name="opacity" size={18} color="#4a90e2" />
+              <Text style={styles.detailLabel}>{t('weather.humidity')}</Text>
+              <Text style={styles.detailValue}>{data.humidity || 0}%</Text>
+            </View>
+            <View style={styles.detailCard}>
+              <MaterialIcons name="toys" size={18} color="#4a90e2" />
+              <Text style={styles.detailLabel}>{t('weather.wind')}</Text>
+              <Text style={styles.detailValue}>{data.windSpeed || 0} km/h</Text>
             </View>
           </View>
         </View>
@@ -336,23 +344,23 @@ const styles = StyleSheet.create({
   // Weather Card Styles
   weatherSection: {
     backgroundColor: 'white',
-    margin: 10,
-    borderRadius: 12,
+    margin: 12,
+    borderRadius: 16,
     padding: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
+    shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowRadius: 6,
+    elevation: 4,
   },
   weatherHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 16,
+    paddingBottom: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#f0f0f0',
-    paddingBottom: 10,
   },
   weatherLocationContainer: {
     flexDirection: 'row',
@@ -360,30 +368,88 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   refreshButton: {
-    padding: 5,
-    borderRadius: 15,
+    padding: 8,
+    borderRadius: 12,
     backgroundColor: '#f0f8f0',
   },
   weatherStatusBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 15,
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    marginBottom: 20,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
     backgroundColor: '#f8f9fa',
     borderRadius: 12,
   },
   weatherStatusText: {
     fontSize: 12,
-    fontWeight: '500',
-    marginRight: 5,
+    fontWeight: '600',
+    marginRight: 6,
   },
   weatherCity: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#666',
+    marginLeft: 8,
+  },
+  weatherMainContent: {
+    alignItems: 'center',
+  },
+  weatherIconTempContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 24,
+    width: '100%',
+  },
+  tempContainer: {
+    marginLeft: 20,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
+  },
+  weatherTemp: {
+    fontSize: 42,
+    fontWeight: 'bold',
+    color: '#333',
+    lineHeight: 46,
+  },
+  weatherCondition: {
+    fontSize: 14,
+    color: '#666',
+    textTransform: 'capitalize',
+    marginTop: 2,
+  },
+  weatherDetailsGrid: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: 4,
+  },
+  detailCard: {
+    flex: 1,
+    backgroundColor: '#f8f9fa',
+    padding: 16,
+    borderRadius: 12,
+    alignItems: 'center',
+    minHeight: 80,
+    justifyContent: 'space-between',
+    marginHorizontal: 4,
+  },
+  detailLabel: {
+    fontSize: 12,
+    color: '#666',
+    marginTop: 6,
+    marginBottom: 4,
+    textAlign: 'center',
+    fontWeight: '500',
+  },
+  detailValue: {
     fontSize: 16,
     fontWeight: 'bold',
     color: '#333',
-    marginLeft: 8,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   weatherBody: {
     flexDirection: 'row',
@@ -393,16 +459,6 @@ const styles = StyleSheet.create({
   weatherTempContainer: {
     alignItems: 'center',
     flex: 1,
-  },
-  weatherTemp: {
-    fontSize: 42,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  weatherCondition: {
-    fontSize: 14,
-    color: '#666',
-    textTransform: 'capitalize',
   },
   weatherDetails: {
     flex: 1,
