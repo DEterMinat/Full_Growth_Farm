@@ -15,6 +15,14 @@ pluginManagement {
     "../android/expo-gradle-plugin"
   ).absolutePath
   includeBuild(expoPluginsPath)
+  
+  resolutionStrategy {
+    eachPlugin {
+      if (requested.id.id == "com.android.application" || requested.id.id == "com.android.library") {
+        useVersion("8.10.1")
+      }
+    }
+  }
 }
 
 plugins {

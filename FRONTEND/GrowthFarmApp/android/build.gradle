@@ -6,9 +6,13 @@ buildscript {
     mavenCentral()
   }
   dependencies {
-    classpath('com.android.tools.build:gradle')
+    classpath('com.android.tools.build:gradle:8.10.1')
     classpath('com.facebook.react:react-native-gradle-plugin')
     classpath('org.jetbrains.kotlin:kotlin-gradle-plugin')
+  }
+  
+  configurations.all {
+    resolutionStrategy.force('com.android.tools.build:gradle:8.10.1')
   }
 }
 
@@ -31,7 +35,19 @@ allprojects {
     mavenCentral()
     maven { url 'https://www.jitpack.io' }
   }
+  
+  configurations.all {
+    resolutionStrategy.force('com.android.tools.build:gradle:8.10.1')
+  }
 }
 
 apply plugin: "expo-root-project"
 apply plugin: "com.facebook.react.rootproject"
+
+ext {
+    ndkVersion = "27.1.12297006"
+    buildToolsVersion = "36.0.0"
+    minSdkVersion = 24
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+}
