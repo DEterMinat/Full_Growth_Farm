@@ -241,7 +241,20 @@
     "trade_agreement_soybean": "New trade agreement benefits soybean exports",
     "farmers_higher_demand": "Farmers can expect higher demand next quarter",
     "day_ago_1": "1 day ago",
-    "search_placeholder": "Search for products..."
+    "search_placeholder": "Search for products...",
+    "add_to_cart_confirm_title": "Confirm Add to Cart",
+    "add_to_cart_confirm_message": "Do you want to add this item to your cart?",
+    "products_found": "products found",
+    "in_stock": "in stock",
+    "out_of_stock": "out of stock",
+    "search_results_for": "Search results for",
+    "try_different_search": "Try a different search term",
+    "categories": {
+      "all_products": "All Products",
+      "seeds": "Seeds", 
+      "fertilizers": "Fertilizers",
+      "tools": "Tools"
+    }
   },
   "profile": {
     "title": "Profile",

@@ -239,6 +239,11 @@
     "no_products_found": "ไม่พบสินค้าในตลาด",
     "add_to_cart_confirm_title": "ยืนยันการเพิ่มสินค้า",
     "add_to_cart_confirm_message": "คุณต้องการเพิ่มสินค้าชิ้นนี้ลงตะกร้าใช่หรือไม่",
+    "products_found": "สินค้าที่พบ",
+    "in_stock": "คงเหลือ",
+    "out_of_stock": "หมด",
+    "search_results_for": "ผลการค้นหาสำหรับ",
+    "try_different_search": "ลองค้นหาด้วยคำอื่น",
     "categories": {
       "all_products": "สินค้าทั้งหมด",
       "seeds": "เมล็ดพันธุ์",
